@@ -233,16 +233,25 @@ const today=new Date(now.getFullYear(),now.getMonth(),now.getDate());
 const KEY=keyOf(today);
 const N=DB.length;
 const idx=[...Array(N).keys()];
-const perm=shuffle(idx,rng(hash(SALT)));
-let dayN=Math.round((today-START)/864e5); dayN=((dayN%N)+N)%N;
-const resultIdx=perm[dayN];
-
-const rDay=rng(hash(SALT+KEY));
-const pool=shuffle(idx.filter(i=>i!==resultIdx),rDay);
-const picked=[resultIdx]; const perCat={}; perCat[DB[resultIdx].c]=1;
-for(const i of pool){ if(picked.length>=8) break; const c=DB[i].c; if((perCat[c]||0)>=2) continue; perCat[c]=(perCat[c]||0)+1; picked.push(i); }
-for(const i of pool){ if(picked.length>=8) break; if(!picked.includes(i)) picked.push(i); }
-const slots=shuffle(picked,rDay);
+/* Настоящий рандом: набор и результат выбираются случайно один раз в день
+   и запоминаются на этом устройстве. Повторы исключаются, пока не выпадет вся база. */
+function loadDay(){try{const d=JSON.parse(store.get("koleso-day")||"null");return d&&d.k===KEY&&d.slots.length===8&&d.slots.every(i=>DB[i])?d:null}catch(e){return null}}
+let day=loadDay();
+if(!day){
+  const r=Math.random;
+  let seen=[];try{seen=JSON.parse(store.get("koleso-hist")||"[]").map(e=>e.i)}catch(e){}
+  let fresh=idx.filter(i=>!seen.includes(i));
+  if(!fresh.length) fresh=idx.slice();               // база закончилась — идём по второму кругу
+  const res=fresh[Math.floor(r()*fresh.length)];
+  const pool=shuffle(idx.filter(i=>i!==res),r);
+  const picked=[res]; const perCat={}; perCat[DB[res].c]=1;
+  for(const i of pool){ if(picked.length>=8) break; const c=DB[i].c; if((perCat[c]||0)>=2) continue; perCat[c]=(perCat[c]||0)+1; picked.push(i); }
+  for(const i of pool){ if(picked.length>=8) break; if(!picked.includes(i)) picked.push(i); }
+  day={k:KEY,slots:shuffle(picked,r),res:res,j:r()*24-12};
+  store.set("koleso-day",JSON.stringify(day));
+}
+const resultIdx=day.res;
+const slots=day.slots;
 const resultSlot=slots.indexOf(resultIdx);
 
 /* ---------- рисуем колесо ---------- */
@@ -275,7 +284,7 @@ const months=["января","февраля","марта","апреля","ма�
 document.getElementById("date").textContent="Сегодня "+today.getDate()+" "+months[today.getMonth()];
 const btn=document.getElementById("spin"),again=document.getElementById("again"),timer=document.getElementById("timer");
 const finalAngle=360-(resultSlot*45+22.5);
-const jitter=(rDay()*24-12);
+const jitter=day.j;
 
 function loadHist(){try{return JSON.parse(store.get("koleso-hist")||"[]")}catch(e){return []}}
 function saveHist(){const h=loadHist();if(!h.some(e=>e.k===KEY)){h.push({k:KEY,i:resultIdx});store.set("koleso-hist",JSON.stringify(h))}}
