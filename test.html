@@ -287,12 +287,12 @@ const finalAngle=360-(resultSlot*45+22.5);
 const jitter=day.j;
 
 function loadHist(){try{return JSON.parse(store.get("kolesotest-hist")||"[]")}catch(e){return []}}
-function saveHist(){const h=loadHist();if(!h.some(e=>e.k===KEY)){h.push({k:KEY,i:resultIdx});store.set("kolesotest-hist",JSON.stringify(h))}}
+function saveHist(){const h=loadHist();h.push({k:KEY+"#"+Date.now(),i:resultIdx});store.set("kolesotest-hist",JSON.stringify(h))}
 function renderHist(){
   const ul=document.getElementById("hist");ul.innerHTML="";
   const h=loadHist().slice().reverse();
   if(!h.length){ul.innerHTML='<li class="empty" style="justify-content:center;cursor:default">Пока пусто. Всё впереди!</li>';return}
-  h.forEach(e=>{const it=DB[e.i];if(!it)return;const [y,m,d]=e.k.split("-");
+  h.forEach(e=>{const it=DB[e.i];if(!it)return;const [y,m,d]=e.k.slice(0,10).split("-");
     const li=document.createElement("li");
     li.innerHTML=`<span class="d">${d}.${m}</span><span>${CAT[it.c].name.split(" ")[0]} ${it.t}</span>`;
     li.onclick=()=>openCard(e.i);ul.appendChild(li)});
