@@ -57,6 +57,7 @@ h1{font-family:"Caveat",cursive;color:var(--accent);font-size:48px;line-height:1
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:6px}
 details{background:#fff;border:1px solid var(--line);border-radius:10px;padding:7px 12px;font-size:14px}
 details summary{cursor:pointer;font-weight:700}
+details.big{background:transparent;border:none;padding:0}
 .tiny{font-size:11px;color:#c4b6a6;text-align:center;margin-top:28px;letter-spacing:.2em}
 /* minigames */
 .speech{background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px;font-size:15px;line-height:1.5;max-height:180px;overflow:auto;margin-bottom:12px}
@@ -127,17 +128,19 @@ function fx(f){
   if(!f) return;
   const m=[];
   if(f.e){const was=S.e;S.e=clamp(S.e+f.e,0,10);if(S.e!==was)m.push((f.e>0?"+":"")+f.e+" ⚡")}
-  if(f.m){S.m=clamp(S.m+f.m,0,10);m.push((f.m>0?"+":"")+f.m+" ☀️")}
+  if(f.m){S.m=clamp(S.m+f.m,0,10);m.push((f.m>0?"+":"")+f.m+" ☀️");if(S.m>=10)ach("inspire");if(S.m<=1)ach("blues")}
   if(f.a){S.a=clamp(S.a+f.a,0,ART_MAX);m.push("+"+f.a+" 🎨")}
   if(m.length) toast(m.join("   "));
   hud();
 }
-function cnt(k,need,id){if(!S.cnt)S.cnt={tea:0,draw:0,sleep:0,cxl:0,eng:0,sup:0};S.cnt[k]=(S.cnt[k]||0)+1;if(S.cnt[k]>=need)ach(id)}
+function C(){if(!S.cnt)S.cnt={tea:0,draw:0,sleep:0,cxl:0,eng:0,sup:0,snooze:0,frog:0,empty:0,flav:0,marg:0,mgw:0,idle:0,hearts:0,msgs:0,fam:0};return S.cnt}
+function cnt(k,need,id){C();S.cnt[k]=(S.cnt[k]||0)+1;if(S.cnt[k]>=need)ach(id)}
 function hud(when){
   if(when!==undefined) S._when=when;
   const h=$("hud");h.classList.add("show");
   const pending=S.hw.filter(x=>!x.done&&!x.failed).length;
-  h.innerHTML=`<div class="row"><span class="when">${esc(S._when||"")}</span>
+  const mood=S.m>=8?" ✨":S.m<=2?" 🌧":"";
+  h.innerHTML=`<div class="row"><span class="when">${esc(S._when||"")}${mood}</span>
     <span class="debt">📚 ДЗ: ${pending} · долгов: ${S.debts}</span></div>
     <div class="bars">
       <div class="bar">⚡<div class="meter"><i style="width:${S.e*10}%;background:#e9a23b"></i></div></div>
@@ -166,7 +169,7 @@ const box=(cls,t)=>t?`<div class="${cls}">${esc(t)}</div>`:"";
 function newRun(){
   const andrei={};
   shuffle([0,1,2,3,4]).slice(0,3).forEach(d=>andrei[d]=Math.floor(R()*4));
-  S={day:0,step:0,e:7,m:6,cnt:{tea:0,draw:0,sleep:0,cxl:0,eng:0,sup:0},cxlDay:{},a:0,debts:0,hwDone:0,hw:[],hwId:0,mgRun:[],used:{morn:[],brk:[]},
+  S={day:0,step:0,e:7,m:6,cnt:{tea:0,draw:0,sleep:0,cxl:0,eng:0,sup:0,snooze:0,frog:0,empty:0,flav:0,marg:0,mgw:0,idle:0,hearts:0,msgs:0,fam:0},cxlDay:{},late:-1,a:0,debts:0,hwDone:0,hw:[],hwId:0,mgRun:[],used:{morn:[],brk:[]},
      calls:2,engLeft:2,fast:{},zeroed:0,rolls:{},andrei,oversleep:-1,eve:null,
      dok:{agree:0,done:0,pending:0,said:0},weekend:null,_when:"",quests:pickQuests(),q:{}};
   S.quests.forEach(id=>{S.q[id]={st:"new"};if(!meta.qSeen.includes(id))meta.qSeen.push(id)});saveMeta();
@@ -175,7 +178,7 @@ function newRun(){
 function buildDay(d){
   const st=["morning"];
   if(d<4) st.push("dv");
-  for(let s=0;s<4;s++){st.push("pair"+s);if(s===1)st.push("break");if(s===2&&(S.quests||[]).some(id=>QUESTS[id].mid[d]))st.push("mid");if(S.andrei[d]===s)st.push("andrei")}
+  for(let s=0;s<4;s++){st.push("pair"+s);if(s===1)st.push("break");if(s===3&&(S.quests||[]).some(id=>QUESTS[id].mid[d]))st.push("mid");if(S.andrei[d]===s)st.push("andrei")}
   if(d===4) st.push("friday","sat","sun","final");
   else st.push("evening","night");
   return st;
@@ -229,11 +232,31 @@ function morning(d){
     return card({tag:`${DAYS[d]} · утро`,title:"Проспала",text:"Будильник звонил. Честно. Но организм решил, что ему нужнее.\n\nПервая пара прошла без тебя, и это ужасно неприятно: ты же не пропускаешь пары.",
       choices:[{t:"Бежать на вторую",fn:()=>{fx({m:-2,e:2});next()}}]});
   }
+  if((meta.kotWave||0)>=3&&!(meta.ach||[]).includes("kot3")){
+    ach("kot3");
+    return card({tag:`${DAYS[d]} · утро`,title:"Гость",text:"Ты открываешь глаза. На твоём одеяле сидит тот самый кот из-за окна. Он медленно моргает.\n\nСоседка просыпается, видит кота и молча закрывает глаза обратно. Кажется, кот переехал. Вы его не выбирали — он выбрал вас.",
+      choices:[{t:"Медленно моргнуть в ответ",fn:()=>{fx({m:3});next()}}]});
+  }
   let pool=MORNINGS.map((x,i)=>i).filter(i=>!S.used.morn.includes(i));
   if(!pool.length){S.used.morn=[];pool=MORNINGS.map((x,i)=>i)}
   const i=pick(pool);S.used.morn.push(i);const mo=MORNINGS[i];
-  card({tag:`${DAYS[d]} · ${DATES[d]}`,title:"Утро",text:mo.t,
-    choices:mo.c.map(c=>({t:c.t,s:c.s,fn:()=>{fx(c.fx);if(c.ach)ach(c.ach);c.r?card({tag:`${DAYS[d]} · утро`,title:"Утро",text:c.r,choices:[{t:"На пары",fn:next}]}):next()}}))});
+  const frog=FROGS[(d+((meta.runs||0)*2))%FROGS.length];
+  const go=c=>()=>{fx(c.fx);if(c.ach)ach(c.ach);if(c.ach==="kot"){meta.kotWave=(meta.kotWave||0)+(S._kot?0:1);S._kot=1;saveMeta()}
+    if(/пять минут/i.test(c.t))return snooze(d,c.r);
+    c.r?card({tag:`${DAYS[d]} · утро`,title:"Утро",text:c.r,choices:[{t:"На пары",fn:next}]}):next()};
+  const ch=mo.c.map(c=>({t:c.t,s:c.s,fn:go(c)}));
+  if(!mo.c.some(c=>/пять минут/i.test(c.t))) ch.push({t:"⏰ Ещё пять минут",s:"Можно опоздать",fn:()=>snooze(d)});
+  ch.push({t:"🐸 Квакнуть лягушке дня и бежать",fn:()=>{cnt("frog",5,"frogs");fx({m:1});next()}});
+  card({tag:`${DAYS[d]} · ${DATES[d]}`,title:"Утро",text:mo.t+"\n\n🐸 Лягушка дня: "+frog,choices:ch});
+}
+function snooze(d,r){
+  C().snooze++;S.e=clamp(S.e+1,0,10);
+  if(S.cnt.snooze>=5){ach("alarm");
+    return card({tag:`${DAYS[d]} · утро`,title:"Заявление",text:"Будильник молчит. На экране телефона вместо будильника висит документ:\n\n«ЗАЯВЛЕНИЕ. Прошу освободить меня от занимаемой должности в связи с систематическим игнорированием. Пять дней из пяти. Я так больше не могу. — Будильник»\n\nТы опаздываешь, но выспалась на всю жизнь.",
+      choices:[{t:"Принять отставку",fn:()=>{S.late=d;next()}}]});}
+  const late=R()<.6;if(late)S.late=d;
+  card({tag:`${DAYS[d]} · утро`,title:"Ещё пять минут",text:(r?r+"\n\n":"")+(late?"Пять минут растягиваются в двадцать. Ты понимаешь, что опаздываешь.":"Пять минут — ровно пять минут. Ты встаёшь бодрая и успеваешь. Чудо."),
+    choices:[{t:late?"Бежать!":"На пары",fn:next}]});
 }
 
 /* ---------- пара ---------- */
@@ -251,7 +274,8 @@ function pairStep(d,s){
     const react=key==="rov"?"«Разговоры о важном» отменила куратор. Тут даже ты не расстроилась. Ну, почти.":
       pick(["Однокурсницы радуются. Ты — нет. Ты вообще-то готовилась.","Группа ликует. Ты стоишь с открытой тетрадью и чувствуешь себя обманутой.","Все побежали в столовую. Ты молча смотришь в расписание, как будто оно тебя предало."]);
     return card({tag:`${DSHORT[d]} · ${TIMES[s]}`,title:sub.name,text:"Пару отменили за пять минут до начала. Просто так.\n\n"+react+extra+"\n\n⏰ Зато вечером будет на час больше.",
-      choices:[{t:"Ну и ладно",fn:()=>{fx({m:key==="rov"?1:(hist?-2:-1),e:1});next()}}]});
+      choices:[{t:"Ну и ладно",fn:()=>{fx({m:key==="rov"?1:(hist?-2:-1),e:1});next()}},
+        {t:"🪑 Всё равно посидеть в пустой аудитории",s:"Вечернего часа не будет",fn:()=>{C().empty++;S.cxlDay[d]=Math.max(0,(S.cxlDay[d]||1)-1);card({tag:`${DSHORT[d]} · ${TIMES[s]}`,title:"Пустая аудитория",text:pick(["Ты сидишь одна в пустой аудитории и повторяешь материал. На доске кто-то нарисовал лягушку. Тихо и хорошо.","Пустая аудитория. Ты, парта и тишина. Через двадцать минут заглядывает уборщица, видит тебя и уважительно кивает."]),choices:[{t:"Дальше",fn:next}]})}}]});
   }
   if(roll.eng){
     return card({tag:`${DSHORT[d]} · ${TIMES[s]}`,title:"Внезапно",text:`За пять минут до пары в чат группы прилетает сообщение:\n\n«Вместо пары "${sub.name}" будет английский»\n\nКажется, где-то в мире грустно вздохнул один Present Perfect.`,
@@ -263,8 +287,9 @@ function runPair(key,d,s){
   const sub=SUBJ[key], base=sub.base, mgId=sub.mg;
   let pre="";
   const due=S.hw.filter(h=>h.base===base&&!h.done&&!h.failed&&h.due===d*10+s);
-  due.forEach(h=>{h.failed=true;S.debts++;S.m=clamp(S.m-1,0,10)});
-  if(due.length) pre+=box("warn","Не сделано: "+due.map(h=>h.t).join(", ")+".\nНеприятно до мурашек. −1 ☀️ за каждое.");
+  due.forEach(h=>{h.failed=true;S.debts++});
+  if(due.length) pre+=box("warn","Не сделано: "+due.map(h=>h.t).join(", ")+".\nПреподаватель молча записывает что-то в тетрадочку. Это ещё аукнется.");
+  if(S.late===d&&s===0){S.late=-1;ach("late");S.m=clamp(S.m-1,0,10);pre+=box("warn",pick(["Ты влетаешь в аудиторию на пятнадцать минут позже. Преподаватель смотрит на часы, потом на тебя, потом снова на часы.\n— Проходите, Лысаченко. Мы как раз начали без вас.","Ты тихо открываешь дверь, надеясь проскользнуть незаметно. Дверь скрипит так, будто её не смазывали с 1975 года. Все оборачиваются.","Ты опоздала. Подруга А машет тебе с задней парты: она заняла место. Это и есть дружба."]))}
   hud();
   const tag=`${DSHORT[d]} · ${TIMES[s]}`;
   if(!S.mgRun.includes(mgId)){
@@ -277,9 +302,9 @@ function runPair(key,d,s){
   }
   const txt=pick(FLAVOR[base]||FLAVOR._);
   card({tag,title:sub.name,pre,text:txt,choices:[
-    {t:"Внимательно конспектировать",s:"Следующее ДЗ по предмету займёт на час меньше",fn:()=>{S.fast[base]=1;toast("Конспект что надо");afterPair(key,d,s,null)}},
-    {t:"Рисовать на полях",s:"Немного для души",fn:()=>{fx({a:1});afterPair(key,d,s,null)}},
-    {t:"Переписываться с подругами под партой",fn:()=>{fx({m:1});afterPair(key,d,s,null)}}
+    {t:"Внимательно конспектировать",s:"Следующее ДЗ по предмету займёт на час меньше",fn:()=>{C().flav++;S.fast[base]=1;toast("Конспект что надо");afterPair(key,d,s,null)}},
+    {t:"Рисовать на полях",s:"Немного для души",fn:()=>{C().flav++;S.cnt.marg++;fx({a:1});afterPair(key,d,s,null)}},
+    {t:"Переписываться с подругами под партой",fn:()=>{C().flav++;fx({m:1});afterPair(key,d,s,null)}}
   ]});
 }
 function afterPair(key,d,s,res){
@@ -292,6 +317,7 @@ function afterPair(key,d,s,res){
   }
   /* доклад по истории */
   if(base==="hist"){
+    if(key==="hist_p"&&S.dok.refused&&!S.dok.co){S.dok.co=1;ach("coauthor");S.m=clamp(S.m+1,0,10);text+="🎤 Напарница выступает с докладом одна. Получает «отлично». А потом подходит к тебе и говорит: «Я вписала тебя в соавторы. Ты же морально поддерживала». Ты не спорила.\n\n";}
     if(key==="hist_p"&&S.dok.agree&&!S.dok.said){
       if(S.dok.done){S.dok.said=1;S.m=clamp(S.m+3,0,10);text+="🎤 И вот наконец твоя очередь. Ты выходишь, рассказываешь доклад — и у тебя получается. По-настоящему. Напарница сияет, преподаватель кивает.\n\nТы выступила! После всех переносов это почти как сдать сессию.\n\n";}
       else text+="🎤 Доклад не готов, выступать не с чем. Напарница смотрит с укором. Придётся в другой раз.\n\n";
@@ -329,7 +355,7 @@ function breakStep(d){
   }
   if(d===1&&!S.dok.agree){
     return card({tag:"Вт · перемена",title:"Доклад",text:"Напарница пишет: «Ну что?? Среда уже завтра!!»\n\nОткладывать некуда.",
-      choices:[{t:"Срочно договориться",fn:()=>{addDok(d);fx({m:-1});card({tag:"Вт · перемена",title:"Доклад",text:"Договорились в последний момент. Времени впритык.\n\n📚 Задание: подготовить доклад по истории (2 ч, сдать: Ср, 13:30).",choices:[{t:"Дальше",fn:next}]})}}]});
+      choices:[{t:"Отказаться: «Делай без меня»",s:"Будь что будет",fn:()=>{S.dok.refused=1;fx({m:1});next()}},{t:"Срочно договориться",fn:()=>{addDok(d);fx({m:-1});card({tag:"Вт · перемена",title:"Доклад",text:"Договорились в последний момент. Времени впритык.\n\n📚 Задание: подготовить доклад по истории (2 ч, сдать: Ср, 13:30).",choices:[{t:"Дальше",fn:next}]})}}]});
   }
   let pool=BREAKS.filter(b=>!S.used.brk.includes(b.id)&&!(b.id==="sword"&&S.quests.includes("kazak")));
   if(!pool.length) return next();
@@ -346,15 +372,22 @@ function andreiStep(d){
   const i=pick(pool); if(fresh){meta.andrei.push(i);saveMeta()}
   card({tag:"📱 Новое сообщение",title:"Андрей",cls:"blue",text:"«"+ANDREI[i]+"»",note:"",
     html:fresh?`<p class="note">Сообщение добавлено в дневник (${meta.andrei.length} из ${ANDREI.length})</p>`:"",
-    choices:[{t:"❤️",fn:()=>{fx({m:1});next()}},(!fresh&&dejaOpen("andrei"))?dejaChoice("andrei",()=>{fx({m:1});next()}):null]});
+    choices:[{t:"❤️",fn:()=>{C().msgs++;S.cnt.hearts++;fx({m:1});next()}},{t:"Прочитать потом",fn:()=>{C().msgs++;next()}},(!fresh&&dejaOpen("andrei"))?dejaChoice("andrei",()=>{C().msgs++;S.cnt.hearts++;fx({m:1});next()}):null]});
 }
 
 /* ---------- вечер ---------- */
 const EVE_TXT=["Вечер понедельника. Неделя только началась, а ощущение, будто прошла жизнь.","Вечер вторника. За стеной кто-то жарит картошку. Пахнет домом.","Вечер среды. Экватор недели. Отсюда уже видно пятницу, если прищуриться.","Вечер четверга. Завтра пятница. Это не точно, но очень хочется верить."];
 function evening(d,msg){
-  if(!S.eve||S.eve.d!==d){S.eve={d,slots:Math.max(2,3+((S.cxlDay||{})[d]||0)-(S.e<=2?1:0)),did:[]};persist()}
+  if(!S.eve||S.eve.d!==d){S.eve={d,slots:Math.max(1,3+((S.cxlDay||{})[d]||0)-(S.e<=2?1:0)-(S.m<=2?1:0)),did:[]};persist()}
   const E=S.eve;
   hud(`${DSHORT[d]} · вечер`);
+  if(d===3&&S.debts>=3&&!S.kur){S.kur=1;E.slots=Math.max(0,E.slots-1);ach("kurator");persist();
+    return card({tag:"Четверг · вечер",title:"Вызов к куратору",text:"Куратор ловит тебя у выхода:\n— Лысаченко, на минуточку. У меня тут разговор о важном. Лично для вас.\n\nОна листает тетрадочку, где записаны все твои хвосты, и вздыхает так глубоко, что у тебя в ушах свистит.\n— Отрабатывайте. Сегодня. Час. Перепишите конспект за всю неделю.",
+      choices:[{t:"«Хорошо…»",fn:()=>evening(d)}]});}
+  if(!E.fam){E.fam=1;if(C().fam<2&&R()<.35){S.cnt.fam++;const f=pick(FAMILY);persist();
+    return card({tag:`${DAYS[d]} · вечер`,title:"📞 Звонок: "+f.who,cls:"blue",text:f.t,
+      choices:[{t:"Поговорить подольше — 1 ч",fn:()=>{E.slots=Math.max(0,E.slots-1);fx({m:2});if(f.all)ach("fam");persist();evening(d,f.all?"Звонок длился час. Ты узнала новости всех родственников до третьего колена и пообещала носить шапку. Всем.":"Вы болтаете целый час. Становится тепло, как будто ты на минутку съездила домой.")}},
+               {t:"«Всё хорошо, люблю, пока!»",fn:()=>{fx({m:1});evening(d,"Быстро, но с любовью. Тебе успевают сказать про шапку.")}}]});}}
   const hws=S.hw.filter(h=>!h.done&&!h.failed);
   const ch=[];
   hws.forEach(h=>{
@@ -363,15 +396,18 @@ function evening(d,msg){
       fn:()=>{h.done=true;S.hwDone++;E.slots-=h.c;if(h.dok)S.dok.done=1;persist();evening(d,`Сделано: ${h.t}. Одним хвостом меньше.`)}});
   });
   if(E.slots>0){
-    ch.push({t:"🎨 Рисовать — 1 ч",s:"Картина недели понемногу растёт",fn:()=>{E.slots--;fx({a:2,m:1});cnt("draw",3,"draw");persist();evening(d,pick(["Ты рисуешь, и время исчезает. Это лучший час дня.","Кисточка счастлива. Ты тоже.","На листе появляется что-то хорошее. Пока непонятно что, но хорошее."]))}});
-    ch.push({t:"☕ Чай с подругами — 1 ч",fn:()=>{E.slots--;fx({m:2});cnt("tea",3,"tea");persist();evening(d,pick(FRIENDS))}});
+    ch.push({t:"🎨 Рисовать — 1 ч",s:S.m>=8?"✨ Вдохновение: рисуется в полтора раза быстрее":"Картина недели понемногу растёт",fn:()=>{E.slots--;fx({a:S.m>=8?3:2,m:1});cnt("draw",3,"draw");persist();evening(d,pick(["Ты рисуешь, и время исчезает. Это лучший час дня.","Кисточка счастлива. Ты тоже.","На листе появляется что-то хорошее. Пока непонятно что, но хорошее."]))}});
+    ch.push({t:"☕ Чай с подругами — 1 ч",fn:()=>{E.slots--;fx({m:2});cnt("tea",3,"tea");persist();
+      if(S.cnt.tea>=4){ach("bspeak");return evening(d,"Четвёртый вечер подряд вы пьёте чай втроём. И вдруг Подруга Б ставит кружку и говорит целое предложение:\n— Мне с вами хорошо.\n\nПодруга А роняет печенье. Ты забываешь, как дышать. Это лучшее, что случилось за неделю.")}
+      evening(d,pick(FRIENDS))}});
+    ch.push({t:"🛋 Ничего не делать — 1 ч",s:"Просто лежать и смотреть в потолок",fn:()=>{E.slots--;fx({m:2});cnt("idle",3,"idle");persist();evening(d,pick(["Ты лежишь и смотришь в потолок. Потолок смотрит в ответ. Вы понимаете друг друга.","Целый час ты ничего не делаешь. Совесть пытается что-то сказать, но ты накрываешь её пледом.","Ты листаешь мемы. Через час ты знаешь всё о котах и ничего о литературоведении."]))}});
     if(S.calls>0) ch.push({t:"📞 Позвонить в Техподдержку Питера — 1 ч",s:`Звонков осталось: ${S.calls}`,fn:()=>{E.slots--;S.calls--;fx({m:1});cnt("sup",2,"sup");persist();evening(d,"— Техподдержка Питера, Андрей, слушаю.\nТы описываешь свой день. Пауза.\n— "+supportText())}});
     S.quests.forEach(id=>{const Q=QUESTS[id],q=S.q[id];if(q.st!=="active"||!Q.eve||!Q.eve[d])return;
       Q.eve[d](q).forEach(a=>ch.push({t:a.t,s:a.s||Q.name,fn:()=>{E.slots--;const r=a.fn();persist();evening(d,r)}}))});
   }
-  ch.push({t:"😴 Лечь спать",s:E.slots>=2?"Пораньше. Организм скажет спасибо":"",fn:()=>{if(E.slots>=2)cnt("sleep",3,"sleep");next()}});
+  ch.push({t:"😴 Лечь спать",s:E.slots>=2?"Пораньше. Организм скажет спасибо":"",fn:()=>{if(E.slots>=2){cnt("sleep",3,"sleep");fx({m:1})}next()}});
   card({tag:`${DAYS[d]} · вечер`,title:"Вечер",pre:msg?box("good",msg):"",
-    text:EVE_TXT[d],html:`<div class="slots">${"⏰".repeat(E.slots)}</div><p class="note">Свободных часов: ${E.slots}. Всё сразу не успеть.${((S.cxlDay||{})[d])?" (+"+S.cxlDay[d]+" ч за отменённые пары)":""}${S.e<=2?" Сил мало, поэтому на час меньше.":""}</p>`,choices:ch});
+    text:EVE_TXT[d],html:`<div class="slots">${"⏰".repeat(E.slots)}</div><p class="note">Свободных часов: ${E.slots}. Всё сразу не успеть.${((S.cxlDay||{})[d])?" (+"+S.cxlDay[d]+" ч за отменённые пары)":""}${S.e<=2?" Сил мало, поэтому на час меньше.":""}${S.m<=2?" 🌧 Хандра: ничего не хочется, на час меньше.":""}</p>`,choices:ch});
 }
 
 /* ---------- ночь ---------- */
@@ -388,22 +424,36 @@ function night(d){
 /* ---------- пятница ---------- */
 function friday(){
   hud("Пт · 15:00");
+  C();S._fri=S._fri||[];
+  const sc=[
+   ["nosup",S.calls>=2,"📞 Звонок","Звонит неизвестный номер.\n— Алло, это Техподдержка Питера. У нас за неделю от вас ни одного обращения. Вы там живы? Мы волнуемся. Мы — это я.\n\nПохоже, кто-то просто соскучился."],
+   ["hermit",S.quests.length&&S.quests.every(id=>S.q[id].st==="declined"),"Грамота","Куратор торжественно вручает тебе грамоту: «За невмешательство в дела общежития, вуза и вселенной».\n\nПодруга Б одобрительно ставит в чате точку."],
+   ["empty",S.cnt.empty>=2&&S.cnt.empty===S.cnt.cxl,"Шоколадка","В коридоре тебя останавливает уборщица:\n— Это ты сидела на всех отменённых парах? Одна? Ты единственная, кто тут был. Держи.\n\nОна протягивает тебе шоколадку. Это самая честно заработанная шоколадка в твоей жизни."],
+   ["comic",S.cnt.flav>=4&&S.cnt.marg===S.cnt.flav,"Комикс","Преподаватель литературоведения заглядывает в твою тетрадь. Там вместо конспекта целый комикс: лягушки, аспирант, чайник и Саша, которая спит.\n\nОн долго молчит. Потом просит автограф."]
+  ].filter(x=>x[1]&&!S._fri.includes(x[0]));
+  if(sc.length){const x=sc[0];S._fri.push(x[0]);ach(x[0]);fx({m:2});persist();
+    return card({tag:"Пятница",title:x[2],cls:"blue",text:x[3],choices:[{t:"Дальше",fn:friday}]});}
   card({tag:"Пятница · 15:00",title:"Конец недели",text:"Последняя пара закончилась. Половина группы бежит на электричку.\n\nМожно поехать домой. А можно остаться на выходные в общаге: тихо, пусто, соседка уехала.",
     choices:[{t:"🚆 Уехать домой",fn:()=>{S.weekend="home";next()}},{t:"🏢 Остаться в общаге",fn:()=>{S.weekend="stay";next()}}]});
 }
 
 /* ---------- концовка ---------- */
 function ending(){
+  C();
+  if(!S._hearts&&S.cnt.msgs>=3&&S.cnt.hearts===S.cnt.msgs){S._hearts=1;ach("hearts");persist();
+    return card({tag:"📱 Внеочередное сообщение",title:"Андрей",cls:"blue",text:"«Ты поставила сердечко на каждое моё сообщение за неделю. Это лучшая статистика в моей жизни. Поэтому вот тебе внеочередное, без повода и без расписания: я тебя люблю. Всё. Можно дальше»",choices:[{t:"❤️",fn:ending}]});}
   const pend=S.hw.filter(h=>!h.done&&!h.failed);
   pend.forEach(h=>{h.failed=true;S.debts++});
   let k;
-  if(S.zeroed>=2||S.e<=1) k="burnout";
+  if(S.hwDone===0&&S.debts>=5) k="expel";
+  else if(S.zeroed>=2||S.e<=1) k="burnout";
+  else if(S.m<=2) k="hand";
   else if(S.debts===0&&S.a>=4&&S.m>=6) k="balance";
   else if(S.a>=ART_MAX) k="artist";
   else if(S.debts===0) k="honors";
   else k="tail";
   meta.runs++; if(!meta.ends.includes(k)) meta.ends.push(k); if(S.dok.said) meta.doklad=1;
-  ach("first");if(S.debts===0)ach("clean");if(S.debts>=5)ach("tails");if(S.a>=ART_MAX)ach("art");if(S.dok.said)ach("doklad");
+  ach("first");if(k==="expel")ach("expel");if(S.mgRun.length>=6&&S.cnt.mgw===0)ach("anti");if(S.debts===0)ach("clean");if(S.debts>=5)ach("tails");if(S.a>=ART_MAX)ach("art");if(S.dok.said)ach("doklad");
   if(Object.keys(ENDS).every(x=>meta.ends.includes(x)))ach("allends");metaAch();
   saveMeta(); store.del(SAVE_KEY);
   const wk=S.secretOut==="week9"?"Неделя закончилась. По-настоящему.":S.weekend==="home"?"Выходные дома позади. В сумке еды на месяц, на душе тепло.":
@@ -454,9 +504,9 @@ function hub(){
    <div class="sec"><h3>Концовки</h3><div class="list">${ek.map(k=>meta.ends.includes(k)?`<div>✅ ${esc(ENDS[k].n)}</div>`:`<div class="no">🔒 ???</div>`).join("")}</div></div>
    <div class="sec"><h3>Мини-игры · ${meta.mg.length} из ${mk.length}</h3><div class="list grid2">${mk.map(k=>meta.mg.includes(k)?`<div>✅ ${esc(MG_NAMES[k])}</div>`:`<div class="no">🔒 ???</div>`).join("")}</div></div>
    <div class="sec"><h3>Сообщения от Андрея · ${meta.andrei.length} из ${ANDREI.length}</h3><div class="list">${meta.andrei.length?meta.andrei.slice().sort((a,b)=>a-b).map(i=>`<details><summary>Сообщение №${i+1}</summary><p style="margin:6px 0 0">${esc(ANDREI[i])}</p></details>`).join(""):`<div class="no">Пока ни одного. Они приходят в течение недели.</div>`}</div></div>
-   <div class="sec"><h3>Достижения · ${(meta.ach||[]).length} из ${ACH.length}</h3><div class="list">${ACH.map(a=>{const ok=(meta.ach||[]).includes(a.id);
+   <div class="sec"><details class="big"><summary><h3 style="display:inline">🏆 Достижения · ${(meta.ach||[]).length} из ${ACH.length}</h3> <span class="note">(нажми, чтобы открыть)</span></summary><div class="list" style="margin-top:8px">${ACH.map(a=>{const ok=(meta.ach||[]).includes(a.id);
      return ok?`<div>🏆 ${esc(a.n)}</div>`:`<details><summary class="no" style="font-weight:600">🔒 ${a.secret?"???":esc(a.n)}</summary><p class="note" style="margin:4px 0 0">Подсказка: ${esc(a.h)}</p></details>`}).join("")}</div>
-     <p class="note">Нажми на закрытое достижение, чтобы увидеть подсказку.</p></div>
+     <p class="note">Нажми на закрытое достижение, чтобы увидеть подсказку.</p></details></div>
    <div class="sec"><h3>Побочные квесты</h3><div class="list">${Object.keys(QUESTS).map(id=>{const Q=QUESTS[id],f=meta.qDone[id]||[],n=Object.keys(Q.outs).length;
      if(!meta.qSeen.includes(id))return `<div class="no">🔒 ???</div>`;
      return `<details><summary>${f.length?"✅":"🗂"} ${esc(Q.name)} · ${f.length} из ${n}</summary>${Object.keys(Q.outs).map(k=>`<div style="margin-top:4px;border:none;padding:2px 0" class="${f.includes(k)?"":"no"}">${f.includes(k)?"• "+esc(Q.outs[k]):"• ???"}</div>`).join("")}</details>`}).join("")}</div>
@@ -482,7 +532,7 @@ function midList(d){
 }
 let curD=0;
 function midStep(d,k){
-  curD=d;hud(`${DSHORT[d]} · обед`);
+  curD=d;hud(`${DSHORT[d]} · после пар`);
   const L=midList(d);
   if(!L.length) return next();
   const id=L[0];S.q[id]["m"+d]=1;
@@ -492,7 +542,7 @@ function midStep(d,k){
 }
 function qScene(title,text,choices){
   const id=S.quests.find(x=>S.q[x]&&S.q[x]["m"+curD]&&!S.q[x]._shown)||"";
-  card({tag:`${DSHORT[curD]} · 13:10 · обед`,title,text,choices});
+  card({tag:`${DSHORT[curD]} · после пар`,title,text,choices});
 }
 function qRecord(id,key){
   const q=S.q[id];q.st="done";q.out=key;
@@ -516,6 +566,7 @@ function varOf(id,n){
   const v=pick(pool);(meta.mgVar[id]=meta.mgVar[id]||[]).push(v);saveMeta();return v;
 }
 function mgDone(id,win,text,cb){
+  if(win)C().mgw++;
   if(!S.mgRun.includes(id))S.mgRun.push(id);
   if(!meta.mg.includes(id)){meta.mg.push(id);saveMeta()}
   persist();cb({win,text});
@@ -548,7 +599,7 @@ function mgQuiz(id,g,cb){
   if(id==="det") qs=shuffle(g.pool).slice(0,g.pick).map(([q,n])=>{const o=shuffle([n,...shuffle(g.names.filter(x=>x!==n)).slice(0,3)]);return {q,o,a:o.indexOf(n)}});
   if(g.eng) qs=shuffle(g.pool).slice(0,g.pick).map(([w,r,f])=>{const o=[...shuffle([r,f]),"Я устала"];return {q:"Как переводится «"+w+"»?",o,a:o.indexOf(r),eng:1}});
   if(id==="omz") qs=qs.map(x=>{const right=x.o[x.a];const o=shuffle(x.o);return {q:x.q,o,a:o.indexOf(right)}});
-  let i=0,score=0,left=g.timer||0,timer=null,over=false,tired=0,honest=0;
+  let i=0,score=0,left=g.timer?(g.timer+(S.m>=8?10:0)):0,timer=null,over=false,tired=0,honest=0;
   const finish=()=>{if(over)return;over=true;clearInterval(timer);
     const n=qs.length,win=g.eng?true:(id==="anat"?(i>=n&&score>=3):score>=Math.ceil(n*.7));
     if(id==="anat"&&win)ach("asp");
