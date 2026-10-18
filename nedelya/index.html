@@ -4,7 +4,14 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Дневник недели</title>
-<meta name="color-scheme" content="light">
+<meta name="color-scheme" content="light dark">
+<link rel="manifest" href="nedelya.webmanifest">
+<meta name="theme-color" content="#c8553d">
+<link rel="icon" href="n8-icon-192.png">
+<link rel="apple-touch-icon" href="n8-icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Неделя 8">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Nunito:wght@400;600;800&display=swap" rel="stylesheet">
@@ -140,7 +147,7 @@ details.big{background:transparent;border:none;padding:0}
 .mcols{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .mcols>div{display:grid;gap:8px;align-content:start}
 .mcols .choice{font-size:14px;padding:10px;text-align:center}
-.choice.sel{border-color:var(--accent);background:var(--badBg)}
+.choice.sel{border-color:var(--blue);background:var(--blueBg);transform:scale(1.03)}
 .mem{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
 .mcard{aspect-ratio:3/4;border-radius:12px;border:2px solid var(--line);background:var(--accent);color:transparent;font-weight:800;font-size:12px;cursor:pointer;transition:transform .3s,background .3s;padding:4px;word-break:break-word}
 .mcard.up{background:var(--card);color:var(--ink);transform:rotateY(180deg)}
@@ -150,6 +157,7 @@ details.big{background:transparent;border:none;padding:0}
 .cw{display:flex;gap:3px}
 .cw span{width:26px;height:30px;border:2px solid var(--line);border-radius:6px;text-align:center;font-weight:800;line-height:26px;background:var(--card)}
 .cw span.key{border-color:var(--accent)}
+.cw span.hint{color:var(--blue)}
 .cw.cur span{border-color:var(--blue)}
 .cw.cur span.key{border-color:var(--accent)}
 .cwin{width:100%;font:700 20px "Nunito",sans-serif;padding:10px 12px;border-radius:12px;border:2px solid var(--line);background:var(--card);color:var(--ink);text-transform:uppercase}
@@ -175,10 +183,10 @@ details.big{background:transparent;border:none;padding:0}
   <div id="stage"></div>
 </main>
 <div class="toast" id="toast"></div>
-<script src="nedelya-data.js"></script>
-<script src="nedelya-quests.js"></script>
-<script src="nedelya-secret.js"></script>
-<script src="nedelya-games.js"></script>
+<script src="nedelya-data.js?v=9"></script>
+<script src="nedelya-quests.js?v=9"></script>
+<script src="nedelya-secret.js?v=9"></script>
+<script src="nedelya-games.js?v=9"></script>
 <script>
 /* ======================= БАЗА ======================= */
 const $=id=>document.getElementById(id);
@@ -198,7 +206,7 @@ let S=null;
 const persist=()=>store.set(SAVE_KEY,JSON.stringify(S));
 
 const THEMES={light:["Светлая","#f7efe1","#c8553d"],dark:["Тёмная","#1d1916","#e7795f"],aqua:["Акварель","#f1eef8","#8a6fd1"],frog:["Болотная","#e8f0e1","#4f8a3c"]};
-function setTheme(t){document.documentElement.dataset.theme=t;store.set("n8-theme",t)}
+function setTheme(t){document.documentElement.dataset.theme=t;document.documentElement.style.colorScheme=t==="dark"?"dark":"light";store.set("n8-theme",t)}
 setTheme(store.get("n8-theme")||((window.matchMedia&&matchMedia("(prefers-color-scheme: dark)").matches)?"dark":"light"));
 function confetti(){const cols=["#c8553d","#e9a23b","#8fb27a","#9b86c9","#6fa3c7","#f2c14e"];for(let i=0;i<60;i++){const s=document.createElement("span");s.className="confetti";s.style.left=Math.random()*100+"vw";s.style.background=cols[i%cols.length];s.style.animationDuration=(2+Math.random()*2)+"s";s.style.animationDelay=(Math.random()*.4)+"s";document.body.appendChild(s);setTimeout(()=>s.remove(),4600)}}
 function seen(cat,i){meta.seen=meta.seen||{};const a=meta.seen[cat]=meta.seen[cat]||[];if(!a.includes(i)){a.push(i);saveMeta()}}
@@ -210,7 +218,7 @@ function ach(id){
   meta.ach.push(id);meta.achNew=meta.achNew||[];meta.achNew.push(id);saveMeta();setTimeout(()=>toast("🏆 Достижение: "+a.n,true),400);
 }
 let toastT;
-function toast(msg,isAch){const t=$("toast");t.textContent=msg;t.classList.remove("ach");void t.offsetWidth;if(isAch)t.classList.add("ach");t.classList.add("show");clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove("show","ach"),isAch?2600:1700)}
+function toast(msg,isAch){const t=$("toast");t.textContent=msg;t.classList.remove("ach");void t.offsetWidth;if(isAch)t.classList.add("ach");t.classList.add("show");clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove("show","ach"),isAch?3400:2600)}
 
 /* ======================= ШКАЛЫ ======================= */
 function fx(f){
@@ -419,11 +427,12 @@ function afterPair(key,d,s,res){
   if(base==="hist"){
     if(key==="hist_p"&&S.dok.refused&&!S.dok.co){S.dok.co=1;ach("coauthor");S.m=clamp(S.m+1,0,10);text+="🎤 Напарница выступает с докладом одна. Получает «отлично». А потом подходит к тебе и говорит: «Я вписала тебя в соавторы. Ты же морально поддерживала». Ты не спорила.\n\n";}
     if(key==="hist_p"&&S.dok.agree&&!S.dok.said){
-      if(S.dok.done){S.dok.said=1;S.m=clamp(S.m+3,0,10);text+="🎤 И вот наконец твоя очередь. Ты выходишь, рассказываешь доклад — и у тебя получается. По-настоящему. Напарница сияет, преподаватель кивает.\n\nТы выступила! После всех переносов это почти как сдать сессию.\n\n";}
+      if(S.dok.done&&S.dok.rushed){S.dok.said=1;S.m=clamp(S.m+1,0,10);text+="🎤 Твоя очередь. Налоговая система на слайдах выглядит так же скучно, как звучит. Ты рассказываешь, преподаватель кивает и говорит: «Неплохо, но сыровато». Напарница получает «отлично» за свою половину.\n\nВыступила. Не триумф, но выступила.\n\n";}
+      else if(S.dok.done){S.dok.said=1;S.m=clamp(S.m+3,0,10);text+="🎤 И вот наконец твоя очередь. Ты выходишь, рассказываешь доклад — и у тебя получается. По-настоящему. Напарница сияет, преподаватель кивает.\n\nТы выступила! После всех переносов это почти как сдать сессию.\n\n";}
       else text+="🎤 Доклад не готов, выступать не с чем. Напарница смотрит с укором. Придётся в другой раз.\n\n";
     }
     if(key==="hist_l"&&S.dok.done&&!S.dok.said){
-      if(R()<.5){S.dok.said=1;S.m=clamp(S.m+3,0,10);text+="🎤 Преподаватель вдруг говорит: «А давайте доклад прямо на лекции». Ты выступаешь — и всё получается!\n\n";}
+      if(R()<.5){S.dok.said=1;S.m=clamp(S.m+(S.dok.rushed?1:3),0,10);text+="🎤 Преподаватель вдруг говорит: «А давайте доклад прямо на лекции». Ты выступаешь — и всё получается!\n\n";}
       else{S.m=clamp(S.m-1,0,10);text+="🎤 Ты ждёшь, что дадут выступить хотя бы на лекции. Не дают. Опять. Доклад лежит в сумке и грустит вместе с тобой.\n\n";}
       S.dok.pending=0;
     }
@@ -431,9 +440,14 @@ function afterPair(key,d,s,res){
   /* ДЗ */
   const def=HW[key];
   const has=S.hw.some(h=>h.base===base&&!h.done&&!h.failed&&!h.dok);
-  if(def&&!has&&R()<def.p){
+  let avail=def&&def.lock?d+1:d, due=def?nextDue(base,d,s):99;
+  if(def&&def.lock&&avail>3&&d<=3)avail=d; /* в четверг замок снимаем: иначе сделать физически негде */
+  /* последний вечер — четверг (3). Сдать к паре в день D можно, если есть вечер с avail по D-1 */
+  if(def){const lastEve=due===99?3:Math.floor(due/10)-1;
+    if(avail>lastEve){let nd=due;while(nd!==99&&avail>Math.floor(nd/10)-1)nd=nextDue(base,Math.floor(nd/10),nd%10);due=nd}}
+  if(def&&!has&&avail<=3&&d<4&&R()<def.p){
     const c=Math.max(1,def.c-(S.fast[base]?1:0));
-    const h={id:++S.hwId,base,t:def.t,c,due:nextDue(base,d,s),avail:def.lock?d+1:d,lock:def.lock||null};
+    const h={id:++S.hwId,base,t:def.t,c,due,avail,lock:avail>d?def.lock:null};
     S.hw.push(h);
     text+=`📚 Задали: ${h.t} (${c} ч, ${dueLabel(h.due)}).`+(def.lock?"\n"+LOCKS[def.lock]:"");
   }
@@ -456,11 +470,11 @@ function breakStep(d){
   if(d===0&&!S.dok.agree){
     return card({tag:"Пн · перемена",title:"Доклад",text:"У расписания тебя ловит напарница по докладу по истории:\n— Ну что, когда договоримся? Выступаем в среду. Если, конечно, пару не отменят.",
       choices:[{t:"Договориться прямо сейчас",fn:()=>{addDok(d);card({tag:"Пн · перемена",title:"Доклад",text:"Договорились. Ты берёшь половину доклада.\n\n📚 Задание: подготовить доклад по истории (2 ч, сдать: Ср, 13:30).",choices:[{t:"Дальше",fn:next}]})}},
-               {t:"«Давай потом»",fn:next}]});
+               {t:"«Давай потом»",s:"Сегодня вечер свободнее, но во вторник будет спешка",fn:()=>{S.dok.later=1;fx({m:1});toast("+1 ч сегодня вечером");next()}}]});
   }
   if(d===1&&!S.dok.agree){
     return card({tag:"Вт · перемена",title:"Доклад",text:"Напарница пишет: «Ну что?? Среда уже завтра!!»\n\nОткладывать некуда.",
-      choices:[{t:"Отказаться: «Делай без меня»",s:"Будь что будет",fn:()=>{S.dok.refused=1;fx({m:1});next()}},{t:"Срочно договориться",fn:()=>{addDok(d);fx({m:-1});card({tag:"Вт · перемена",title:"Доклад",text:"Договорились в последний момент. Времени впритык.\n\n📚 Задание: подготовить доклад по истории (2 ч, сдать: Ср, 13:30).",choices:[{t:"Дальше",fn:next}]})}}]});
+      choices:[{t:"Отказаться: «Делай без меня»",s:"Будь что будет",fn:()=>{S.dok.refused=1;fx({m:1});next()}},{t:"Срочно договориться",s:"−1 ☀️, и половина достанется похуже",fn:()=>{addDok(d);S.dok.rushed=1;fx({m:-1});card({tag:"Вт · перемена",title:"Доклад",text:"Договорились в последний момент. Напарница обиженно забирает себе интересную половину, а тебе оставляет «Хозяйственное развитие и налоговую систему». Времени впритык.\n\n📚 Задание: подготовить доклад по истории (2 ч, сдать: Ср, 13:30).",choices:[{t:"Дальше",fn:next}]})}}]});
   }
   if((d===1||d===2)&&S.choco&&!S.chocoEv&&(d===2||R()<.5)){S.chocoEv=1;persist();
     return card({tag:`${DSHORT[d]} · перемена`,title:"Шоколадка",text:pick(["У деканата на подоконнике сидит первокурсница и тихо плачет: потеряла зачётку, опоздала на пару, и вообще всё. Она ничего не ела с утра.","Подруга Б сидит в углу столовой бледная. Не ест, не пьёт и даже не ставит точки в чат. Похоже, у неё очень плохой день."])+"\n\nА у тебя в сумке шоколадка. Мамина. «На чёрный день».",
@@ -489,7 +503,7 @@ function andreiStep(d){
 /* ---------- вечер ---------- */
 const EVE_TXT=["Вечер понедельника. Неделя только началась, а ощущение, будто прошла жизнь.","Вечер вторника. За стеной кто-то жарит картошку. Пахнет домом.","Вечер среды. Экватор недели. Отсюда уже видно пятницу, если прищуриться.","Вечер четверга. Завтра пятница. Это не точно, но очень хочется верить."];
 function evening(d,msg){
-  if(!S.eve||S.eve.d!==d){const mb=S.m>=8?1:S.m<=1?-2:S.m<=3?-1:0;S.eve={d,mb,slots:Math.max(1,3+((S.cxlDay||{})[d]||0)+mb-(S.e<=2?1:0)),did:[]};persist()}
+  if(!S.eve||S.eve.d!==d){const mb=S.m>=8?1:S.m<=1?-2:S.m<=3?-1:0,dl=(d===0&&S.dok.later)?1:0;S.eve={d,mb,dl,slots:Math.max(1,3+((S.cxlDay||{})[d]||0)+mb+dl-(S.e<=2?1:0)),did:[]};persist()}
   const E=S.eve;
   hud(`${DSHORT[d]} · вечер`);
   if(d===3&&S.debts>=3&&!S.kur){S.kur=1;E.slots=Math.max(0,E.slots-1);ach("kurator");persist();
@@ -512,8 +526,8 @@ function evening(d,msg){
       if(S.cnt.tea>=4){ach("bspeak");return evening(d,"Четвёртый вечер подряд вы пьёте чай втроём. И вдруг Подруга Б ставит кружку и говорит целое предложение:\n— Мне с вами хорошо.\n\nПодруга А роняет печенье. Ты забываешь, как дышать. Это лучшее, что случилось за неделю.")}
       S.used.fr=S.used.fr||[];const fr=FRIENDS.map((x,i)=>i).filter(i=>!S.used.fr.includes(i)),sn=(meta.seen||{}).friends||[];
       const pool=fr.filter(i=>!sn.includes(i)).length?fr.filter(i=>!sn.includes(i)):fr;const fi=pick(pool.length?pool:FRIENDS.map((x,i)=>i));S.used.fr.push(fi);seen("friends",fi);
-      const F=FRIENDS[fi];fx(F.fx);if(F.fast){const h=S.hw.find(h=>!h.done&&!h.failed&&h.c>1);if(h){h.c--;F._x="\n\n📚 «"+h.t+"» теперь на час короче."}}
-      persist();evening(d,F.t+(F._x||""));F._x=""}});
+      const F0=FRIENDS[fi],F=typeof F0==="string"?{t:F0,fx:{m:2}}:F0;fx(F.fx);if(F.fast){const h=S.hw.find(h=>!h.done&&!h.failed&&h.c>1);if(h){h.c--;F._x="\n\n📚 «"+h.t+"» теперь на час короче."}}
+      persist();evening(d,(F.t||"Вы пьёте чай и болтаете обо всём.")+(F._x||""));F._x=""}});
     ch.push({t:"🛋 Ничего не делать — 1 ч",s:"+1 ⚡ +1 ☀️ · просто лежать и смотреть в потолок",fn:()=>{E.slots--;fx({m:1,e:1});cnt("idle",3,"idle");persist();evening(d,pick(["Ты лежишь и смотришь в потолок. Потолок смотрит в ответ. Вы понимаете друг друга.","Целый час ты ничего не делаешь. Совесть пытается что-то сказать, но ты накрываешь её пледом.","Ты листаешь мемы. Через час ты знаешь всё о котах и ничего о литературоведении."]))}});
     if(S.calls>0) ch.push({t:"📞 Позвонить в Техподдержку Питера — 1 ч",s:`+2 ☀️ +1 ⚡ · звонков осталось: ${S.calls}`,fn:()=>{E.slots--;S.calls--;fx({m:S.m<=3?3:2,e:1});cnt("sup",2,"sup");persist();evening(d,"— Техподдержка Питера, Андрей, слушаю.\nТы описываешь свой день. Пауза.\n— "+supportText()+"\n\n"+pick(["Потом вы просто болтаете обо всём подряд, и час пролетает за минуту.","Под конец он говорит, что гордится тобой. Ты делаешь вид, что не улыбаешься. Не получается.","Вы молча слушаете, как друг у друга шумит за окном. Армавир и Питер. Связь отличная."]))}});
     S.quests.forEach(id=>{const Q=QUESTS[id],q=S.q[id];if(q.st!=="active"||!Q.eve||!Q.eve[d])return;
@@ -521,8 +535,8 @@ function evening(d,msg){
   }
   if(S.choco&&S.e<=3) ch.push({t:S.chocoHalf?"🍫 Доесть половинку шоколадки":"🍫 Съесть шоколадку",s:S.chocoHalf?"+2 ⚡":"+3 ⚡ · больше не будет",fn:()=>{const half=S.chocoHalf;S.choco=0;stat("choco");fx({e:half?2:3,m:1});persist();evening(d,"Шоколадка. Вечер сразу стал добрее, а силы вернулись."+(half?" Даже половинки хватило.":" Мама, спасибо."))}});
   ch.push({t:"😴 Лечь спать",s:E.slots>=2?"Пораньше. Организм скажет спасибо":"",fn:()=>{if(E.slots>=2){cnt("sleep",3,"sleep");fx({m:1})}next()}});
-  card({tag:`${DAYS[d]} · вечер`,title:"Вечер",pre:msg?box("good",msg):"",
-    text:EVE_TXT[d],html:`<div class="slots">${"⏰".repeat(E.slots)}</div><p class="note">Свободных часов: ${E.slots}. Всё сразу не успеть.${((S.cxlDay||{})[d])?" (+"+S.cxlDay[d]+" ч за отменённые пары)":""}${S.e<=2?" Сил мало, поэтому на час меньше.":""}${E.mb>0?" ✨ Настроение отличное: работается на час дольше.":E.mb<0?` 🌧 Настроение на нуле: ничего не хочется, на ${-E.mb} ч меньше.`:""}</p>`,choices:ch});
+  card({tag:`${DAYS[d]} · вечер`,title:"Вечер",pre:(msg&&msg!=="undefined")?box("good",msg):"",
+    text:EVE_TXT[d],html:`<div class="slots">${"⏰".repeat(E.slots)}</div><p class="note">Свободных часов: ${E.slots}. Всё сразу не успеть.${((S.cxlDay||{})[d])?" (+"+S.cxlDay[d]+" ч за отменённые пары)":""}${S.e<=2?" Сил мало, поэтому на час меньше.":""}${E.dl?" (+1 ч: доклад отложен)":""}${E.mb>0?" ✨ Настроение отличное: работается на час дольше.":E.mb<0?` 🌧 Настроение на нуле: ничего не хочется, на ${-E.mb} ч меньше.`:""}</p>`,choices:ch});
 }
 
 /* ---------- ночь ---------- */
@@ -694,6 +708,7 @@ function setTab(){
     <div class="sec"><h3>📚 Собрано</h3><div class="coll">${coll.map(([n,a,b])=>`<span>${n}</span><b>${a} / ${b}</b><div class="mini"><i data-w="${Math.round(a/Math.max(1,b)*100)}"></i></div>`).join("")}</div></div>
     <div class="sec"><h3>📊 Статистика за все недели</h3><div class="stats">${rows.map(([n,x])=>`<span>${n}</span><b>${x}</b>`).join("")}</div>
       ${v("weeks")?"":`<p class="note">Статистика копится по итогам каждой недели. Пройди первую.</p>`}</div>
+    <div class="sec"><h3>📱 Как приложение</h3><p class="note">Игра работает без интернета: достаточно один раз открыть её с сетью. Прогресс хранится на телефоне.<br><br>Чтобы была иконка на главном экране: в Chrome — меню ⋮ → «Добавить на главный экран» (или «Установить приложение»), в Safari — «Поделиться» → «На экран Домой».<br><br>Не играй в режиме инкогнито и не чисти данные сайта — сохранения живут там.</p></div>
     <div class="sec"><button class="btn danger" id="wipe">Стереть весь прогресс</button></div>`;
 }
 
@@ -812,7 +827,8 @@ function mgQuiz(id,g,cb){
       if(id==="omz")joke(!ok&&!MYTH.includes(x.o[k]));if(x.eng)joke(x.o[k]==="Я устала");
       b.classList.add(ok?"ok":"bad");if(!ok&&x.a>=0)btns[x.a].classList.add("ok");
       $("fb").textContent=msg;$("fb").style.color=ok?"var(--ok)":"var(--bad)";
-      setTimeout(()=>{i++;show()},x.a===-1?1800:1100);
+      if(left){setTimeout(()=>{i++;show()},x.a===-1?1800:1100)}
+      else{$("fb").insertAdjacentHTML("afterend",`<button class="btn" id="nx">Дальше</button>`);$("nx").onclick=()=>{i++;show()}}
     });
   };
   show();
@@ -833,7 +849,7 @@ function mgBingo(id,g,cb){
     $("bingo").remove();
     const win=good>=5&&bad<=1;if(good===v.yes.length&&bad===0)ach("bingo");joke(bad>=2);
     $("fb").textContent=`Найдено ${good} из ${v.yes.length}${bad?`, лишних: ${bad}`:""}`;
-    setTimeout(()=>mgDone(id,win,win?g.win:g.lose,cb),1500);
+    $("fb").insertAdjacentHTML("afterend",`<button class="btn" id="nx">Дальше</button>`);$("nx").onclick=()=>mgDone(id,win,win?g.win:g.lose,cb);
   };
 }
 /* --- найди ошибку --- */
@@ -848,7 +864,7 @@ function mgTap(id,g,cb){
     btns.forEach(b=>b.onclick=()=>{if(b.dataset.done)return;btns.forEach(z=>z.dataset.done=1);
       const ok=+b.dataset.k===wi;if(ok)score++;b.classList.add(ok?"ok":"bad");if(!ok)btns[wi].classList.add("ok");
       $("fb").textContent=ok?"Поймала!":"Ошибка пряталась здесь";$("fb").style.color=ok?"var(--ok)":"var(--bad)";
-      setTimeout(()=>{i++;show()},1000)});
+      $("fb").insertAdjacentHTML("afterend",`<button class="btn" id="nx">Дальше</button>`);$("nx").onclick=()=>{i++;show()}});
   };
   show();
 }
@@ -917,6 +933,7 @@ function mgFix(id,g,cb){
 
 /* ======================= СТАРТ ======================= */
 hub();
+if("serviceWorker" in navigator&&/^https?:/.test(location.protocol)){try{navigator.serviceWorker.register("n8-sw.js").catch(()=>{})}catch(e){}}
 </script>
 </body>
 </html>

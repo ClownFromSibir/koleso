@@ -4,7 +4,7 @@
    =================================================================== */
 
 const MG2 = {
- rov2:{subj:"rov",name:"Кивай вовремя",type:"qte",time:2300,rounds:7,need:5,
+ rov2:{subj:"rov",name:"Кивай вовремя",type:"qte",time:4500,rounds:7,need:5,
   intro:"Куратор внимательно следит за залом. Реагируй правильно и быстро, пока не поймали!",
   acts:["Кивнуть","Заглянуть в телефон","Замереть","Взять печенье","Проснуться"],
   pool:[["Куратор смотрит прямо на тебя!","Кивнуть"],["Куратор отвернулся к доске","Заглянуть в телефон"],["«Вопросы есть?»","Замереть"],
@@ -18,7 +18,7 @@ const MG2 = {
         ["ДИКТАНТ","Пишут под диктовку"],["ОКОНЧАНИЕ","Изменяемая часть слова"],["СИНОНИМ","Слово, близкое по смыслу"],["АНТОНИМ","Слово с противоположным значением"],["ОРФОГРАММА","То, что учитель обводит красной ручкой"]],
   win:"Все слова собраны. Буквы вернулись на свои места и выглядят довольными.",
   lose:"Пара слов так и осталась рассыпанной. Буквы обиделись, но простят."},
- fiz2:{subj:"fiz",name:"Поймай мяч",type:"qte",time:1400,rounds:8,need:6,
+ fiz2:{subj:"fiz",name:"Поймай мяч",type:"qte",time:5500,rounds:8,need:6,
   intro:"Физрук кидает мячи со всех сторон. Жми туда, откуда летит!",
   acts:["⬅️","⬆️","⬇️","➡️"],
   pool:[["Мяч летит слева!","⬅️"],["Мяч справа!","➡️"],["Высоко!","⬆️"],["Низко, под ноги!","⬇️"],["Слева, быстро!","⬅️"],["Справа, крученый!","➡️"]],
@@ -96,7 +96,8 @@ function mgFor(base){
   if(S.mgPick[base]) return S.mgPick[base];
   const opts=[base,base+"2"].filter(k=>MG[k]);
   const fresh=opts.filter(k=>!meta.mg.includes(k));
-  return S.mgPick[base]=pick(fresh.length?fresh:opts);
+  /* несыгранная — только если её ещё ни разу не было; дальше честные 50 на 50 */
+  return S.mgPick[base]=(fresh.length===1&&R()<.6)?fresh[0]:pick(opts);
 }
 
 /* ===================== ДВИЖКИ ===================== */
@@ -151,16 +152,22 @@ function mgMatch(id,g,cb,opt){
   opt=opt||{};mgClear();
   const pairs=opt.pairs||shuffle(g.pool).slice(0,g.pick);const right=shuffle(pairs.map(p=>p[1]));
   let selL=null,done=0,mist=0,left=opt.time||g.time,over=false;
-  mgShell(id,`${!opt.done?`<p class="note">${esc(g.intro)}</p>`:""}<p class="note">⏱ <span id="mt">${left}</span> с · ошибок: <span id="mm">0</span></p>
+  mgShell(id,`${!opt.done?`<p class="note">${esc(g.intro)}</p>`:""}<p class="note">⏱ <span id="mt">${left}</span> с · ошибок: <span id="mm">0</span> · нажми слева и справа; повторное нажатие отменяет выбор</p>
     <div class="mcols"><div>${pairs.map((p,k)=>`<button class="choice ml" data-k="${k}">${esc(p[0])}</button>`).join("")}</div>
     <div>${right.map((t,k)=>`<button class="choice mr" data-t="${esc(t)}">${esc(t)}</button>`).join("")}</div></div>`,opt.title);
   const end=win=>{if(over)return;over=true;mgClear();setTimeout(()=>opt.done?opt.done(win):mgDone(id,win,win?g.win:g.lose,cb),500)};
   mgT.push(setInterval(()=>{left--;const t=$("mt");if(t)t.textContent=left;if(left<=0)end(false)},1000));
-  $("stage").querySelectorAll(".ml").forEach(b=>b.onclick=()=>{if(b.disabled)return;$("stage").querySelectorAll(".ml").forEach(x=>x.classList.remove("sel"));b.classList.add("sel");selL=+b.dataset.k});
-  $("stage").querySelectorAll(".mr").forEach(b=>b.onclick=()=>{if(selL===null||b.disabled)return;
-    const L=$("stage").querySelector(`.ml[data-k="${selL}"]`);
-    if(pairs[selL][1]===b.dataset.t){[L,b].forEach(x=>{x.classList.add("ok");x.disabled=true});L.classList.remove("sel");selL=null;done++;if(done===pairs.length)end(mist<=(opt.done?1:2))}
-    else{mist++;$("mm").textContent=mist;b.classList.remove("shake");void b.offsetWidth;b.classList.add("shake","bad");setTimeout(()=>b.classList.remove("bad"),400)}});
+  let sel=null;
+  const st=$("stage");
+  const clear=()=>{st.querySelectorAll(".mcols .sel").forEach(x=>x.classList.remove("sel"));sel=null};
+  st.querySelectorAll(".ml,.mr").forEach(b=>b.onclick=()=>{
+    if(b.disabled||over)return;const side=b.classList.contains("ml")?"l":"r";
+    if(sel===b){clear();return}                       /* повторное нажатие — отмена выбора */
+    if(!sel||sel.classList.contains(side==="l"?"ml":"mr")){clear();b.classList.add("sel");sel=b;return}
+    const L=side==="l"?b:sel, Rb=side==="r"?b:sel;
+    if(pairs[+L.dataset.k][1]===Rb.dataset.t){[L,Rb].forEach(x=>{x.classList.remove("sel");x.classList.add("ok");x.disabled=true});sel=null;done++;if(done===pairs.length)end(mist<=(opt.done?1:2))}
+    else{mist++;$("mm").textContent=mist;[L,Rb].forEach(x=>{x.classList.remove("shake","sel");void x.offsetWidth;x.classList.add("shake","bad");setTimeout(()=>x.classList.remove("bad"),400)});sel=null}
+  });
 }
 /* Мемори */
 function mgMemory(id,g,cb){
@@ -177,29 +184,31 @@ function mgMemory(id,g,cb){
       else{lock=true;setTimeout(()=>{a.classList.remove("up");c.classList.remove("up");open=[];lock=false},750)}}
   });
 }
-/* Кроссворд с ключевым словом */
+/* Кроссворд с ключевым словом: в каждом слове сразу открыта одна буква, ещё можно открывать подсказкой */
 function mgCross(id,g,cb){
   mgClear();
-  const v=g.vars[varOf(id,g.vars.length)];const solved=v.rows.map(()=>false);let i=0;
-  const norm=s=>s.trim().toUpperCase().replace(/Ё/g,"Е");
+  const v=g.vars[varOf(id,g.vars.length)];const solved=v.rows.map(()=>false);let i=0,hints=0;
+  const open=v.rows.map(([a])=>{const k=1+Math.floor(R()*(a.length-1));return new Set([k])});
+  const norm=s=>s.trim().toUpperCase().replace(/Ё/g,"Е").replace(/\s+/g,"");
   const render=(msg)=>{
-    const grid=v.rows.map(([a],k)=>`<div class="cw ${k===i?"cur":""}">${a.split("").map((l,j)=>`<span class="${j===0?"key":""}">${solved[k]?l:""}</span>`).join("")}</div>`).join("");
+    const grid=v.rows.map(([a],k)=>`<div class="cw ${k===i?"cur":""}">${a.split("").map((l,j)=>`<span class="${j===0?"key":""} ${!solved[k]&&open[k].has(j)?"hint":""}">${solved[k]||open[k].has(j)?l:""}</span>`).join("")}</div>`).join("");
     if(i>=v.rows.length){
-      const n=solved.filter(Boolean).length,win=n>=v.rows.length-1;if(n===v.rows.length)ach("cross");
-      mgShell(id,`<div class="cwgrid">${grid}</div><p>Ключевое слово: <b>${v.key}</b></p>`);
-      return setTimeout(()=>mgDone(id,win,win?g.win:g.lose,cb),1400);
+      const n=solved.filter(Boolean).length,win=n>=v.rows.length-1;if(n===v.rows.length&&!v._skip)ach("cross");
+      mgShell(id,`<div class="cwgrid">${grid}</div><p>Ключевое слово: <b>${v.key}</b></p><p class="note">Разгадано ${n} из ${v.rows.length}${hints?`, подсказок: ${hints}`:""}</p><button class="btn" id="nx">Дальше</button>`);
+      $("nx").onclick=()=>mgDone(id,win,win?g.win:g.lose,cb);return;
     }
-    const [a,c]=v.rows[i];
+    const [a,c]=v.rows[i];const canHint=open[i].size<a.length-1;
     mgShell(id,`<p class="note">${esc(g.intro)}</p><div class="cwgrid">${grid}</div>
       <p style="font-weight:700">${i+1}. ${esc(c)} <span class="note">(${a.length} букв)</span></p>
-      <input id="cwi" class="cwin" maxlength="${a.length}" autocomplete="off" placeholder="Ответ">
-      <div class="row2"><button class="btn" id="cwok">Ввести</button><button class="btn ghost" id="cwskip">Пропустить</button></div><div class="fb" id="fb">${msg||""}</div>`);
-    const inp=$("cwi");inp.focus();
+      <input id="cwi" class="cwin" maxlength="${a.length+2}" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false" placeholder="Ответ">
+      <div class="row2"><button class="btn" id="cwok">Ввести</button>${canHint?`<button class="btn ghost" id="cwh">💡 Открыть букву</button>`:""}<button class="btn ghost" id="cwskip">Пропустить</button></div><div class="fb" id="fb">${msg||""}</div>`);
+    const inp=$("cwi");
     const ok=()=>{if(norm(inp.value)===norm(a)){solved[i]=true;i++;render("✓ Верно!")}else{$("fb").textContent="Не подходит. Попробуй ещё";$("fb").style.color="var(--bad)";inp.classList.add("shake");setTimeout(()=>inp.classList.remove("shake"),300)}};
     $("cwok").onclick=ok;inp.onkeydown=e=>{if(e.key==="Enter")ok()};
+    if(canHint)$("cwh").onclick=()=>{const closed=[...a].map((x,j)=>j).filter(j=>!open[i].has(j));open[i].add(pick(closed));hints++;const val=inp.value;render("💡 Ещё одна буква открыта");$("cwi").value=val};
     $("cwskip").onclick=()=>{i++;v._skip=1;render("Ответ был: "+a)};
   };
-  render();
+  v._skip=0;render();
 }
 /* Быстрый счёт */
 function mathQ(hard){
@@ -237,7 +246,7 @@ function mgFast(id,g,cb,opt){
     const t0=performance.now();
     mgT.push(setInterval(()=>{const p=1-(performance.now()-t0)/T;const b=$("fb2");if(b)b.style.width=Math.max(0,p*100)+"%";if(p<=0&&!lk){lk=true;i++;show()}},50));
     const btns=[...$("stage").querySelectorAll(".opt")];
-    btns.forEach(b=>b.onclick=()=>{if(lk)return;lk=true;mgClear();const ok=+b.dataset.k===x.a;if(ok)score++;b.classList.add(ok?"ok":"bad");if(!ok)btns[x.a].classList.add("ok");i++;setTimeout(show,ok?350:800)});
+    btns.forEach(b=>b.onclick=()=>{if(lk)return;lk=true;mgClear();const ok=+b.dataset.k===x.a;if(ok)score++;b.classList.add(ok?"ok":"bad");if(!ok)btns[x.a].classList.add("ok");i++;setTimeout(show,ok?500:(opt.done?1100:1600))});
   };
   show();
 }
@@ -328,7 +337,7 @@ function bossRound(B){
   const fakeG={win:"",lose:"",intro:""};
   if(type==="quiz"){const x=pick(BOSS_Q);const o=shuffle(x.o);return mgFast("boss",fakeG,null,{title,qs:[{q:x.q,o,a:o.indexOf(x.o[x.a])}],perQ:9*k,done})}
   if(type==="match"){const src=pick([MG2.hist2.pool,MG2.anat2.pool,...BOSS_MATCH]);return mgMatch("boss",fakeG,null,{title,pairs:shuffle(src).slice(0,4),time:Math.round(16*k),done})}
-  if(type==="qte"){const g=pick([MG2.fiz2,MG2.rov2]);return mgQte("boss",g,null,{title,rounds:3,need:3,time:Math.round(g.time*.75*k),done})}
+  if(type==="qte"){const g=pick([MG2.fiz2,MG2.rov2]);return mgQte("boss",g,null,{title,rounds:3,need:3,time:Math.round(Math.min(g.time,3500)*k),done})}
   if(type==="math"){return mgSpeed("boss",fakeG,null,{title,time:Math.round(12*k),need:3,hard:true,done})}
   if(type==="anagram"){return mgAnagram("boss",MG2.rus2,null,{title,words:[pick(MG2.rus2.pool)],time:Math.round(25*k),done})}
 }
