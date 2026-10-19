@@ -2,7 +2,7 @@
   "name": "Неделя 8",
   "short_name": "Неделя 8",
   "description": "Обычная учебная неделя Юли",
-  "start_url": "nedelya.html",
+  "start_url": "./",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",

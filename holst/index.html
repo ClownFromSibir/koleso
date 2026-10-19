@@ -1,0 +1,298 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<title>Холст дня</title>
+<meta name="theme-color" content="#c8553d">
+<link rel="icon" href="icon-192.png">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Холст дня">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Nunito:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root{--paper:#f7efe1;--paper2:#fbf6ec;--ink:#3a2e28;--muted:#8a7a6d;--accent:#c8553d;--accent2:#9c3c29;--line:#e6d9c3;--card:#fff;--blue:#5f8fb4;--blueBg:#eef3f7;--ok:#6f9e5a}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--paper:#1d1916;--paper2:#28221e;--ink:#f1e7da;--muted:#a8998b;--accent:#e7795f;--accent2:#a94b36;--line:#3d342d;--card:#322a25;--blue:#86afd0;--blueBg:#1f2a32;--ok:#8fc173}}
+:root[data-theme="dark"]{--paper:#1d1916;--paper2:#28221e;--ink:#f1e7da;--muted:#a8998b;--accent:#e7795f;--accent2:#a94b36;--line:#3d342d;--card:#322a25;--blue:#86afd0;--blueBg:#1f2a32;--ok:#8fc173}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.45 "Nunito",system-ui,sans-serif}
+.wrap{max-width:560px;margin:0 auto;padding:14px 16px 40px}
+h1{font:700 40px/1 "Caveat",cursive;color:var(--accent);margin:6px 0 2px}
+.sub{color:var(--muted);font-size:14px;margin:0 0 12px}
+.daynav{display:flex;align-items:center;gap:8px;margin:6px 0 12px}
+.daynav b{flex:1;text-align:center;font-size:15px}
+.nav{border:2px solid var(--line);background:var(--card);color:var(--ink);border-radius:12px;width:44px;height:40px;font-size:18px;font-weight:800;cursor:pointer}
+.nav:disabled{opacity:.3}
+.opts{display:grid;gap:8px}
+.opt{text-align:left;border:2px solid var(--line);background:var(--card);color:var(--ink);border-radius:14px;padding:12px 14px;font:700 16px "Nunito",sans-serif;cursor:pointer;transition:transform .1s,border-color .15s}
+.opt small{display:block;font-weight:600;color:var(--muted);font-size:12px;margin-bottom:2px;text-transform:uppercase;letter-spacing:.04em}
+.opt:active{transform:scale(.98)}
+.opt.on{border-color:var(--accent)}
+.mod{margin-top:10px;background:var(--blueBg);border:2px dashed var(--blue);border-radius:14px;padding:10px 14px;font-size:14px;display:flex;gap:10px;align-items:center}
+.mod span{flex:1}
+.mod button{border:none;background:var(--blue);color:#fff;font-weight:800;border-radius:10px;padding:8px 10px;cursor:pointer}
+.mod.on{border-style:solid}
+.btn{display:block;width:100%;margin-top:12px;border:none;border-radius:14px;padding:14px;font:800 17px "Nunito",sans-serif;background:var(--accent);color:#fff;box-shadow:0 4px 0 var(--accent2);cursor:pointer}
+.btn:active{transform:translateY(3px);box-shadow:0 1px 0 var(--accent2)}
+.btn.ghost{background:transparent;color:var(--accent);border:2px solid var(--accent);box-shadow:none}
+.hidden{display:none!important}
+/* drawing */
+.theme{font:700 26px/1.1 "Caveat",cursive;margin:4px 0 8px}
+.chip{display:inline-block;background:var(--blueBg);color:var(--blue);border-radius:999px;padding:3px 10px;font-size:13px;font-weight:800;margin:0 4px 6px 0}
+.chip.warn{background:var(--accent);color:#fff}
+.stage{position:relative;width:100%;aspect-ratio:1/1;border-radius:16px;overflow:hidden;border:2px solid var(--line);background:#fffdf8;touch-action:none}
+.stage canvas{width:100%;height:100%;display:block;touch-action:none}
+.stage.flip canvas{transform:rotate(180deg)}
+.blind{position:absolute;inset:0;background:repeating-linear-gradient(45deg,#3a2e28,#3a2e28 14px,#4a3b33 14px,#4a3b33 28px);color:#fff;display:flex;align-items:center;justify-content:center;text-align:center;font:700 26px "Caveat",cursive;pointer-events:none;padding:20px}
+.timer{position:absolute;top:8px;right:10px;background:var(--accent);color:#fff;font-weight:800;border-radius:999px;padding:3px 10px;font-size:14px;pointer-events:none}
+.tools{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0 0;align-items:center}
+.sw{width:32px;height:32px;border-radius:50%;border:3px solid var(--paper);box-shadow:0 0 0 2px var(--line);cursor:pointer;padding:0}
+.sw.on{box-shadow:0 0 0 3px var(--ink)}
+.tool{border:2px solid var(--line);background:var(--card);color:var(--ink);border-radius:10px;height:36px;min-width:40px;padding:0 8px;font-weight:800;cursor:pointer;font-size:15px}
+.tool.on{border-color:var(--accent);color:var(--accent)}
+.sizes{display:flex;gap:4px}
+.row{display:flex;gap:8px}
+.row .btn{flex:1}
+input.title{width:100%;margin-top:10px;font:700 17px "Nunito",sans-serif;padding:11px 12px;border-radius:12px;border:2px solid var(--line);background:var(--card);color:var(--ink)}
+.result img{width:100%;border-radius:14px;border:2px solid var(--line);display:block}
+.note{color:var(--muted);font-size:13px}
+.gal{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:8px}
+.gal img{width:100%;aspect-ratio:4/5;object-fit:cover;border-radius:10px;border:2px solid var(--line);cursor:pointer}
+.sec{margin-top:22px}
+.sec h3{font:700 24px "Caveat",cursive;margin:0 0 4px}
+.toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:var(--ink);color:var(--paper);padding:9px 16px;border-radius:999px;font-weight:800;font-size:14px;opacity:0;transition:opacity .25s;pointer-events:none;z-index:9;max-width:90vw;text-align:center}
+.toast.show{opacity:.95}
+.who{display:flex;gap:6px;margin-top:8px}
+.who button{flex:1}
+.back{border:none;background:none;color:var(--muted);font:700 14px "Nunito",sans-serif;padding:0;margin:0 0 6px;cursor:pointer}
+</style>
+</head>
+<body>
+<div class="wrap" id="app"></div>
+<div class="toast" id="toast"></div>
+<script>
+/* ===================== ДАННЫЕ ===================== */
+const START = Date.UTC(2026, 9, 19);            /* День 1 — 19 октября 2026 */
+const THEMES = [
+ "Портрет утра понедельника в виде овоща","Как выглядит «ещё пять минут»","Динозавр, который боится голубей","Улитка на мотоцикле",
+ "Облако, которое передумало быть облаком","Банан, которого назначили директором школы","Кактус, который очень хочет обниматься","Призрак, который боится людей",
+ "Морковь в отпуске","Спор двух облаков","Подушка-телохранитель","Самое страшное расписание в мире","Что преподаватель прячет в портфеле",
+ "Герб вашей общаги","Как выглядит Wi-Fi в общаге","Кот, который сдаёт сессию","Обложка альбома группы «Хвосты и Дедлайны»","Монстр под кроватью, но уютный",
+ "Ориентировка «Разыскивается»: сбежавший носок","Почтовая марка страны, где правят коты","Реклама воды «Просто вода»","Экспонат музея 3026 года: смартфон",
+ "Карта сокровищ своей комнаты","Нарисуй друг друга из трёх фигур: круг, квадрат, треугольник","Первые пять секунд вашей встречи","Ваш совместный герб",
+ "Свидание двух кружек","Спрячь в рисунке 5 сердечек","Что видит муравей, глядя на тебя","Твоё настроение в виде погоды","Звук будильника",
+ "Пельмень-рыцарь спасает принцессу-вареник","Чайник, который мечтает стать ракетой","Голубь, который работает в банке","Ёжик на первом свидании",
+ "Как сова представляет себе человека","Холодильник изнутри глазами йогурта","Дракон, который охраняет последнюю печеньку","Тапок-путешественник",
+ "Утюг на пенсии","Батарея в общаге зимой: портрет героя","Рыба, которая научилась ходить и сразу опоздала на пары","Если бы у среды было лицо",
+ "Пирожок с неожиданной начинкой","Самая уставшая лампочка в мире","Карандаш, который боится точилки","Лужа, которая считает себя морем",
+ "Медведь, который впервые увидел снег, но он в шапке","Робот-уборщица в столовой","Табличка на двери комнаты, честная","Как выглядит «я в порядке»",
+ "Носки, которые поженились","Курица-космонавт","Студенческий билет инопланетянина","Самый вкусный завтрак, который ты никогда не ела",
+ "Клякса, которая хочет стать кошкой","Комнатное растение, которое всё видело","Конспект, который ожил и сбежал","Пингвин-курьер в Армавире",
+ "Супергерой, чья суперсила — находить второй носок","Твоя кровать, которая ревнует к будильнику","Мороженое, которое не хочет таять","Трамвай мечты",
+ "Портрет человека, который громко ест чипсы в библиотеке","Шкаф, в котором живёт вторая вселенная","Огурец-философ","Новогодняя ёлка в октябре, ей неловко",
+ "Ты через 10 лет, но в виде животного","Карта погоды в вашей комнате","Яблоко, которое дружит с червяком","Кит в ванной","Самый смелый бутерброд в истории"
+];
+const HYB_A=["Ёж","Сова","Кот","Лягушка","Пингвин","Улитка","Енот","Хомяк","Утка","Медуза","Ленивец","Голубь","Жираф","Крокодил","Капибара","Божья коровка"];
+const HYB_B=["чайник","троллейбус","пельмень","кактус","утюг","торт","зонтик","фен","батон","кроссовок","лампа","рюкзак","облако","кастрюля","пылесос","подушка"];
+const MODS=[
+ {id:"timer",t:"⏱ Всего 60 секунд"},{id:"line",t:"✍️ Одной линией, не отрывая палец"},{id:"c3",t:"🎨 Только 3 цвета дня"},
+ {id:"mirror",t:"🪞 Зеркальная кисть"},{id:"blind",t:"🙈 Вслепую: рисунок скрыт до конца"},{id:"flip",t:"🙃 Холст вверх ногами"},
+ {id:"ghost",t:"👻 Линии исчезают через 3 секунды"},{id:"shaky",t:"🫨 Кисть с похмелья: дрожит"},{id:"pixel",t:"🟩 Пиксель-арт 16×16"}
+];
+const CRITICS=["Смело. Дерзко. Морковь явно что-то скрывает.","Автор говорит с нами языком линий. Язык, кажется, итальянский.","Я плакал. Потом понял, что это лук.",
+ "Пикассо бы позавидовал. Потом бы спросил, что это.","Глубина замысла уровня Марианской впадины.","Здесь чувствуется влияние понедельника.",
+ "Каждый мазок кричит. Соседи жалуются.","Это не рисунок. Это заявление.","Шедевр. Повесить в Эрмитаже, между Рембрандтом и кулером.",
+ "Работа пахнет свободой и немного чаем.","Критик долго смотрел, потом молча ушёл покупать краски.","Композиция безупречна. Особенно то, чего не видно.",
+ "Я не понял, но мне очень понравилось.","Чувствуется рука мастера. И локоть. И, кажется, коленка.","Автор явно что-то знает. Мы — нет.",
+ "Если долго смотреть, оно начинает смотреть в ответ.","Неоимпрессионизм с элементами общаги.","Данную работу рекомендовано смотреть с чаем.",
+ "Пять звёзд из пяти. Одну украл голубь.","Сюжет — бомба. Исполнение — две бомбы."];
+const PRICES=["3 семечки","1 пирожок с картошкой","бесценно","2 стипендии","одна мамина котлета","бесплатный проход без очереди в столовой","49 999 ₽ (торг уместен)",
+ "1 обнимашка","шоколадка «на чёрный день»","абонемент на сон до обеда","100 лягушачьих кваков","неделя без будильника","полцарства и Wi-Fi",
+ "лишняя пара носков","пачка печенья от Мартина","золотой студенческий"];
+const PALETTE=["#2b2b2b","#ffffff","#c8553d","#e9a23b","#f2d14e","#6f9e5a","#5f8fb4","#8a6fd1","#e88fb0","#8a5a3c"];
+const PAPER="#fffdf8";
+
+/* ===================== РАНДОМ ОТ ДАТЫ ===================== */
+function rng(seed){let a=seed>>>0;return()=>{a=(a+0x6D2B79F5)>>>0;let t=a;t=Math.imul(t^(t>>>15),t|1);t^=t+Math.imul(t^(t>>>7),t|61);return((t^(t>>>14))>>>0)/4294967296}}
+function shuffled(arr,seed){const r=rng(seed),a=arr.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(r()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+function todayIdx(){const n=new Date();return Math.floor((Date.UTC(n.getFullYear(),n.getMonth(),n.getDate())-START)/864e5)}
+/* темы: каждый день по 2 из колоды; колода кончилась — перемешиваем заново. Ничего не пропадает навсегда */
+function themesFor(day){
+  const N=THEMES.length,per=2,out=[];
+  for(let k=0;k<per;k++){const pos=day*per+k,cycle=Math.floor(pos/N),deck=shuffled(THEMES.map((_,i)=>i),9001+cycle*131);out.push(THEMES[deck[pos%N]])}
+  return out;
+}
+function special(day){
+  const r=rng(777+day*97);
+  if(day%2===0) return {kind:"squiggle",label:"Каракуля дня",t:"Преврати каракулю во что угодно",seed:1000+day};
+  const a=HYB_A[Math.floor(r()*HYB_A.length)],b=HYB_B[Math.floor(r()*HYB_B.length)];
+  return {kind:"hybrid",label:"Гибрид дня",t:`${a} + ${b}: скрести их`};
+}
+function modFor(day){const r=rng(4242+day*13);return r()<.35?null:MODS[Math.floor(r()*MODS.length)]}
+function c3For(day){return shuffled(PALETTE.filter(c=>c!=="#ffffff"),55+day).slice(0,3)}
+function dateLabel(day){const d=new Date(START+day*864e5);return d.toLocaleDateString("ru-RU",{day:"numeric",month:"long",timeZone:"UTC"})}
+
+/* ===================== ХРАНИЛИЩЕ ===================== */
+const store={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v);return true}catch(e){return false}}};
+let me=store.get("holst-who")||"";
+function gallery(){try{return JSON.parse(store.get("holst-gallery")||"[]")}catch(e){return []}}
+function toast(t){const e=document.getElementById("toast");e.textContent=t;e.classList.add("show");clearTimeout(toast.t);toast.t=setTimeout(()=>e.classList.remove("show"),2400)}
+const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+/* ===================== ЭКРАН ВЫБОРА ===================== */
+let view=Math.max(0,todayIdx()), pick=null, modOn=false;
+function home(){
+  const T=todayIdx(), day=Math.min(view,T), th=themesFor(day), sp=special(day), md=modFor(day);
+  const opts=[{label:"Тема 1",t:th[0],kind:"theme"},{label:"Тема 2",t:th[1],kind:"theme"},{label:sp.label,t:sp.t,kind:sp.kind,seed:sp.seed}];
+  pick=null;modOn=false;
+  $("app").innerHTML=`
+   <h1>Холст дня</h1>
+   <p class="sub">Каждый день — три темы на выбор, у вас обоих одинаковые. Завтрашние не подсмотреть.</p>
+   ${me?"":`<p class="note" style="margin:0">Кто рисует? Это будет подписано на картине.</p><div class="who"><button class="tool" data-w="Юля">🎨 Юля</button><button class="tool" data-w="Андрей">🖌 Андрей</button></div>`}
+   <div class="daynav"><button class="nav" id="prev" ${day<=0?"disabled":""}>‹</button><b>${day===T?"Сегодня":"Архив"} · ${dateLabel(day)} · день ${day+1}</b><button class="nav" id="nxt" ${day>=T?"disabled":""}>›</button></div>
+   <div class="opts">${opts.map((o,i)=>`<button class="opt" data-i="${i}"><small>${o.label}</small>${esc(o.t)}</button>`).join("")}</div>
+   ${md?`<div class="mod" id="mod"><span><b>Вызов дня</b> (по желанию):<br>${md.t}</span><button id="modb">Принять</button></div>`:`<p class="note">Сегодня без вызова: рисуй как хочется.</p>`}
+   <button class="btn" id="go" disabled style="opacity:.5">Выбери тему</button>
+   ${galHtml()}`;
+  document.querySelectorAll("[data-w]").forEach(b=>b.onclick=()=>{me=b.dataset.w;store.set("holst-who",me);home()});
+  $("prev").onclick=()=>{view=day-1;home()};$("nxt").onclick=()=>{view=day+1;home()};
+  document.querySelectorAll(".opt").forEach(b=>b.onclick=()=>{document.querySelectorAll(".opt").forEach(x=>x.classList.remove("on"));b.classList.add("on");pick=opts[+b.dataset.i];const g=$("go");g.disabled=false;g.style.opacity=1;g.textContent="Рисовать!"});
+  if(md)$("modb").onclick=()=>{modOn=!modOn;$("mod").classList.toggle("on",modOn);$("modb").textContent=modOn?"Принят ✓":"Принять"};
+  $("go").onclick=()=>{if(!pick)return;if(!me){toast("Сначала выбери, кто рисует");return}draw(day,pick,modOn?md:null)};
+  bindGal();
+}
+function galHtml(){
+  const g=gallery();if(!g.length)return `<div class="sec"><h3>Мои работы</h3><p class="note">Пока пусто. Готовые картины будут здесь (хранятся только на этом телефоне).</p></div>`;
+  return `<div class="sec"><h3>Мои работы · ${g.length}</h3><div class="gal">${g.map((x,i)=>`<img src="${x.img}" data-g="${i}" alt="${esc(x.t)}">`).join("")}</div></div>`;
+}
+function bindGal(){document.querySelectorAll("[data-g]").forEach(im=>im.onclick=()=>{const x=gallery()[+im.dataset.g];
+  $("app").innerHTML=`<button class="back" id="bk">‹ Назад</button><div class="result"><img src="${x.img}"></div><p class="note">${esc(x.date)} · ${esc(x.t)}</p><p class="note">Это уменьшенная копия. Полная картина — в загрузках или в чате, куда ты её отправила.</p>`;$("bk").onclick=home})}
+
+/* ===================== РИСОВАЛКА ===================== */
+const W=1080;
+function draw(day,opt,md){
+  window.scrollTo({top:0});
+  const mid=md?md.id:"";
+  const pal=mid==="c3"?c3For(day):PALETTE;
+  $("app").innerHTML=`
+   <button class="back" id="bk">‹ К темам</button>
+   <div class="theme">${esc(opt.t)}</div>
+   <div>${md?`<span class="chip warn">${md.t}</span>`:""}<span class="chip">${dateLabel(day)}</span></div>
+   <div class="stage ${mid==="flip"?"flip":""}" id="stage"><canvas id="cv" width="${W}" height="${W}"></canvas>
+     ${mid==="blind"?`<div class="blind" id="bl">🙈 Рисуй по памяти.<br>Покажу, когда нажмёшь «Готово»</div>`:""}
+     ${mid==="timer"?`<div class="timer" id="tm">60</div>`:""}</div>
+   <div class="tools">${pal.map((c,i)=>`<button class="sw ${i===0?"on":""}" data-c="${c}" style="background:${c}"></button>`).join("")}</div>
+   <div class="tools">
+     ${mid==="pixel"?"":`<div class="sizes">${[6,14,30,60].map((s,i)=>`<button class="tool ${i===1?"on":""}" data-s="${s}">${["•","●","⬤","🟠"][i]}</button>`).join("")}</div>`}
+     <button class="tool" id="er">🧽</button>${mid==="pixel"?"":`<button class="tool" id="fill" title="Залить фон">🪣</button>`}<button class="tool" id="un">↶</button><button class="tool" id="cl">🗑</button>
+   </div>
+   <input class="title" id="ttl" maxlength="60" placeholder="Название картины (можно пусто)">
+   <button class="btn" id="done">Готово</button>`;
+  const cv=$("cv"),ctx=cv.getContext("2d"),stage=$("stage");
+  let color=pal[0],size=14,eraser=false,strokes=[],cur=null,locked=false,bg=PAPER,finished=false,timeUp=false;
+  const squig=opt.kind==="squiggle"?makeSquiggle(opt.seed):null;
+  const shake=rng(99+day);
+  /* отрисовка всего рисунка */
+  function render(now){
+    ctx.fillStyle=bg;ctx.fillRect(0,0,W,W);
+    if(squig){ctx.strokeStyle="#2b2b2b";ctx.lineWidth=10;ctx.lineCap=ctx.lineJoin="round";ctx.beginPath();squig.forEach((p,i)=>i?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1]));ctx.stroke()}
+    for(const s of strokes){
+      let a=1;if(mid==="ghost"&&!finished&&now){a=Math.max(0,1-(now-s.end)/3000);if(s===cur)a=1;if(a<=0)continue}
+      ctx.globalAlpha=a;
+      if(s.px){ctx.fillStyle=s.er?bg:s.c;const cs=W/16;s.cells.forEach(([x,y])=>ctx.fillRect(x*cs,y*cs,cs,cs));ctx.globalAlpha=1;continue}
+      ctx.strokeStyle=s.er?bg:s.c;ctx.fillStyle=ctx.strokeStyle;ctx.lineWidth=s.w;ctx.lineCap=ctx.lineJoin="round";
+      const paths=mid==="mirror"?[s.pts,s.pts.map(p=>[W-p[0],p[1]])]:[s.pts];
+      for(const P of paths){if(P.length===1){ctx.beginPath();ctx.arc(P[0][0],P[0][1],s.w/2,0,7);ctx.fill();continue}
+        ctx.beginPath();P.forEach((p,i)=>i?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1]));ctx.stroke()}
+      ctx.globalAlpha=1;
+    }
+    if(mid==="pixel"&&!finished){ctx.strokeStyle="rgba(0,0,0,.08)";ctx.lineWidth=2;for(let i=1;i<16;i++){const v=i*W/16;ctx.beginPath();ctx.moveTo(v,0);ctx.lineTo(v,W);ctx.moveTo(0,v);ctx.lineTo(W,v);ctx.stroke()}}
+  }
+  let raf=0;if(mid==="ghost"){const loop=t=>{render(performance.now());raf=requestAnimationFrame(loop)};raf=requestAnimationFrame(loop)}
+  render();
+  function pos(e){const r=cv.getBoundingClientRect();let x=(e.clientX-r.left)/r.width*W,y=(e.clientY-r.top)/r.height*W;if(mid==="flip"){x=W-x;y=W-y}
+    if(mid==="shaky"){x+=(shake()-.5)*22;y+=(shake()-.5)*22}return [x,y]}
+  cv.onpointerdown=e=>{if(locked||finished)return;e.preventDefault();cv.setPointerCapture(e.pointerId);const p=pos(e);
+    if(mid==="pixel"){cur={px:1,c:color,er:eraser,cells:[]};addCell(p)}else cur={c:color,w:size,er:eraser,pts:[p]};
+    strokes.push(cur);render(performance.now())};
+  cv.onpointermove=e=>{if(!cur)return;const p=pos(e);if(cur.px)addCell(p);else cur.pts.push(p);if(mid!=="ghost")render()};
+  const up=()=>{if(!cur)return;cur.end=performance.now();cur=null;if(mid==="line"){locked=true;toast("Линия одна! Отменить ↶ — начать заново")}render(performance.now())};
+  cv.onpointerup=up;cv.onpointercancel=up;
+  function addCell([x,y]){const cs=W/16,c=[Math.max(0,Math.min(15,Math.floor(x/cs))),Math.max(0,Math.min(15,Math.floor(y/cs)))];if(!cur.cells.some(q=>q[0]===c[0]&&q[1]===c[1]))cur.cells.push(c)}
+  document.querySelectorAll(".sw").forEach(b=>b.onclick=()=>{document.querySelectorAll(".sw").forEach(x=>x.classList.remove("on"));b.classList.add("on");color=b.dataset.c;eraser=false;$("er").classList.remove("on")});
+  document.querySelectorAll("[data-s]").forEach(b=>b.onclick=()=>{document.querySelectorAll("[data-s]").forEach(x=>x.classList.remove("on"));b.classList.add("on");size=+b.dataset.s});
+  $("er").onclick=()=>{eraser=!eraser;$("er").classList.toggle("on",eraser)};
+  if($("fill"))$("fill").onclick=()=>{bg=color;render(performance.now());toast("Фон залит")};
+  $("un").onclick=()=>{strokes.pop();locked=timeUp;render(performance.now())};
+  $("cl").onclick=()=>{if(!strokes.length||confirm("Стереть всё?")){strokes=[];bg=PAPER;locked=timeUp;render(performance.now())}};
+  /* таймер */
+  let tmi=0;if(mid==="timer"){let left=60,started=false;const tick=()=>{left--;$("tm").textContent=left;if(left<=0){clearInterval(tmi);locked=true;timeUp=true;$("tm").textContent="Время!";toast("⏱ Время вышло! Карандаши на стол")}};
+    cv.addEventListener("pointerdown",()=>{if(!started){started=true;tmi=setInterval(tick,1000)}})}
+  $("bk").onclick=()=>{if(strokes.length&&!confirm("Выйти? Рисунок не сохранится."))return;cancelAnimationFrame(raf);clearInterval(tmi);home()};
+  $("done").onclick=()=>{if(!strokes.length&&!squig){toast("Холст пока пустой 🙂");return}
+    finished=true;cancelAnimationFrame(raf);clearInterval(tmi);const bl=$("bl");if(bl)bl.remove();stage.classList.remove("flip");render();
+    const ttl=$("ttl").value.trim();
+    const go=()=>finish(day,opt,md,cv,ttl);
+    (document.fonts&&document.fonts.load)?Promise.all([document.fonts.load('700 72px Caveat'),document.fonts.load('600 32px Nunito')]).then(go,go):go()};
+}
+function makeSquiggle(seed){
+  const r=rng(seed),pts=[];let x=W*(.3+r()*.4),y=W*(.3+r()*.4),a=r()*6.28;
+  const n=60+Math.floor(r()*40);
+  for(let i=0;i<n;i++){a+=(r()-.5)*1.1;const st=14+r()*10;x+=Math.cos(a)*st;y+=Math.sin(a)*st;
+    if(x<W*.15||x>W*.85)a=Math.PI-a;if(y<W*.15||y>W*.85)a=-a;x=Math.max(W*.12,Math.min(W*.88,x));y=Math.max(W*.12,Math.min(W*.88,y));pts.push([x,y])}
+  return pts;
+}
+
+/* ===================== РАМКА И ТАБЛИЧКА ===================== */
+function finish(day,opt,md,cv,title){
+  const r=rng(Date.now()%100000);
+  const critic=CRITICS[Math.floor(r()*CRITICS.length)],price=PRICES[Math.floor(r()*PRICES.length)];
+  const name=title||"Без названия",OW=1200,X=120,MW=OW-240;
+  const m=document.createElement("canvas").getContext("2d");
+  const L=(font,text)=>{m.font=font;return wrapLines(m,text,MW)};
+  const F1="700 72px Caveat, cursive",F2="600 32px Nunito, sans-serif",F3="italic 600 34px Nunito, sans-serif",F4="800 34px Nunito, sans-serif";
+  const blocks=[[F1,"«"+name+"»",74,"#3a2e28"],[F2,`${me||"Неизвестный гений"} · ${dateLabel(day)} 2026 · Галерея имени Юли`,42,"#6b5a4d"],
+    [F2,"Тема: "+opt.t+(md?" · "+md.t.replace(/^\S+ /,""):""),42,"#6b5a4d"],[F3,"Критик: «"+critic+"»",44,"#3a2e28"],[F4,"Оценка на аукционе: "+price,44,"#c8553d"]];
+  const laid=blocks.map(([f,t,lh,col])=>({f,lh,col,lines:L(f,t)}));
+  const py=OW-10, plateH=50+laid.reduce((a,x)=>a+x.lines.length*x.lh+14,0)+30, OH=py+plateH+50;
+  const out=document.createElement("canvas");out.width=OW;out.height=OH;const c=out.getContext("2d");
+  c.fillStyle="#f3e6cf";c.fillRect(0,0,OW,OH);
+  c.fillStyle="#8a5a3c";c.fillRect(40,40,OW-80,OW-80);c.fillStyle="#c79a62";c.fillRect(62,62,OW-124,OW-124);c.fillStyle="#6d4630";c.fillRect(84,84,OW-168,OW-168);
+  c.drawImage(cv,96,96,OW-192,OW-192);
+  c.fillStyle="#fffaf0";c.strokeStyle="#c79a62";c.lineWidth=6;roundRect(c,80,py,OW-160,plateH,18);c.fill();c.stroke();
+  let y=py+40;c.textAlign="left";c.textBaseline="top";
+  laid.forEach(x=>{c.font=x.f;c.fillStyle=x.col;x.lines.forEach(t=>{c.fillText(t,X,y);y+=x.lh});y+=14});
+  const url=out.toDataURL("image/png");
+  /* в галерею — уменьшенная копия */
+  try{const th=document.createElement("canvas");th.width=360;th.height=468;th.getContext("2d").drawImage(out,0,0,360,468);
+    const g=gallery();g.unshift({img:th.toDataURL("image/jpeg",.7),t:name+" — "+opt.t,date:dateLabel(day)});while(g.length>45)g.pop();
+    if(!store.set("holst-gallery",JSON.stringify(g))){g.splice(20);store.set("holst-gallery",JSON.stringify(g))}}catch(e){}
+  window.scrollTo({top:0});
+  $("app").innerHTML=`<h1>Готово!</h1><div class="result"><img src="${url}" alt="Картина"></div>
+    <div class="row"><button class="btn" id="sh">📤 Отправить</button><button class="btn ghost" id="dl">⬇️ Сохранить</button></div>
+    <p class="note">«Отправить» откроет список приложений, выбирай Telegram. Если не сработает — «Сохранить», а потом прикрепи картинку в чат. Или просто зажми картинку пальцем.</p>
+    <button class="btn ghost" id="again">Ещё одну</button>`;
+  out.toBlob(blob=>{
+    const fname=`holst-${dateLabel(day).replace(/ /g,"-")}.png`,file=new File([blob],fname,{type:"image/png"});
+    $("dl").onclick=()=>{const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=fname;document.body.appendChild(a);a.click();a.remove()};
+    $("sh").onclick=async()=>{try{if(navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file],title:"Холст дня",text:`«${name}» — ${opt.t}`})}else{$("dl").click();toast("Сохранено — теперь отправь из галереи телефона")}}catch(e){}};
+  },"image/png");
+  $("again").onclick=home;
+}
+function roundRect(c,x,y,w,h,r){c.beginPath();c.moveTo(x+r,y);c.arcTo(x+w,y,x+w,y+h,r);c.arcTo(x+w,y+h,x,y+h,r);c.arcTo(x,y+h,x,y,r);c.arcTo(x,y,x+w,y,r);c.closePath()}
+function wrapLines(c,text,maxW){const out=[];let line="";for(const w of text.split(" ")){const t=line?line+" "+w:w;if(c.measureText(t).width>maxW&&line){out.push(line);line=w}else line=t}out.push(line);return out}
+function wrap(c,text,x,y,maxW,lh){const words=text.split(" ");let line="",yy=y;for(const w of words){const t=line?line+" "+w:w;if(c.measureText(t).width>maxW&&line){c.fillText(line,x,yy);line=w;yy+=lh}else line=t}c.fillText(line,x,yy)}
+function fitText(c,t,x,y,maxW,size,fam){let s=size;c.font=`700 ${s}px ${fam}, cursive`;while(c.measureText(t).width>maxW&&s>30){s-=2;c.font=`700 ${s}px ${fam}, cursive`}c.fillText(t,x,y)}
+
+/* тема как в игре */
+try{const t=localStorage.getItem("n8-theme");if(t==="dark"||t==="light")document.documentElement.dataset.theme=t}catch(e){}
+document.fonts&&document.fonts.ready.then(()=>{}).catch(()=>{});
+home();
+if("serviceWorker" in navigator&&/^https?:/.test(location.protocol)){try{navigator.serviceWorker.register("sw.js").catch(()=>{})}catch(e){}}
+</script>
+</body>
+</html>
