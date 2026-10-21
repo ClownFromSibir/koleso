@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Колесо дня</title>
 <meta name="color-scheme" content="light">
+<meta name="theme-color" content="#c8553d">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Nunito:wght@400;600;800&display=swap" rel="stylesheet">
@@ -74,38 +75,91 @@
   @keyframes pop{from{transform:scale(.7);opacity:0}to{transform:scale(1);opacity:1}}
   @keyframes fade{from{opacity:0}to{opacity:1}}
   footer{margin-top:36px;color:var(--muted);font-size:12px}
+
+  .pointer{transform-origin:50% 0}
+  .pointer.tick{animation:tick .12s ease-out}
+  @keyframes tick{0%{transform:translateX(-50%) rotate(0)}40%{transform:translateX(-50%) rotate(-14deg)}100%{transform:translateX(-50%) rotate(0)}}
+  .tabs{display:flex;gap:6px;margin:0 0 16px}
+  .tab{flex:1;border:2px solid var(--line);background:var(--paper2);color:var(--ink);border-radius:12px;padding:9px 4px;font:800 14px "Nunito",sans-serif;cursor:pointer}
+  .tab.on{border-color:var(--accent);color:var(--accent)}
+  .streak{margin-top:10px;font-size:14px;color:var(--muted)}
+  .letter{display:none;margin:0 auto 14px;max-width:340px;background:#fff;border:2px dashed var(--accent);border-radius:14px;padding:10px 14px;font-weight:800;cursor:pointer;animation:pulse 1.6s ease-in-out infinite}
+  @keyframes pulse{50%{transform:scale(1.03)}}
+  .card.rare{box-shadow:0 0 0 4px #b9a3f0,0 20px 50px rgba(0,0,0,.25)}
+  .card.leg{box-shadow:0 0 0 5px #f5b82e,0 0 40px #ffd95e,0 20px 50px rgba(0,0,0,.25)}
+  .card.sp{box-shadow:0 0 0 5px #ff7a9a,0 20px 50px rgba(0,0,0,.25)}
+  .ans{display:none;margin:0 0 10px;border:2px solid var(--accent);background:#fff;color:var(--accent);border-radius:12px;padding:8px 14px;font:800 15px "Nunito",sans-serif;cursor:pointer}
+  .history li.rare{border-color:#b9a3f0}.history li.leg{border-color:#f5b82e;background:#fff8e1}.history li.sp{border-color:#ff7a9a}
+  .history li small{color:var(--muted)}
+  body.flash:after{content:"";position:fixed;inset:0;background:radial-gradient(circle,#fff6c8,transparent 70%);animation:flashout .9s ease forwards;pointer-events:none;z-index:9}
+  @keyframes flashout{from{opacity:1}to{opacity:0}}
+  .pane{text-align:left}
+  .coupon{display:flex;gap:10px;align-items:center;background:var(--paper2);border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin-bottom:8px}
+  .coupon>div{flex:1}.coupon b{display:block;font-size:16px}.coupon small{display:block;color:var(--muted);font-size:13px;margin-top:3px}
+  .coupon.rare{border-color:#b9a3f0}.coupon.leg{border-color:#f5b82e;background:#fff8e1}.coupon.used{opacity:.55}
+  .btn.mini{margin:0;padding:8px 12px;font-size:14px;box-shadow:0 3px 0 #9c3c29}
+  .pane h3{font-family:"Caveat",cursive;font-size:26px;margin:18px 0 8px}
+  .empty{color:var(--muted);text-align:center}
+  .prog{height:8px;border-radius:8px;background:var(--line);overflow:hidden;margin:6px 0 14px}.prog i{display:block;height:100%;background:var(--accent)}
+  .pane details{background:var(--paper2);border:1px solid var(--line);border-radius:12px;padding:10px 14px;margin-bottom:8px}
+  .pane summary{font-weight:800;cursor:pointer;display:flex;justify-content:space-between}
+  .cg{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+  .ci{border:1px solid var(--line);background:#fff;border-radius:999px;padding:5px 10px;font:700 13px "Nunito",sans-serif;color:var(--ink);cursor:pointer}
+  .ci.lock{color:#b9ab9c;cursor:default;background:transparent}.ci.rare{border-color:#9f86e0}.ci.leg{border-color:#f5b82e;background:#fff8e1}.ci.sp{border-color:#ff7a9a}
+  #testpanel{display:none;margin:18px 0 0;text-align:left;background:#eef3f7;border:2px dashed #5f8fb4;border-radius:14px;padding:12px;font-size:14px}
+  #testpanel .row{margin-top:8px;display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+  .tb{border:1px solid #5f8fb4;background:#fff;color:#2c4f6b;border-radius:999px;padding:5px 10px;font:700 13px "Nunito",sans-serif;cursor:pointer}
+  .tb.on{background:#5f8fb4;color:#fff}
+  #testpanel .small{color:var(--muted);font-size:12px;margin:8px 0 0}
 </style>
 </head>
 <body>
 <main>
-  <h1>Колесо дня</h1>
-  <p class="sub">Одна прокрутка в день. Что выпало, то и твоё.</p>
-  <div class="date" id="date"></div>
+  <h1 id="h1">Колесо дня</h1>
+  <p class="sub" id="sub">Одна прокрутка в день. Что выпало, то и твоё.</p>
+  <div class="tabs"><button class="tab on" data-p="pWheel">🎡 Колесо</button><button class="tab" data-p="pCoupons">🎟 Купоны</button><button class="tab" data-p="pColl">📒 Коллекция</button></div>
 
+  <section class="paneW" id="pWheel">
+  <div class="date" id="date"></div>
+  <div class="letter" id="letter">📩 Тебе письмо на сегодня. Нажми, чтобы открыть</div>
   <div class="wheel-wrap">
-    <div class="pointer"></div>
+    <div class="pointer" id="pointer"></div>
     <svg id="wheel" viewBox="0 0 400 400" aria-label="Колесо"></svg>
     <div class="hub">❤️</div>
   </div>
-
   <button class="btn" id="spin">Крутить!</button>
   <div class="timer" id="timer"></div>
+  <div class="streak" id="streak"></div>
+  <button class="btn" id="chest" style="display:none">🎁 Открыть сундук серии</button>
   <button class="btn ghost" id="again" style="display:none">Открыть сегодняшнее</button>
-
+  <div id="testpanel"></div>
   <section class="history">
     <h2>Уже выпадало</h2>
     <ul id="hist"></ul>
+  </section>
+  </section>
+
+  <section class="pane" id="pCoupons" style="display:none">
+    <p class="empty" id="cpCount"></p>
+    <div id="coupons"></div>
+  </section>
+
+  <section class="pane" id="pColl" style="display:none">
+    <div id="collTotal"></div>
+    <div id="coll"></div>
+    <p class="empty" style="font-size:13px">✦ — редкие, ★ — легендарные. Закрытые карточки откроются, когда выпадут на колесе.</p>
   </section>
 
   <footer>Сделано с любовью из Питера</footer>
 </main>
 
 <div class="overlay" id="overlay">
-  <div class="card" role="dialog" aria-modal="true">
+  <div class="card" id="card" role="dialog" aria-modal="true">
     <button class="close" id="close" aria-label="Закрыть">×</button>
     <span class="chip" id="cChip"></span>
     <h3 id="cTitle"></h3>
     <p id="cText"></p>
+    <button class="ans" id="cAns"></button>
     <p class="sign">— Андрей</p>
     <div class="note" id="cNote"></div>
   </div>
@@ -113,19 +167,20 @@
 
 <script>
 /* ================= БАЗА =================
-   c — категория (k купон, c комплимент, a анекдот, z задание, p предсказание, f факт, w пожелание)
-   t — короткая надпись на колесе (до ~14 символов)
-   x — полный текст
-   Добавлять новые можно в конец списка. */
+   c — категория: k купон, c комплимент, a анекдот, z задание, p предсказание, f факт, w пожелание,
+                  q вопрос дня, ph фото-задание, zg загадка (a — ответ), m музыка, l лягушка дня
+   r — редкость: нет — обычная, 1 — редкая ✦, 2 — легендарная ★
+   t — короткая надпись на колесе, x — полный текст.
+   ВАЖНО: новые карточки добавлять только В КОНЕЦ списка. История хранится по номерам. */
 const DB = [
  {c:"k",t:"Созвон",x:"Внеочередной созвон в любое время, когда захочешь. Андрей обязан ответить, даже если он в этот момент ест. Особенно если ест."},
  {c:"k",t:"Стих на заказ",x:"Стихотворение на любую тему. Хоть про кабачок, хоть про лекцию по ОРГ. Срок исполнения: сутки."},
  {c:"k",t:"Выбор фильма",x:"Право выбрать фильм для следующего совместного просмотра. Андрей не имеет права вздыхать и говорить «ну ладно»."},
  {c:"k",t:"Ты права",x:"Однократное признание Андреем того, что ты права. В любом споре. Даже если он уверен в обратном. Особенно тогда."},
- {c:"k",t:"Обнимашки",x:"Десять минут непрерывных обнимашек при встрече. Не сгорает. Суммируется с другими купонами."},
- {c:"k",t:"Рисунок",x:"Андрей рисует тебе картину. Сам. Руками. Оценку ставишь ты, а он обещает не обижаться."},
- {c:"k",t:"Желание",x:"Одно желание. В пределах разумного. Ну, почти разумного."},
- {c:"k",t:"Письмо",x:"Длинное письмо в духе девятнадцатого века. С обращением «милостивая государыня» и без единого смайлика."},
+ {c:"k",r:1,t:"Обнимашки",x:"Десять минут непрерывных обнимашек при встрече. Не сгорает. Суммируется с другими купонами."},
+ {c:"k",r:1,t:"Рисунок",x:"Андрей рисует тебе картину. Сам. Руками. Оценку ставишь ты, а он обещает не обижаться."},
+ {c:"k",r:1,t:"Желание",x:"Одно желание. В пределах разумного. Ну, почти разумного."},
+ {c:"k",r:1,t:"Письмо",x:"Длинное письмо в духе девятнадцатого века. С обращением «милостивая государыня» и без единого смайлика."},
  {c:"k",t:"Поцелуи",x:"Двадцать поцелуев при встрече. Распределение по лицу — на твоё усмотрение."},
  {c:"k",t:"Поныть",x:"Право целый вечер ныть Андрею о чём угодно. Он будет слушать, кивать и говорить «ужас какой»."},
  {c:"k",t:"Вкусняшка",x:"Андрей отправляет тебе что-нибудь вкусное. Что именно, выбираешь ты."},
@@ -198,150 +253,389 @@ const DB = [
  {c:"w",t:"Мелочь",x:"Желаю тебе маленькой радости. Совсем маленькой: тёплого носка, последней конфеты, удачной строчки."},
  {c:"w",t:"Краски",x:"Пусть скоро найдётся вечер, когда можно просто сесть и рисовать. Без оценок, без сроков. Для себя."},
  {c:"w",t:"Люди",x:"Пусть сегодня рядом будут только хорошие люди. А плохие пусть останутся дома с лёгким насморком."},
- {c:"w",t:"Секрет",x:"Секретное пожелание: [скрыто].\nУзнаешь при встрече. Да, это шантаж."}
+ {c:"w",r:1,t:"Секрет",x:"Секретное пожелание: [скрыто].\nУзнаешь при встрече. Да, это шантаж."},
+
+ /* ======== НОВОЕ (октябрь 2026). Порядок старых карточек не трогать: по номерам хранится история ======== */
+ /* --- купоны --- */
+ {c:"k",t:"5 комплиментов",x:"Андрей обязан за одну минуту написать тебе пять комплиментов. Без повторов. Время пошло, как только ты покажешь купон."},
+ {c:"k",t:"Мем-доставка",x:"Доставка десяти отборных мемов. Андрей лично отбирает каждый. Если ни один не рассмешил — доставка повторяется бесплатно."},
+ {c:"k",t:"Голосовое утро",x:"Завтра утром тебя разбудит голосовое от Андрея. Не просто «доброе утро», а целое утреннее шоу."},
+ {c:"k",t:"Сказка",x:"Андрей сочиняет тебе сказку на ночь. Главный герой — на твой выбор. Хоть чайник, хоть староста этажа."},
+ {c:"k",t:"Конец спора",x:"Мгновенно завершает любой спор в твою пользу. Андрей говорит «да, дорогая» и даже не вздыхает."},
+ {c:"k",t:"Тема вечера",x:"Ты выбираешь тему для вечернего разговора. Андрей обязан поддерживать её не меньше получаса. Даже если тема — гуашь."},
+ {c:"k",t:"Смешное фото",x:"Андрей присылает своё фото в самой нелепой позе, которую ты придумаешь. Без права удаления."},
+ {c:"k",t:"Анекдот",x:"Анекдот на заказ. Ты называешь тему, Андрей придумывает. Если не смешно — хотя бы старательно."},
+ {c:"k",t:"Ты поела?",x:"Целый день Андрей не спрашивает «ты поела?». Ну, почти. Он будет очень стараться."},
+ {c:"k",r:1,t:"Мини-посылка",x:"Андрей отправляет тебе маленькую посылку с сюрпризом. Что внутри — секрет. Размер — маленький, любовь — большая."},
+ {c:"k",r:1,t:"Доставка еды",x:"Андрей заказывает тебе еду с доставкой. Ты выбираешь что. Он выбирает, что не будет смотреть на чек."},
+ {c:"k",r:1,t:"Мультик",x:"Новый мультфильм про тебя. Андрей заказывает, сюжет — на твой выбор. Ждать придётся пару дней, зато будет красиво."},
+ {c:"k",r:1,t:"Сайт-подарок",x:"Андрей делает для тебя новую страничку-подарок. Тема — какая захочешь: игра, открытка, галерея."},
+ {c:"k",r:2,t:"Подарок",x:"ЛЕГЕНДАРНЫЙ КУПОН.\nВнеплановый подарок. Без повода, без праздника, просто потому что колесо так решило. Андрей уже нервно открыл маркетплейс."},
+ {c:"k",r:2,t:"Желание+",x:"ЛЕГЕНДАРНЫЙ КУПОН.\nЖелание без ограничений. Ну, почти без ограничений: в пределах законов физики и бюджета студента."},
+ {c:"k",r:2,t:"День королевы",x:"ЛЕГЕНДАРНЫЙ КУПОН.\nЦелый день ты королева. Андрей — придворный: исполняет капризы, пишет оды и обращается к тебе только «ваше величество»."},
+ {c:"k",r:2,t:"Свидание",x:"ЛЕГЕНДАРНЫЙ КУПОН.\nСвидание на расстоянии: Андрей заказывает вам одинаковую еду, вы смотрите один фильм и болтаете весь вечер. Ресторан длиной 2000 км."},
+ {c:"k",r:2,t:"Песня",x:"ЛЕГЕНДАРНЫЙ КУПОН.\nАндрей поёт тебе песню. Видео. Голосом. Каким есть. Срок исполнения — когда наберётся смелости, но не позже чем через неделю."},
+ {c:"k",r:2,t:"Сюрприз",x:"ЛЕГЕНДАРНЫЙ КУПОН.\nСюрприз. Какой — Андрей пока сам не знает. Но знает, что он будет. Жди."},
+
+ /* --- комплименты --- */
+ {c:"c",t:"Смех",x:"Твой смех надо выдавать по рецепту. Он лечит лучше любой аптечки."},
+ {c:"c",t:"Акварель",x:"Ты рисуешь акварелью, а я смотрю на тебя и понимаю, что лучшая картина в мире — это ты, когда сосредоточенно рисуешь."},
+ {c:"c",t:"Учительница",x:"Детям очень повезёт. У них будет учитель, который объяснит что угодно и при этом не забудет улыбнуться."},
+ {c:"c",t:"Упрямство",x:"Ты бываешь упрямой. И это прекрасно: именно поэтому у тебя всё получается."},
+ {c:"c",t:"Доброта",x:"Ты добрая даже тогда, когда устала. Это самый редкий вид доброты."},
+ {c:"c",t:"Сообщения",x:"Когда приходит сообщение от тебя, телефон вибрирует как обычно. А я — нет. Я подпрыгиваю."},
+ {c:"c",t:"Красота",x:"Ты красивая. Это не комплимент, это констатация. Комплимент будет дальше: ты ещё и умная."},
+ {c:"c",r:1,t:"Тайна",x:"Самая большая тайна вселенной: как в одном человеке помещается столько всего хорошего. Учёные бессильны. Я просто радуюсь."},
+
+ /* --- анекдоты --- */
+ {c:"a",t:"Филолог",x:"Филолог заходит в кафе:\n— Мне, пожалуйста, кофе.\n— Чёрный?\n— Мужского рода. Но сегодня можно и чёрный."},
+ {c:"a",t:"Бесконечность",x:"Студента-программиста попросили объяснить, что такое бесконечный цикл. Он показал переписку с девушкой:\n«Отключайся первая» — «Нет, ты» — «Нет, ты» — «Ну на счёт три…»"},
+ {c:"a",t:"Отличница",x:"— Почему ты так долго делаешь домашку?\n— Я её не делаю. Я её довожу до совершенства.\n— И сколько осталось?\n— Вся жизнь."},
+ {c:"a",t:"Расстояние",x:"Расстояние решило разлучить одну пару. Поставило между ними 2000 км. Через месяц заглянуло проверить — а они переписываются по 148 сообщений в день. Ещё через месяц расстояние уволилось."},
+ {c:"a",t:"Лягушка",x:"Лягушка приходит к врачу:\n— Доктор, мне кажется, я принцесса.\n— Это лечится.\n— Не надо лечить. У меня уже есть принц. Он просто пока в Питере."},
+ {c:"a",t:"Не вместе",x:"Учительница русского:\n— Какое слово всегда пишется раздельно?\nВовочка:\n— «Не вместе».\n— Почему?\n— Потому что не вместе всегда тяжело."},
+ {c:"a",t:"Гуашь",x:"Акварель спрашивает гуашь:\n— Почему ты такая непрозрачная?\n— Я не непрозрачная. Я загадочная."},
+ {c:"a",t:"Будильник",x:"Будильник прозвенел в седьмой раз.\nХозяйка открыла один глаз и сказала:\n— Ещё пять минут.\nБудильник вздохнул:\n— Это я уже слышал. В 6:40, 6:45, 6:50…"},
+
+ /* --- задания --- */
+ {c:"z",t:"Каракуля",x:"Нарисуй каракулю с закрытыми глазами, а потом преврати её в животное. Отправь Андрею, пусть угадает, кто это."},
+ {c:"z",t:"Комплимент",x:"Сделай сегодня комплимент одному человеку. Любому. Можно соседке. Особенно соседке."},
+ {c:"z",t:"Танец",x:"Станцуй под одну песню. Одна, в комнате, как будто никто не видит. Потому что никто и не видит."},
+ {c:"z",t:"Три кадра",x:"Расскажи Андрею свой день в трёх эмодзи. Он попробует угадать, что было."},
+ {c:"z",t:"Стакан воды",x:"Выпей стакан воды прямо сейчас. Колесо следит за твоим водным балансом."},
+ {c:"z",t:"Плед",x:"Сегодня вечером — десять минут под пледом, ничего не делая. Это задание, и его нельзя провалить."},
+ {c:"z",t:"Лист",x:"Найди на улице самый красивый осенний лист и сфотографируй его. Или забери — на память."},
+ {c:"z",r:1,t:"Письмо себе",x:"Напиши письмо себе через год. Три строчки. Спрячь. Андрей обещает напомнить открыть его через 365 дней."},
+
+ /* --- предсказания --- */
+ {c:"p",t:"Пара",x:"Сегодня одну пару могут отменить. А может, и нет. Но надеяться не запрещено."},
+ {c:"p",t:"Лягушка",x:"Предсказание: сегодня ты увидишь что-то зелёное, и оно тебя порадует. Возможно, это будет лягушка. Возможно, светофор."},
+ {c:"p",t:"Звонок",x:"Вечером тебе позвонит человек, который очень по тебе скучает. Подсказка: он живёт в Питере и любит блины."},
+ {c:"p",t:"Удача",x:"Сегодня удача на твоей стороне. Она, правда, немного опаздывает, но уже в пути."},
+ {c:"p",t:"Сон",x:"Этой ночью тебе приснится что-то тёплое. Если приснится сессия — это ошибка, жалобы принимает Андрей."},
+ {c:"p",t:"Вкусно",x:"Сегодня ты съешь что-то очень вкусное. Звёзды настаивают. Не спорь со звёздами."},
+ {c:"p",t:"Магнит",x:"Сегодня ты будешь притягивать хорошее. Плохое тоже попробует, но отскочит."},
+ {c:"p",r:1,t:"Будущее",x:"Большое предсказание: летом будет поездка, Нева, разводные мосты и один очень счастливый человек рядом. Это не предсказание. Это план."},
+
+ /* --- факты --- */
+ {c:"f",t:"Пингвины",x:"Пингвины некоторых видов дарят избраннице красивые камешки. Я бы подарил тебе целый пляж."},
+ {c:"f",t:"Коалы",x:"Коалы спят до 20 часов в сутки. Это не лень, это стиль жизни. Можно брать пример в выходные."},
+ {c:"f",t:"Совы",x:"Совы не умеют двигать глазами, поэтому поворачивают голову почти на 270 градусов. Полина оценит."},
+ {c:"f",t:"Бабочки",x:"Бабочки чувствуют вкус лапками. Представь: встала на торт — и уже всё поняла."},
+ {c:"f",t:"Лягушки пьют",x:"Лягушки не пьют воду ртом: они впитывают её кожей. Очень удобно, если лень идти за стаканом."},
+ {c:"f",t:"Морской конёк",x:"У морских коньков потомство вынашивают папы. Вот это я понимаю — забота."},
+ {c:"f",t:"Вороны",x:"Вороны запоминают лица людей и могут годами помнить, кто был к ним добр. Будь доброй к воронам."},
+ {c:"f",t:"Арбуз",x:"С точки зрения ботаники арбуз и банан — ягоды, а клубника — нет. Мир полон обмана."},
+ {c:"f",t:"Венера",x:"На Венере сутки длятся дольше, чем год. Так что если тебе кажется, что пара тянется вечность, — ты почти на Венере."},
+ {c:"f",t:"Акулы",x:"Акулы появились на Земле раньше, чем деревья. Им можно доверять: они видели всё."},
+
+ /* --- пожелания --- */
+ {c:"w",t:"Лёгкость",x:"Пусть сегодня всё даётся легко. А то, что не даётся, пусть просто подождёт до завтра."},
+ {c:"w",t:"Чай",x:"Пусть сегодняшний чай будет идеальной температуры с первого глотка."},
+ {c:"w",t:"Похвала",x:"Пусть сегодня тебя похвалят. А если забудут — я похвалю за всех: ты молодец."},
+ {c:"w",t:"Время",x:"Пусть сегодня найдётся час только для тебя. Без пар, без дел, без чужих голосов."},
+ {c:"w",t:"Батарея",x:"Пусть батарея в комнате греет, Wi-Fi ловит, а соседи шумят ровно на два тона тише."},
+ {c:"w",t:"Вдохновение",x:"Пусть сегодня придёт вдохновение. И пусть оно придёт вовремя, а не в два часа ночи."},
+ {c:"w",t:"Сон",x:"Желаю выспаться. Не «немного поспать», а именно выспаться. Как в детстве на каникулах."},
+ {c:"w",r:1,t:"Мечта",x:"Пусть сегодня ты сделаешь хотя бы маленький шаг к своей мечте. Даже если это просто купленный тюбик краски."},
+
+ /* --- вопрос дня (новая категория) --- */
+ {c:"q",t:"Суперсила",x:"Какую суперсилу ты бы выбрала, чтобы выживать на парах?"},
+ {c:"q",t:"Утро-зверь",x:"Какое животное лучше всего описывает твоё сегодняшнее утро?"},
+ {c:"q",t:"Первый рисунок",x:"Что ты нарисуешь первым делом, когда наконец будет свободный вечер?"},
+ {c:"q",t:"Фильм",x:"Какой фильм мы посмотрим первым, когда встретимся?"},
+ {c:"q",t:"Герб",x:"Если бы у нашей пары был герб, что было бы на нём нарисовано?"},
+ {c:"q",t:"Мелочь",x:"Какая самая маленькая вещь порадовала тебя сегодня?"},
+ {c:"q",t:"Блюдо",x:"Какое блюдо ты бы приготовила мне в первую очередь?"},
+ {c:"q",t:"Питер",x:"Куда мы пойдём в Питере в первый же день?"},
+ {c:"q",t:"Песня недели",x:"Какая песня лучше всего описывает твою неделю?"},
+ {c:"q",t:"Телепорт",x:"Если бы можно было телепортироваться на один час, куда бы ты отправилась?"},
+ {c:"q",t:"Сказка",x:"Если бы ты была героиней сказки, то какой и почему?"},
+ {c:"q",t:"Остров",x:"Три вещи, которые ты взяла бы на необитаемый остров. Меня не считаем, я еду автоматически."},
+ {c:"q",t:"Слово",x:"Какое слово ты бы запретила навсегда?"},
+ {c:"q",t:"Страх",x:"Какой у тебя самый странный и смешной страх?"},
+ {c:"q",r:1,t:"Мечта",x:"О чём ты мечтаешь, но ещё никому не рассказывала? Можно ответить одним словом. Можно при встрече."},
+
+ /* --- фото-задание (новая категория) --- */
+ {c:"ph",t:"Уют",x:"Сфотографируй самое уютное место в своей комнате."},
+ {c:"ph",t:"Тень",x:"Сфотографируй свою тень. Только тень, без тебя. Она тоже красивая."},
+ {c:"ph",t:"Жёлтое",x:"Найди и сфотографируй что-нибудь жёлтое."},
+ {c:"ph",t:"Завтрак",x:"Сфотографируй свой завтрак. Даже если это одна печенька. Особенно если это одна печенька."},
+ {c:"ph",t:"Аудитория",x:"Сфотографируй вид из окна аудитории."},
+ {c:"ph",t:"Кружка",x:"Сфотографируй кружку, из которой пьёшь чай. Андрей пришлёт свою."},
+ {c:"ph",t:"Лицо",x:"Найди предмет, который похож на лицо (розетка, сумка, дом), и сфотографируй его."},
+ {c:"ph",t:"Облако",x:"Сфотографируй облако, похожее на животное. Подпиши, на какое."},
+ {c:"ph",t:"Рожица",x:"Селфи с самой смешной рожицей, на которую ты способна. Андрей обязан ответить своей."},
+ {c:"ph",t:"Работа",x:"Сфотографируй свой последний рисунок. Даже если он не закончен."},
+
+ /* --- загадки (новая категория, у каждой есть ответ) --- */
+ {c:"zg",t:"Яма",x:"Чем больше из неё берёшь, тем больше она становится. Что это?",a:"Яма"},
+ {c:"zg",t:"С закрытыми",x:"Что можно увидеть с закрытыми глазами?",a:"Сон"},
+ {c:"zg",t:"Твоё",x:"Что принадлежит тебе, но другие пользуются этим чаще, чем ты?",a:"Твоё имя"},
+ {c:"zg",t:"Идёт",x:"Что всегда идёт, но никогда не приходит?",a:"Завтра"},
+ {c:"zg",t:"Сушит",x:"Что становится мокрым, когда сушит?",a:"Полотенце"},
+ {c:"zg",t:"Сломать",x:"Что можно сломать, даже не прикоснувшись?",a:"Обещание"},
+ {c:"zg",t:"Короткий",x:"Какой месяц самый короткий?",a:"Май. В нём всего три буквы"},
+ {c:"zg",t:"Легче пуха",x:"Что легче пуха, но даже силач не удержит это долго?",a:"Дыхание"},
+ {c:"zg",t:"Невидимка",x:"Его не видно, его нельзя потрогать, но без него в общаге начинается паника. Что это?",a:"Wi-Fi"},
+ {c:"zg",t:"Одно на двоих",x:"У кого две тысячи километров между ними, но одно сердце на двоих?",a:"У нас ❤️"},
+ {c:"zg",t:"Утром",x:"Утром оно у тебя есть, днём его становится меньше, а вечером оно заканчивается. Но утром появляется снова.",a:"Силы. Или терпение. Или печеньки"},
+ {c:"zg",r:1,t:"Главная",x:"Ей пишут каждое утро и каждую ночь. О ней думают на парах в Питере. Кто она?",a:"Ты"},
+
+ /* --- музыка (новая категория) --- */
+ {c:"m",t:"Танцевальная",x:"Пришли Андрею песню, под которую хочется танцевать."},
+ {c:"m",t:"Про тебя",x:"Сегодня Андрей присылает тебе песню, которая напоминает ему о тебе. И объясняет почему."},
+ {c:"m",t:"Из детства",x:"Пришли песню, которую ты слушала лет в пятнадцать. Без стыда, тут все свои."},
+ {c:"m",t:"В дорогу",x:"Пришли песню, под которую хорошо ехать в вуз."},
+ {c:"m",t:"Для кисти",x:"Пришли песню, под которую лучше всего рисуется."},
+ {c:"m",t:"Обмен",x:"Обмен песнями: каждый присылает по одной без названия, а второй угадывает, какое у отправителя настроение."},
+
+ /* --- лягушка дня (новая категория) --- */
+ {c:"l",t:"Лягушка-соня",x:"Лягушка дня: Соня. Спит в листике, просыпается только ради чая. Советует сегодня тоже не спешить."},
+ {c:"l",t:"Лягушка-отличница",x:"Лягушка дня: Отличница. Сдала всё на пять и всё равно переживает. Передаёт тебе: «Хватит переживать, ты справишься»."},
+ {c:"l",t:"Лягушка-путешественница",x:"Лягушка дня: Путешественница. Проехала 2000 км на поезде, чтобы передать тебе: «Он скучает»."},
+ {c:"l",t:"Лягушка-художница",x:"Лягушка дня: Художница. Рисует кувшинки и утверждает, что зелёный — лучший цвет. Спорить с ней бесполезно."},
+ {c:"l",t:"Лягушка-морозка",x:"Лягушка дня: Морозка. Настоящая лесная лягушка умеет зимой почти полностью замерзать, а весной оттаивать и прыгать дальше. Так что никакая зима не страшна."},
+ {c:"l",t:"Лягушка-глотка",x:"Лягушка дня: Глотка. Факт: лягушки моргают, когда глотают, — глаза помогают протолкнуть еду. Приятного аппетита, Глотка."},
+ {c:"l",t:"Лягушка-певица",x:"Лягушка дня: Певица. Поёт по вечерам у пруда. Слух — так себе, зато от души. Как и все лучшие исполнители."},
+ {c:"l",r:2,t:"Лягушка-королева",x:"ЛЕГЕНДАРНАЯ ЛЯГУШКА.\nЛягушка-королева. Встречается раз в жизни. Говорят, тот, кто её увидел, сегодня будет самым счастливым человеком в Армавире. Поздравляю, это ты 👑🐸"}
+
 ];
 
 const CAT = {
-  k:{name:"🎟 Купон",note:"Чтобы воспользоваться, покажи Андрею скриншот. Купон не сгорает."},
+  k:{name:"🎟 Купон",note:"Купон сохранён во вкладке «Купоны». Чтобы воспользоваться, покажи Андрею скриншот и погаси купон там."},
   c:{name:"💌 Комплимент"}, a:{name:"😄 Анекдот"}, z:{name:"🎨 Задание"},
-  p:{name:"🔮 Предсказание"}, f:{name:"🐙 Факт"}, w:{name:"✨ Пожелание"}
+  p:{name:"🔮 Предсказание"}, f:{name:"🐙 Факт"}, w:{name:"✨ Пожелание"},
+  q:{name:"❓ Вопрос дня",note:"Ответь Андрею. Он ответит на этот же вопрос — сравните."},
+  ph:{name:"📸 Фото-задание",note:"Отправь фото Андрею. Он делает такое же задание у себя в Питере."},
+  zg:{name:"🧩 Загадка",note:"Сначала подумай, потом жми «Показать ответ»."},
+  m:{name:"🎵 Музыка"}, l:{name:"🐸 Лягушка дня"},
+  s:{name:"🌟 Особый день"}
 };
+const RAR=["","✦ Редкое","★ Легендарное"];
 const COLORS = ["#f3c98b","#eaa9a0","#b9cf9f","#c6b8dc","#f6d6a8","#a9c8de","#e9b38f","#f2e0a0"];
-const START = new Date(2026, 0, 1); // точка отсчёта дней
-const SALT = "yulia-koleso-v1";
+const MONTHS=["января","февраля","марта","апреля","мая","июня","июля","августа","сентября","октября","ноября","декабря"];
+
+/* ---------- ОСОБЫЕ ДНИ: в эти даты колесо выдаёт не случайную карточку, а эту ---------- */
+const MET=new Date(2026,7,20);   /* 20 августа 2026 — начало */
+function monthsWord(n){const m=n%10,h=n%100;return m===1&&h!==11?"месяц":m>=2&&m<=4&&(h<10||h>=20)?"месяца":"месяцев"}
+function specialFor(d){
+  const md=(d.getMonth()+1)+"-"+d.getDate(),y=d.getFullYear();
+  if(md==="12-31") return {key:"ny-eve-"+y,t:"Годовщина",x:y===2026
+    ?"Ровно год назад, 31 декабря, я впервые тебе написал. Утром, с дурацким списком, который сам же предлагал перестать писать.\n\nЯ не знал тогда, что пишу самому важному человеку в своей жизни. Теперь знаю.\n\nС наступающим, Юль. И с нашей первой годовщиной ❤️"
+    :"Ещё один год с того первого сообщения. Каждый — лучше предыдущего. С наступающим, моя хорошая ❤️"};
+  if(md==="1-1") return {key:"ny-"+y,t:"С Новым годом",x:"С Новым годом, Юля! Пусть в этом году будет больше рисования, меньше перенесённых пар и как можно больше встреч. Я буду рядом весь год. И следующий тоже 🎄"};
+  if(md==="2-14") return {key:"val-"+y,t:"14 февраля",x:"С Днём всех влюблённых! Технически этот праздник для всех. Но если честно, его придумали ради нас двоих ❤️"};
+  if(md==="3-8") return {key:"8m-"+y,t:"8 марта",x:"С 8 марта, моя весна! Сегодня все купоны действуют вдвойне, а Андрей официально у тебя в подчинении 🌷"};
+  if(md==="6-7") return {key:"bd-"+y,t:"С днём рождения",x:`С днём рождения, Юля! ${y-2008} — отличная цифра. Сегодня колесо не крутится ради предсказаний: оно крутится от радости, что ты есть 🎂`};
+  if(d.getDate()===20&&d>MET){const n=(y-2026)*12+d.getMonth()-7;
+    if(n===12) return {key:"m12",t:"Год вместе",x:"Год. Целый год вместе. 365 дней, тысячи сообщений и ни одного дня без мысли о тебе. С нашей годовщиной, любимая ❤️"};
+    return {key:"m"+n,t:n+" "+monthsWord(n),x:`Сегодня ${n} ${monthsWord(n)} вместе! Каждый месяц колесо будет напоминать об этом. А я буду радоваться, как в первый раз ❤️`}}
+  return null;
+}
+/* ---------- ПИСЬМА В БУДУЩЕЕ: "ГГГГ-ММ-ДД": "текст". Видны только в свой день ---------- */
+const LETTERS = {
+  /* "2026-11-01": "Текст письма от Андрея", */
+};
 
 /* ---------- утилиты ---------- */
-function hash(s){let h=1779033703^s.length;for(let i=0;i<s.length;i++){h=Math.imul(h^s.charCodeAt(i),3432918353);h=h<<13|h>>>19}return (h>>>0)}
 function rng(seed){return function(){seed|=0;seed=seed+0x6D2B79F5|0;let t=Math.imul(seed^seed>>>15,1|seed);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
 function shuffle(a,r){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(r()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
 const pad=n=>String(n).padStart(2,"0");
 const keyOf=d=>d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate());
-const store={
-  get(k){try{return localStorage.getItem(k)}catch(e){return null}},
-  set(k,v){try{localStorage.setItem(k,v)}catch(e){}}
+const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+/* ---------- режим: test.html или ?test — тестовое колесо, отдельная память ---------- */
+const TEST=/test/i.test(location.pathname)||/[?&]test/.test(location.search);
+const P=TEST?"kolesotest-":"koleso-";
+const store={get(k){try{return localStorage.getItem(P+k)}catch(e){return null}},set(k,v){try{localStorage.setItem(P+k,v)}catch(e){}}};
+const J=(k,d)=>{try{return JSON.parse(store.get(k)||"null")??d}catch(e){return d}};
+if(/[?&]reset/.test(location.search)){try{Object.keys(localStorage).filter(k=>k.startsWith(P)).forEach(k=>localStorage.removeItem(k))}catch(e){}location.replace(location.pathname+(TEST&&/[?&]test/.test(location.search)?"?test":""))}
+
+/* ---------- день ---------- */
+let fakeDate=TEST?store.get("fakedate"):null;
+function todayDate(){if(fakeDate){const [y,m,d]=fakeDate.split("-").map(Number);return new Date(y,m-1,d)}const n=new Date();return new Date(n.getFullYear(),n.getMonth(),n.getDate())}
+let today=todayDate(),KEY=keyOf(today);
+const N=DB.length, idx=[...Array(N).keys()];
+const tier=i=>DB[i].r||0;
+const hist=()=>J("hist",[]);
+
+function pickResult(r,forced){
+  const seen=new Set(hist().filter(e=>e.i!=null).map(e=>e.i));
+  const x=r();let t=forced!=null?forced:(x<.035?2:x<.19?1:0);
+  for(let tt=t;tt>=0;tt--){const pool=idx.filter(i=>tier(i)===tt&&!seen.has(i));if(pool.length)return pool[Math.floor(r()*pool.length)]}
+  const pool=idx.filter(i=>tier(i)===t);return pool[Math.floor(r()*pool.length)];
+}
+function buildDay(forced){
+  const r=Math.random, sp=specialFor(today);
+  let res=sp?-1:pickResult(r,forced);
+  const others=shuffle(idx.filter(i=>i!==res&&tier(i)===0),r);
+  const picked=[];const perCat={};if(res>=0)perCat[DB[res].c]=1;
+  const tease=[];if(r()<.45){const rr=idx.filter(i=>tier(i)===1&&i!==res);tease.push(rr[Math.floor(r()*rr.length)])}
+  if(r()<.18){const lg=idx.filter(i=>tier(i)===2&&i!==res);tease.push(lg[Math.floor(r()*lg.length)])}
+  tease.forEach(i=>{if(i!=null&&!picked.includes(i))picked.push(i)});
+  for(const i of others){if(picked.length>=7)break;const c=DB[i].c;if((perCat[c]||0)>=2)continue;perCat[c]=(perCat[c]||0)+1;picked.push(i)}
+  const slots=shuffle([res,...picked.slice(0,7)],r);
+  return {k:KEY,slots,res,sp:sp?sp.key:null,j:r()*24-12};
+}
+function loadDay(){const d=J("day",null);return d&&d.k===KEY&&d.slots&&d.slots.length===8&&d.slots.every(i=>i===-1||DB[i])?d:null}
+let day=loadDay();
+if(!day||TEST&&!store.get("spun-"+KEY)){day=buildDay(TEST?J("force",null):null);store.set("day",JSON.stringify(day))}
+
+/* ---------- колесо ---------- */
+const svg=$("wheel"),NS="http://www.w3.org/2000/svg",C=200,R=194;
+function pt(a,r){const rad=(a-90)*Math.PI/180;return [C+r*Math.cos(rad),C+r*Math.sin(rad)]}
+function slotItem(di){if(di===-1){const sp=specialFor(today);return {c:"s",t:sp?sp.t:"Особый",x:sp?sp.x:"",r:3}}return DB[di]}
+function drawWheel(){
+  svg.innerHTML=`<defs>
+    <linearGradient id="gRare" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#d9c8ff"/><stop offset="1" stop-color="#9f86e0"/></linearGradient>
+    <linearGradient id="gLeg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffe27a"/><stop offset=".5" stop-color="#f5b82e"/><stop offset="1" stop-color="#ffd95e"/></linearGradient>
+    <linearGradient id="gSp" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ff9ab5"/><stop offset="1" stop-color="#ff5e7e"/></linearGradient></defs>`;
+  day.slots.forEach((di,i)=>{
+    const it=slotItem(di),rr=it.r||0,a0=i*45,a1=a0+45,[x0,y0]=pt(a0,R),[x1,y1]=pt(a1,R);
+    const p=document.createElementNS(NS,"path");
+    p.setAttribute("d",`M${C},${C} L${x0},${y0} A${R},${R} 0 0 1 ${x1},${y1} Z`);
+    p.setAttribute("fill",rr===3?"url(#gSp)":rr===2?"url(#gLeg)":rr===1?"url(#gRare)":COLORS[i%COLORS.length]);
+    p.setAttribute("stroke","#fbf6ec");p.setAttribute("stroke-width","3");svg.appendChild(p);
+    const g=document.createElementNS(NS,"g");g.setAttribute("transform",`rotate(${a0+22.5-90} ${C} ${C})`);
+    const tx=document.createElementNS(NS,"text");tx.setAttribute("x",C+R-14);tx.setAttribute("y",C+5);tx.setAttribute("text-anchor","end");
+    const label=(rr===3?"🌟 ":rr===2?"★ ":rr===1?"✦ ":"")+it.t;tx.textContent=label.length>15?label.slice(0,14)+"…":label;
+    g.appendChild(tx);svg.appendChild(g);
+  });
+  const ring=document.createElementNS(NS,"circle");ring.setAttribute("cx",C);ring.setAttribute("cy",C);ring.setAttribute("r",R);
+  ring.setAttribute("fill","none");ring.setAttribute("stroke","#3a2e28");ring.setAttribute("stroke-width","4");svg.appendChild(ring);
+}
+drawWheel();
+let resultSlot=day.slots.indexOf(day.res), finalAngle=360-(resultSlot*45+22.5);
+
+/* ---------- карточки ---------- */
+function itemOf(e){if(e.s){const sp=specialByKey(e.s,e.k);return {c:"s",t:sp.t,x:sp.x,r:3}}return DB[e.i]}
+function specialByKey(key,dateKey){const [y,m,d]=dateKey.split("-").map(Number);return specialFor(new Date(y,m-1,d))||{t:"Особый день",x:""}}
+function openCard(it,extra){
+  const card=$("card");card.className="card"+(it.r===2?" leg":it.r===1?" rare":it.r===3?" sp":"");
+  $("cChip").textContent=CAT[it.c].name+(it.r&&it.r<3?" · "+RAR[it.r]:"");
+  $("cTitle").textContent=it.t;$("cText").textContent=it.x;
+  $("cNote").textContent=(extra||"")+(CAT[it.c].note||"");
+  const ans=$("cAns");if(it.a){ans.style.display="inline-block";ans.textContent="Показать ответ";ans.onclick=()=>{ans.textContent="Ответ: "+it.a;ans.onclick=null}}else ans.style.display="none";
+  $("overlay").classList.add("show");
+}
+$("close").onclick=()=>$("overlay").classList.remove("show");
+$("overlay").onclick=e=>{if(e.target.id==="overlay")e.currentTarget.classList.remove("show")};
+
+/* ---------- история, серия, сундук ---------- */
+function saveHist(){const h=hist();if(!h.some(e=>e.k===KEY&&!e.b)){h.push(day.res===-1?{k:KEY,s:day.sp}:{k:KEY,i:day.res});store.set("hist",JSON.stringify(h))}}
+function streak(){const days=new Set(hist().map(e=>e.k));let n=0,d=new Date(today);while(days.has(keyOf(d))){n++;d.setDate(d.getDate()-1)}return n}
+function renderHist(){
+  const ul=$("hist");ul.innerHTML="";const h=hist().slice().reverse();
+  if(!h.length){ul.innerHTML='<li class="empty" style="justify-content:center;cursor:default">Пока пусто. Всё впереди!</li>';return}
+  h.forEach(e=>{const it=itemOf(e);if(!it)return;const [y,m,d]=e.k.split("-");const li=document.createElement("li");
+    li.className=it.r===2?"leg":it.r===1?"rare":it.r===3?"sp":"";
+    li.innerHTML=`<span class="d">${d}.${m}</span><span>${CAT[it.c].name.split(" ")[0]} ${esc(it.t)}${e.b?" <small>(сундук)</small>":""}</span>`;
+    li.onclick=()=>openCard(it);ul.appendChild(li)});
+}
+function renderStreak(){const s=streak();$("streak").innerHTML=s?`🔥 Серия: <b>${s}</b> ${s%10===1&&s%100!==11?"день":s%10>=2&&s%10<=4&&(s%100<10||s%100>=20)?"дня":"дней"} подряд · до сундука ${7-(s%7||7)||7}`:"Крути каждый день: за 7 дней подряд — сундук 🎁";
+  if(s>0&&s%7===0&&store.get("spun-"+KEY)&&!store.get("chest-"+KEY))$("chest").style.display="inline-block";else $("chest").style.display="none"}
+$("chest").onclick=()=>{
+  const r=Math.random,seen=new Set(hist().map(e=>e.i));let pool=idx.filter(i=>tier(i)===1&&!seen.has(i));if(!pool.length)pool=idx.filter(i=>tier(i)===1);
+  const i=pool[Math.floor(r()*pool.length)];const h=hist();h.push({k:KEY,i,b:1});store.set("hist",JSON.stringify(h));store.set("chest-"+KEY,"1");
+  confetti(true);vib([20,40,20,40,80]);renderAll();openCard(DB[i],"🎁 Награда за "+streak()+" дней подряд! ");
 };
 
-/* ---------- сброс: открыть сайт с ?reset ---------- */
-if(/[?&]reset/.test(location.search)){
-  try{Object.keys(localStorage).filter(k=>k.startsWith("koleso-")).forEach(k=>localStorage.removeItem(k))}catch(e){}
-  location.replace(location.pathname);
+/* ---------- купоны ---------- */
+function renderCoupons(){
+  const used=J("used",{});const list=hist().map((e,n)=>({e,n,it:itemOf(e)})).filter(x=>x.it&&x.it.c==="k");
+  const act=list.filter(x=>!used[x.e.k+":"+x.e.i]),done=list.filter(x=>used[x.e.k+":"+x.e.i]);
+  $("cpCount").textContent=act.length?`Действующих: ${act.length}`:"";
+  const row=(x,u)=>`<div class="coupon ${x.it.r===2?"leg":x.it.r===1?"rare":""} ${u?"used":""}"><div><b>${esc(x.it.t)}</b><small>${esc(x.it.x)}</small><small class="d">${x.e.k.split("-").reverse().slice(0,2).join(".")}${u?" · погашен "+esc(u):""}</small></div>${u?"":`<button class="btn mini" data-id="${x.e.k}:${x.e.i}">Погасить</button>`}</div>`;
+  $("coupons").innerHTML=list.length?(act.map(x=>row(x,null)).join("")+(done.length?`<h3>Погашенные</h3>`+done.map(x=>row(x,used[x.e.k+":"+x.e.i])).join(""):""))
+    :`<p class="empty">Купонов пока нет. Они выпадают на колесе, а самые крупные — легендарные ★</p>`;
+  $("coupons").querySelectorAll("[data-id]").forEach(b=>b.onclick=()=>{if(!confirm("Погасить купон? Сначала сделай скриншот и отправь Андрею 😉"))return;
+    const u=J("used",{});u[b.dataset.id]=today.getDate()+" "+MONTHS[today.getMonth()];store.set("used",JSON.stringify(u));renderCoupons()});
 }
 
-/* ---------- расчёт дня ---------- */
-const now=new Date();
-const today=new Date(now.getFullYear(),now.getMonth(),now.getDate());
-const KEY=keyOf(today);
-const N=DB.length;
-const idx=[...Array(N).keys()];
-/* Настоящий рандом: набор и результат выбираются случайно один раз в день
-   и запоминаются на этом устройстве. Повторы исключаются, пока не выпадет вся база. */
-function loadDay(){try{const d=JSON.parse(store.get("koleso-day")||"null");return d&&d.k===KEY&&d.slots.length===8&&d.slots.every(i=>DB[i])?d:null}catch(e){return null}}
-let day=loadDay();
-if(!day){
-  const r=Math.random;
-  let seen=[];try{seen=JSON.parse(store.get("koleso-hist")||"[]").map(e=>e.i)}catch(e){}
-  let fresh=idx.filter(i=>!seen.includes(i));
-  if(!fresh.length) fresh=idx.slice();               // база закончилась — идём по второму кругу
-  const res=fresh[Math.floor(r()*fresh.length)];
-  const pool=shuffle(idx.filter(i=>i!==res),r);
-  const picked=[res]; const perCat={}; perCat[DB[res].c]=1;
-  for(const i of pool){ if(picked.length>=8) break; const c=DB[i].c; if((perCat[c]||0)>=2) continue; perCat[c]=(perCat[c]||0)+1; picked.push(i); }
-  for(const i of pool){ if(picked.length>=8) break; if(!picked.includes(i)) picked.push(i); }
-  day={k:KEY,slots:shuffle(picked,r),res:res,j:r()*24-12};
-  store.set("koleso-day",JSON.stringify(day));
+/* ---------- коллекция ---------- */
+function renderColl(){
+  const got=new Set(hist().filter(e=>e.i!=null).map(e=>e.i));const sps=hist().filter(e=>e.s);
+  const cats=Object.keys(CAT).filter(c=>c!=="s");
+  $("collTotal").innerHTML=`Собрано <b>${got.size}</b> из ${N}<div class="prog"><i style="width:${got.size/N*100}%"></i></div>`;
+  $("coll").innerHTML=cats.map(c=>{const its=idx.filter(i=>DB[i].c===c);const g=its.filter(i=>got.has(i)).length;
+    return `<details><summary>${CAT[c].name} <span>${g} / ${its.length}</span></summary><div class="cg">${its.map(i=>got.has(i)
+      ?`<button class="ci ${tier(i)===2?"leg":tier(i)===1?"rare":""}" data-i="${i}">${esc(DB[i].t)}</button>`
+      :`<span class="ci lock">${tier(i)===2?"★ ???":tier(i)===1?"✦ ???":"???"}</span>`).join("")}</div></details>`}).join("")
+    +(sps.length?`<details open><summary>${CAT.s.name} <span>${sps.length}</span></summary><div class="cg">${sps.map(e=>`<button class="ci sp" data-s="${e.s}" data-k="${e.k}">${esc(itemOf(e).t)}</button>`).join("")}</div></details>`:"");
+  $("coll").querySelectorAll("[data-i]").forEach(b=>b.onclick=()=>openCard(DB[+b.dataset.i]));
+  $("coll").querySelectorAll("[data-s]").forEach(b=>b.onclick=()=>openCard(itemOf({s:b.dataset.s,k:b.dataset.k})));
 }
-const resultIdx=day.res;
-const slots=day.slots;
-const resultSlot=slots.indexOf(resultIdx);
 
-/* ---------- рисуем колесо ---------- */
-const svg=document.getElementById("wheel");
-const NS="http://www.w3.org/2000/svg";
-const C=200,R=194;
-function pt(a,r){const rad=(a-90)*Math.PI/180;return [C+r*Math.cos(rad),C+r*Math.sin(rad)]}
-slots.forEach((di,i)=>{
-  const a0=i*45,a1=a0+45;
-  const [x0,y0]=pt(a0,R),[x1,y1]=pt(a1,R);
-  const p=document.createElementNS(NS,"path");
-  p.setAttribute("d",`M${C},${C} L${x0},${y0} A${R},${R} 0 0 1 ${x1},${y1} Z`);
-  p.setAttribute("fill",COLORS[i%COLORS.length]);
-  p.setAttribute("stroke","#fbf6ec");p.setAttribute("stroke-width","3");
-  svg.appendChild(p);
-  const g=document.createElementNS(NS,"g");
-  g.setAttribute("transform",`rotate(${a0+22.5-90} ${C} ${C})`);
-  const tx=document.createElementNS(NS,"text");
-  tx.setAttribute("x",C+R-14);tx.setAttribute("y",C+5);tx.setAttribute("text-anchor","end");
-  tx.textContent=DB[di].t;
-  g.appendChild(tx);svg.appendChild(g);
-});
-const ring=document.createElementNS(NS,"circle");
-ring.setAttribute("cx",C);ring.setAttribute("cy",C);ring.setAttribute("r",R);
-ring.setAttribute("fill","none");ring.setAttribute("stroke","#3a2e28");ring.setAttribute("stroke-width","4");
-svg.appendChild(ring);
-
-/* ---------- состояние ---------- */
-const months=["января","февраля","марта","апреля","мая","июня","июля","августа","сентября","октября","ноября","декабря"];
-document.getElementById("date").textContent="Сегодня "+today.getDate()+" "+months[today.getMonth()];
-const btn=document.getElementById("spin"),again=document.getElementById("again"),timer=document.getElementById("timer");
-const finalAngle=360-(resultSlot*45+22.5);
-const jitter=day.j;
-
-function loadHist(){try{return JSON.parse(store.get("koleso-hist")||"[]")}catch(e){return []}}
-function saveHist(){const h=loadHist();if(!h.some(e=>e.k===KEY)){h.push({k:KEY,i:resultIdx});store.set("koleso-hist",JSON.stringify(h))}}
-function renderHist(){
-  const ul=document.getElementById("hist");ul.innerHTML="";
-  const h=loadHist().slice().reverse();
-  if(!h.length){ul.innerHTML='<li class="empty" style="justify-content:center;cursor:default">Пока пусто. Всё впереди!</li>';return}
-  h.forEach(e=>{const it=DB[e.i];if(!it)return;const [y,m,d]=e.k.split("-");
-    const li=document.createElement("li");
-    li.innerHTML=`<span class="d">${d}.${m}</span><span>${CAT[it.c].name.split(" ")[0]} ${it.t}</span>`;
-    li.onclick=()=>openCard(e.i);ul.appendChild(li)});
-}
-function openCard(i){
-  const it=DB[i];
-  document.getElementById("cChip").textContent=CAT[it.c].name;
-  document.getElementById("cTitle").textContent=it.t;
-  document.getElementById("cText").textContent=it.x;
-  document.getElementById("cNote").textContent=CAT[it.c].note||"";
-  document.getElementById("overlay").classList.add("show");
-}
-document.getElementById("close").onclick=()=>document.getElementById("overlay").classList.remove("show");
-document.getElementById("overlay").onclick=e=>{if(e.target.id==="overlay")e.currentTarget.classList.remove("show")};
-
-function confetti(){
-  const cols=["#c8553d","#e9a23b","#8fb27a","#9b86c9","#6fa3c7","#f2c14e"];
-  for(let i=0;i<60;i++){const s=document.createElement("span");s.className="confetti";
+/* ---------- эффекты ---------- */
+function vib(p){try{navigator.vibrate&&navigator.vibrate(p)}catch(e){}}
+function confetti(gold){
+  const cols=gold?["#ffd95e","#f5b82e","#fff3b0","#e9a23b","#ffffff"]:["#c8553d","#e9a23b","#8fb27a","#9b86c9","#6fa3c7","#f2c14e"];
+  for(let i=0;i<(gold?110:60);i++){const s=document.createElement("span");s.className="confetti";
     s.style.left=Math.random()*100+"vw";s.style.background=cols[i%cols.length];
     s.style.animationDuration=(2+Math.random()*2)+"s";s.style.animationDelay=(Math.random()*.4)+"s";
     document.body.appendChild(s);setTimeout(()=>s.remove(),4600)}
 }
-function tick(){
-  const nxt=new Date(today.getFullYear(),today.getMonth(),today.getDate()+1);
-  let s=Math.max(0,Math.floor((nxt-new Date())/1000));
-  if(s===0){location.reload();return}
-  const h=Math.floor(s/3600),m=Math.floor(s%3600/60),sec=s%60;
-  timer.textContent=`Следующая прокрутка через ${h}:${pad(m)}:${pad(sec)}`;
-}
-function setDone(){
-  btn.disabled=true;btn.textContent="Сегодня уже крутили";
-  again.style.display="inline-block";tick();setInterval(tick,1000);
-}
+/* стрелка щёлкает на каждом секторе */
+let tickRaf=0,lastSec=-1;
+function angleNow(){const m=getComputedStyle(svg).transform;if(!m||m==="none")return 0;const v=m.match(/matrix\(([^)]+)\)/);if(!v)return 0;const [a,b]=v[1].split(",").map(Number);return (Math.atan2(b,a)*180/Math.PI+360)%360}
+function tickLoop(){const a=angleNow(),sec=Math.floor(((360-a)%360)/45);if(sec!==lastSec){lastSec=sec;const p=$("pointer");p.classList.remove("tick");void p.offsetWidth;p.classList.add("tick");vib(4)}tickRaf=requestAnimationFrame(tickLoop)}
 
-if(store.get("koleso-spun-"+KEY)){
-  svg.style.transition="none";svg.style.transform=`rotate(${finalAngle+jitter}deg)`;
-  setDone();saveHist();renderHist();
-}else{renderHist()}
-
+/* ---------- главный экран ---------- */
+const btn=$("spin"),again=$("again"),timer=$("timer");
+function tick(){const nxt=new Date(today.getFullYear(),today.getMonth(),today.getDate()+1);let s=Math.max(0,Math.floor((nxt-new Date())/1000));if(s===0&&!fakeDate){location.reload();return}
+  const h=Math.floor(s/3600),m=Math.floor(s%3600/60),sec=s%60;timer.textContent=`Следующая прокрутка через ${h}:${pad(m)}:${pad(sec)}`}
+let tickIv=0;
+function setDone(){btn.disabled=true;btn.textContent="Сегодня уже крутили";again.style.display="inline-block";
+  if(TEST){btn.disabled=false;btn.textContent="Крутить ещё (тест)";timer.textContent="Тестовый режим: крути сколько хочешь";return}
+  tick();clearInterval(tickIv);tickIv=setInterval(tick,1000)}
+function resultItem(){return day.res===-1?slotItem(-1):DB[day.res]}
+function renderLetter(){const t=LETTERS[KEY];$("letter").style.display=t?"block":"none";if(t){$("letter").onclick=()=>openCard({c:"s",t:"Письмо на сегодня",x:t,r:3})}}
+function renderAll(){renderHist();renderStreak();renderCoupons();renderColl()}
+$("date").textContent="Сегодня "+today.getDate()+" "+MONTHS[today.getMonth()]+(specialFor(today)?" · особый день 🌟":"");
+renderLetter();
+if(store.get("spun-"+KEY)&&!TEST){svg.style.transition="none";svg.style.transform=`rotate(${finalAngle+day.j}deg)`;setDone();saveHist()}
+renderAll();
+let spinning=false,base=0;
 btn.onclick=()=>{
-  if(btn.disabled)return;
-  btn.disabled=true;btn.textContent="Крутится…";
-  svg.style.transform=`rotate(${360*7+finalAngle+jitter}deg)`;
+  if(spinning||btn.disabled&&!TEST)return;
+  if(TEST&&store.get("spun-"+KEY)){/* тест: новое колесо */day=buildDay(J("force",null));store.set("day",JSON.stringify(day));drawWheel();resultSlot=day.slots.indexOf(day.res);finalAngle=360-(resultSlot*45+22.5);
+    svg.style.transition="none";svg.style.transform="rotate(0deg)";void svg.getBoundingClientRect();svg.style.transition=""}
+  spinning=true;btn.disabled=true;btn.textContent="Крутится…";lastSec=-1;
+  svg.style.transform=`rotate(${360*7+finalAngle+day.j}deg)`;tickRaf=requestAnimationFrame(tickLoop);
   setTimeout(()=>{
-    store.set("koleso-spun-"+KEY,"1");saveHist();renderHist();
-    confetti();openCard(resultIdx);setDone();
+    cancelAnimationFrame(tickRaf);spinning=false;
+    store.set("spun-"+KEY,"1");
+    if(TEST){const h=hist();h.push(day.res===-1?{k:KEY,s:day.sp}:{k:KEY,i:day.res});store.set("hist",JSON.stringify(h))}else saveHist();
+    const it=resultItem();vib(it.r>=2?[40,60,40,60,120]:[30,50,60]);
+    confetti(it.r>=2);if(it.r>=2)document.body.classList.add("flash"),setTimeout(()=>document.body.classList.remove("flash"),900);
+    renderAll();openCard(it,it.r===2?"Легендарная карточка! Такие выпадают примерно раз в месяц. ":it.r===1?"Редкая карточка! ":"");setDone();
   },5800);
 };
-again.onclick=()=>openCard(resultIdx);
+again.onclick=()=>openCard(resultItem());
+document.querySelectorAll(".tab").forEach(b=>b.onclick=()=>{document.querySelectorAll(".tab").forEach(x=>x.classList.toggle("on",x===b));
+  ["pWheel","pCoupons","pColl"].forEach(id=>$(id).style.display=id===b.dataset.p?"block":"none");window.scrollTo({top:0})});
+
+/* ---------- пульт тестового режима ---------- */
+if(TEST){
+  const tp=$("testpanel");tp.style.display="block";
+  const f=J("force",null);
+  tp.innerHTML=`<b>🧪 Пульт проверки</b>
+   <div class="row">Следующая прокрутка: ${["обычная","редкая","легендарная"].map((n,i)=>`<button class="tb ${f===i?"on":""}" data-f="${i}">${n}</button>`).join("")}<button class="tb ${f==null?"on":""}" data-f="">случайно</button></div>
+   <div class="row">Дата: <input type="date" id="fd" value="${keyOf(today)}"> <button class="tb" id="fdreal">сегодня</button></div>
+   <div class="row">Быстро к особым дням: <button class="tb" data-d="2026-11-20">20 ноября</button><button class="tb" data-d="2026-12-31">31 декабря</button><button class="tb" data-d="2027-03-08">8 марта</button><button class="tb" data-d="2027-06-07">7 июня</button><button class="tb" data-d="2027-08-20">год</button></div>
+   <div class="row"><button class="tb" id="st6">Серия: добавить 6 прошлых дней</button><button class="tb" id="all">Открыть всю коллекцию</button><button class="tb" id="rst">Стереть тест</button></div>
+   <p class="small">Это тестовое колесо. Его память отдельная, настоящее колесо Юли не трогается.</p>`;
+  tp.querySelectorAll("[data-f]").forEach(b=>b.onclick=()=>{store.set("force",b.dataset.f===""?"null":b.dataset.f);store.set("spun-"+KEY,"1");location.reload()});
+  const setD=v=>{if(v)store.set("fakedate",v);else localStorage.removeItem(P+"fakedate");location.reload()};
+  $("fd").onchange=e=>setD(e.target.value);$("fdreal").onclick=()=>setD("");
+  tp.querySelectorAll("[data-d]").forEach(b=>b.onclick=()=>setD(b.dataset.d));
+  $("st6").onclick=()=>{const h=hist();for(let k=1;k<=6;k++){const d=new Date(today);d.setDate(d.getDate()-k);const key=keyOf(d);if(!h.some(e=>e.k===key))h.unshift({k:key,i:Math.floor(Math.random()*N)})}store.set("hist",JSON.stringify(h));location.reload()};
+  $("all").onclick=()=>{const h=hist();idx.forEach(i=>{if(!h.some(e=>e.i===i))h.push({k:"2026-01-01",i})});store.set("hist",JSON.stringify(h));location.reload()};
+  $("rst").onclick=()=>{if(confirm("Стереть всю тестовую память?"))location.href=location.pathname+"?reset"+(/[?&]test/.test(location.search)?"&test":"")};
+}
+
 </script>
 </body>
 </html>
