@@ -1,0 +1,248 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Изделие «Славик»</title>
+<meta name="theme-color" content="#e9edf2">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=PT+Sans+Narrow:wght@400;700&family=Caveat:wght@600;700&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#1d2430;--paper:#fbfaf6;--bg:#e9edf2;--red:#c62828;--blue:#2b5f9e}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.4 "PT Sans Narrow",system-ui,sans-serif}
+.wrap{max-width:560px;margin:0 auto;padding:16px 12px 40px}
+h1{font:700 30px/1.1 "PT Sans Narrow",sans-serif;margin:4px 4px 2px;letter-spacing:.02em;text-transform:uppercase}
+.sub{margin:0 4px 12px;color:#5b6676;font-size:15px}
+.sheet{position:relative;background:var(--paper);box-shadow:0 10px 30px rgba(20,30,50,.18);border-radius:4px;background-image:linear-gradient(rgba(43,95,158,.06) 1px,transparent 1px),linear-gradient(90deg,rgba(43,95,158,.06) 1px,transparent 1px);background-size:14px 14px}
+svg{display:block;width:100%;height:auto}
+.ln{fill:none;stroke:var(--ink);stroke-width:.55;stroke-linecap:round;stroke-linejoin:round}
+.thin{stroke-width:.3}.thick{stroke-width:.9}.dash{stroke-dasharray:2 1.2}
+.part .ln{stroke-dasharray:1;stroke-dashoffset:1}
+.drawn .ln{animation:draw .9s ease forwards}
+@keyframes draw{to{stroke-dashoffset:0}}
+.part.hi .ln{stroke:var(--blue);stroke-width:1}
+.t{font:400 4.2px "PT Sans Narrow",sans-serif;fill:var(--ink);font-style:italic}
+.tb{font-weight:700}
+.pos{cursor:pointer;opacity:0}
+.pos circle{fill:var(--paper);stroke:var(--ink);stroke-width:.45}
+.pos text{font:700 4.6px "PT Sans Narrow",sans-serif;text-anchor:middle;dominant-baseline:central;fill:var(--ink)}
+.pos.show{animation:pop .4s cubic-bezier(.2,1.6,.4,1) forwards}
+.pos:hover circle,.pos.hi circle{fill:#dbe8f8;stroke:var(--blue)}
+@keyframes pop{from{opacity:0;transform:scale(.3)}to{opacity:1;transform:scale(1)}}
+.pos{transform-box:fill-box;transform-origin:center}
+.stamp{position:absolute;left:50%;top:36%;transform:translate(-50%,-50%) rotate(-14deg) scale(2.6);opacity:0;border:5px solid var(--red);color:var(--red);font:700 40px/1 "PT Sans Narrow",sans-serif;padding:8px 18px;border-radius:10px;letter-spacing:.08em;pointer-events:none;text-align:center;mix-blend-mode:multiply}
+.stamp small{display:block;font-size:15px;letter-spacing:.02em}
+.stamp.on{animation:stamp .45s cubic-bezier(.3,1.4,.5,1) forwards}
+@keyframes stamp{to{opacity:.85;transform:translate(-50%,-50%) rotate(-14deg) scale(1)}}
+.btns{display:flex;gap:8px;margin:14px 0}
+.btn{flex:1;border:2px solid var(--ink);background:var(--paper);color:var(--ink);border-radius:8px;padding:12px 8px;font:700 17px "PT Sans Narrow",sans-serif;text-transform:uppercase;letter-spacing:.04em;cursor:pointer}
+.btn.main{background:var(--ink);color:var(--paper)}
+table{width:100%;border-collapse:collapse;background:var(--paper);font-size:16px}
+th,td{border:1px solid var(--ink);padding:6px 6px;text-align:left;vertical-align:top}
+th{font-size:13px;text-transform:uppercase;letter-spacing:.04em;background:#eef1f5}
+td:first-child,th:first-child{text-align:center;width:38px}
+tr{cursor:pointer}tr:hover td,tr.hi td{background:#e3edf9}
+h2{font:700 20px "PT Sans Narrow",sans-serif;text-transform:uppercase;margin:22px 4px 8px;letter-spacing:.03em}
+.notes{font-size:15px;color:#3b4554;margin:10px 4px}
+.ov{position:fixed;inset:0;background:rgba(20,28,40,.45);display:none;align-items:center;justify-content:center;padding:16px;z-index:9}
+.ov.on{display:flex}
+.card{background:var(--paper);max-width:420px;width:100%;border:2px solid var(--ink);border-radius:6px;padding:16px 18px;position:relative;animation:pop .3s ease;background-image:linear-gradient(rgba(43,95,158,.06) 1px,transparent 1px),linear-gradient(90deg,rgba(43,95,158,.06) 1px,transparent 1px);background-size:14px 14px}
+.card .n{display:inline-block;border:1.5px solid var(--ink);border-radius:50%;width:30px;height:30px;text-align:center;line-height:27px;font-weight:700;margin-right:8px}
+.card h3{display:inline;font-size:20px;text-transform:uppercase}
+.card .w{font-size:14px;color:#5b6676;margin:8px 0 0}
+.part:not(.drawn) circle[style]{opacity:0}
+.card p{margin:12px 0 8px}
+.card dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:3px 10px;font-size:15px}
+.card dt{color:#5b6676}.card dd{margin:0}
+.x{position:absolute;top:6px;right:10px;border:none;background:none;font-size:26px;cursor:pointer;color:#5b6676}
+.hand{font:700 22px "Caveat",cursive;color:var(--blue)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Изделие СЛВ-10 «Славик»</h1>
+  <p class="sub">Сборочный чертёж. Разработан из 10 слов заказчика. Политота и маты исключены по ТЗ.</p>
+  <div class="sheet" id="sheet">
+    <svg viewBox="0 0 210 200" id="svg" aria-label="Чертёж">
+      <!-- рамка -->
+      <rect class="ln thick" x="2" y="2" width="206" height="196"/>
+      <rect class="ln thin" x="14" y="5" width="191" height="190"/>
+      <!-- основная надпись -->
+      <g>
+        <rect class="ln" x="95" y="160" width="110" height="35"/>
+        <line class="ln thin" x1="95" y1="167" x2="140" y2="167"/><line class="ln thin" x1="95" y1="174" x2="140" y2="174"/><line class="ln thin" x1="95" y1="181" x2="140" y2="181"/><line class="ln thin" x1="95" y1="188" x2="140" y2="188"/>
+        <line class="ln" x1="140" y1="160" x2="140" y2="195"/><line class="ln" x1="112" y1="160" x2="112" y2="195"/>
+        <line class="ln" x1="140" y1="172" x2="205" y2="172"/><line class="ln" x1="140" y1="185" x2="205" y2="185"/><line class="ln" x1="183" y1="172" x2="183" y2="185"/>
+        <text class="t" x="97" y="165">Разраб.</text><text class="t" x="114" y="165">Андрей</text>
+        <text class="t" x="97" y="172">Пров.</text><text class="t" x="114" y="172">Инж. граф</text>
+        <text class="t" x="97" y="179">Т.контр.</text><text class="t" x="114" y="179">Стасик</text>
+        <text class="t" x="97" y="186">Н.контр.</text><text class="t" x="114" y="186">ГОСТ</text>
+        <text class="t" x="97" y="193">Утв.</text><text class="t" x="114" y="193">Сам Славик</text>
+        <text class="t tb" x="172" y="167.5" text-anchor="middle" style="font-size:5.4px">СЛВ-10.00.00 СБ</text>
+        <text class="t tb" x="161" y="179.5" text-anchor="middle" style="font-size:5px">Изделие «Славик»</text>
+        <text class="t" x="194" y="177" text-anchor="middle">Масштаб</text><text class="t tb" x="194" y="182" text-anchor="middle">1:1</text>
+        <text class="t" x="172" y="191.5" text-anchor="middle">Политех · лист 1 · листов 1</text>
+      </g>
+      <text class="t" x="18" y="164">1. Политота и маты из конструкции</text>
+      <text class="t" x="18" y="169">    исключены по требованию ТЗ.</text>
+      <text class="t" x="18" y="175">2. Изделие уникально, серийно</text>
+      <text class="t" x="18" y="180">    не производится.</text>
+      <text class="t" x="18" y="186">3. Неуказанные размеры —</text>
+      <text class="t" x="18" y="191">    по настроению.</text>
+
+      <!-- 9. Армения: горы Арарат на фоне + абрикос -->
+      <g class="part" data-p="9">
+        <path class="ln" d="M22,62 L40,30 L48,40 L56,26 L78,62"/>
+        <path class="ln thin" d="M36,37 L40,30 L44,35 M52,32 L56,26 L60,32"/>
+        <circle class="ln" cx="70" cy="34" r="5"/><path class="ln thin" d="M70,29 Q72,25 75,25"/>
+      </g>
+      <!-- 8. Травка -->
+      <g class="part" data-p="8">
+        <line class="ln" x1="30" y1="140" x2="185" y2="140"/>
+        <path class="ln thin" d="M40,140 l2,-6 l2,6 l2,-8 l2,8 l2,-5 l2,5 M150,140 l2,-6 l2,6 l2,-8 l2,8 l2,-5 l2,5 l2,-7 l2,7 M74,140 l2,-5 l2,5 l2,-7 l2,7"/>
+      </g>
+      <!-- корпус: голова, туловище, руки, ноги -->
+      <g class="part" data-p="0">
+        <circle class="ln thick" cx="110" cy="58" r="11"/>
+        <path class="ln" d="M106,56 h0.1 M114,56 h0.1 M106,62 Q110,65 114,62"/>
+        <line class="ln thick" x1="110" y1="69" x2="110" y2="108"/>
+        <path class="ln thick" d="M110,78 L94,94 M110,78 L128,90 M110,108 L100,139 M110,108 L120,139"/>
+      </g>
+      <!-- 1. Кепка -->
+      <g class="part" data-p="1">
+        <path class="ln thick" d="M99,54 Q100,43 110,42 Q120,43 121,54 Z"/>
+        <path class="ln thick" d="M121,53 L132,55"/>
+        <circle class="ln thin" cx="110" cy="42" r="1"/>
+      </g>
+      <!-- 2. Наушники -->
+      <g class="part" data-p="2">
+        <path class="ln" d="M97,58 Q97,36 110,36 Q123,36 123,58"/>
+        <rect class="ln" x="94.5" y="55" width="4" height="8" rx="1.5"/><rect class="ln" x="121.5" y="55" width="4" height="8" rx="1.5"/>
+      </g>
+      <!-- 3. Часы на руке -->
+      <g class="part" data-p="3">
+        <circle class="ln" cx="96.5" cy="91.5" r="2.6"/><path class="ln thin" d="M96.5,91.5 v-1.8 M96.5,91.5 h1.4"/>
+      </g>
+      <!-- 4. Стакан -->
+      <g class="part" data-p="4">
+        <path class="ln" d="M88,93 L90,106 L97,106 L99,93 Z"/>
+        <line class="ln thin dash" x1="89" y1="99.5" x2="98" y2="99.5"/>
+        <path class="ln thin" d="M91,90 q1,-2 0,-4 M95,90 q1,-2 0,-4"/>
+      </g>
+      <!-- 5. Линейка -->
+      <g class="part" data-p="5">
+        <path class="ln" d="M126,92 L150,68 L153,71 L129,95 Z"/>
+        <path class="ln thin" d="M131,87 l1.5,1.5 M135,83 l1.5,1.5 M139,79 l1.5,1.5 M143,75 l1.5,1.5 M147,71 l1.5,1.5"/>
+      </g>
+      <!-- 6. Мышка -->
+      <g class="part" data-p="6">
+        <path class="ln" d="M150,128 Q150,118 157,118 Q164,118 164,128 Q164,136 157,136 Q150,136 150,128 Z"/>
+        <line class="ln thin" x1="157" y1="118" x2="157" y2="124"/><path class="ln thin" d="M157,118 Q156,110 146,108 Q136,106 132,100"/>
+      </g>
+      <!-- 7. Карты -->
+      <g class="part" data-p="7">
+        <path class="ln" d="M56,112 L64,108 L72,112 L80,108 L80,126 L72,130 L64,126 L56,130 Z"/>
+        <path class="ln thin" d="M64,108 V126 M72,112 V130"/><path class="ln thin dash" d="M59,124 Q66,116 76,118"/><path class="ln thin" d="M75,116 l1.5,2 l2,-1.5"/>
+      </g>
+      <!-- 10. Посох «Исход» -->
+      <g class="part" data-p="10">
+        <path class="ln thick" d="M84,139 L82,70 Q81,64 86,64 Q90,64 89,68"/>
+      </g>
+
+      <!-- выноски и позиции -->
+      <g id="leaders"></g>
+    </svg>
+    <div class="stamp" id="stamp">ЗАЧТЕНО<small>без доработок · с первого раза</small></div>
+  </div>
+
+  <div class="btns"><button class="btn main" id="draw">✎ Начертить заново</button><button class="btn" id="check">Сдать чертёж</button></div>
+
+  <h2>Спецификация</h2>
+  <table id="spec"><thead><tr><th>Поз.</th><th>Наименование</th><th>Кол.</th></tr></thead><tbody></tbody></table>
+  <p class="notes">Нажми на номер позиции на чертеже или на строку таблицы, чтобы открыть паспорт детали.</p>
+  <p class="hand">Славик, держись. Инженерная графика — это временно, а ты — навсегда ✌️</p>
+</div>
+
+<div class="ov" id="ov"><div class="card"><button class="x" id="x">×</button><span class="n" id="cn"></span><h3 id="ct"></h3><p class="w" id="cw"></p><p id="cx"></p><dl id="cd"></dl></div></div>
+
+<script>
+/* позиция: номер, название, обозначение, текст, характеристики, точка детали и место номера */
+const PARTS=[
+ {n:1,w:"Кепка",name:"Кожух защитный верхний «Кепка»",
+  x:"Защищает центральный процессор изделия от солнца, дождя и пристального взгляда преподавателя. Козырёк по ГОСТу смотрит строго вперёд. Назад — только по выходным.",
+  d:[["Материал","хлопок, уверенность"],["Режимы","«на учёбу», «козырьком назад»"],["Срок службы","пока не потеряется в автобусе"]],a:[110,44],l:[40,16]},
+ {n:2,w:"Наушники",name:"Система шумоподавления лекций «Наушники»",
+  x:"Активное шумоподавление окружающего мира. Работает в трёх режимах: «музыка», «подкаст» и «делаю вид, что слушаю». Отключается автоматически при фразе «Вячеслав, повторите, что я сказал».",
+  d:[["Заряд","на 2 пары из 4"],["Громкость","на 100% слышно соседям"],["Совместимость","с любым настроением"]],a:[123,48],l:[175,16]},
+ {n:3,w:"Часы",name:"Модуль отсчёта до конца пары «Часы»",
+  x:"Показывает, сколько осталось до конца пары. На инженерной графике время в зоне действия модуля замедляется примерно втрое. Эффект подтверждён многолетними наблюдениями студентов.",
+  d:[["Точность","±5 минут, всегда не в твою пользу"],["Сигнал","звонок, которого все ждут"],["Батарейка","вечная, к сожалению"]],a:[95,93],l:[24,96]},
+ {n:4,w:"Стакан",name:"Резервуар для чая «Стакан»",
+  x:"Объём 250 мл. Заполнен ровно наполовину: конструктор — оптимист, поэтому стакан наполовину полон. Содержимое — исключительно чай. Других вариантов конструкция не предусматривает.",
+  d:[["Объём","250 мл"],["Содержимое","чай, и точка"],["Температура","остывает к третьему глотку"]],a:[89,104],l:[24,110]},
+ {n:5,w:"Линейка",name:"Эталон прямоты «Линейка»",
+  x:"Единственная по-настоящему прямая вещь в жизни студента. Используется для черчения, отмеривания и указания на ошибки в чертежах соседа.",
+  d:[["Длина","30 см"],["Погрешность","±1 мм, ±2 нервные клетки"],["Особенность","падает с парты в самый тихий момент"]],a:[151,70],l:[182,52]},
+ {n:6,w:"Мышка",name:"Манипулятор типа «Мышь»",
+  x:"Предназначен для работы в САПР. Обладает встроенной функцией самоуничтожения, которая срабатывает ровно за пять минут до сдачи чертежа. Колёсико прокрутки отвечает за масштаб и за нервы.",
+  d:[["Кнопки","2 + колёсико судьбы"],["Провод","запутывается сам"],["Коврик","не прилагается, используется конспект"]],a:[164,126],l:[188,118]},
+ {n:7,w:"Карты",name:"Навигационный модуль «Карты»",
+  x:"Помогает найти нужную аудиторию в корпусах Политеха. Не помогает найти в себе силы до неё дойти. Маршрут всегда строится через столовую.",
+  d:[["Точность","до этажа"],["Слепая зона","аудитории с номером «бис»"],["Обновления","раз в семестр"]],a:[56,118],l:[24,124]},
+ {n:8,w:"Травка",name:"Газон у корпуса «Травка»",
+  x:"Обычная зелёная трава у учебного корпуса. Предназначена для процедуры «потрогать траву», которую рекомендуется проводить после шести часов за чертежами. Восстанавливает связь с реальностью.",
+  d:[["Цвет","зелёный, по ГОСТу"],["Сезонность","осенью — жёлтая, но тоже работает"],["Побочные эффекты","спокойствие"]],a:[160,138],l:[190,146]},
+ {n:9,w:"Армения",name:"Абрикосовый энергоблок «Армения»",
+  x:"Питает изделие солнечной энергией. По-латыни абрикос называется Prunus armeniaca — «армянская слива». На заднем плане гора Арарат: обеспечивает вдохновение и устойчивость конструкции.",
+  d:[["Источник","солнце и абрикосы"],["Вид из окна","Арарат"],["КПД","очень вкусно"]],a:[50,30],l:[24,40]},
+ {n:10,w:"Евреи",name:"Навигационный посох «Исход»",
+  x:"Технология проверена тысячелетиями: по библейскому преданию, Моисей сорок лет вёл евреев через пустыню и вывел всех. Значит, посох выведет и из Политеха. Правда, о сроках производитель скромно умалчивает.",
+  d:[["Длина","по росту владельца"],["Гарантийный срок","40 лет"],["Режим работы","«идём, почти пришли»"]],a:[83,82],l:[24,68]}
+];
+const svg=document.getElementById("svg"),leaders=document.getElementById("leaders");
+const NS="http://www.w3.org/2000/svg";
+/* выноски с номерами */
+PARTS.forEach(p=>{
+  const g=document.createElementNS(NS,"g");g.setAttribute("class","part");g.dataset.p="L"+p.n;
+  const [ax,ay]=p.a,[lx,ly]=p.l;
+  g.innerHTML=`<circle class="ln" cx="${ax}" cy="${ay}" r=".7" style="fill:#1d2430"/><line class="ln thin" x1="${ax}" y1="${ay}" x2="${lx}" y2="${ly}"/>`;
+  leaders.appendChild(g);
+  const pos=document.createElementNS(NS,"g");pos.setAttribute("class","pos");pos.dataset.n=p.n;
+  pos.innerHTML=`<circle cx="${lx}" cy="${ly}" r="4"/><text x="${lx}" y="${ly}">${p.n}</text>`;
+  pos.onclick=()=>open(p.n);leaders.appendChild(pos);
+});
+/* все линии — с pathLength, чтобы «чертились» */
+svg.querySelectorAll(".part .ln").forEach(e=>e.setAttribute("pathLength","1"));
+const tb=document.querySelector("#spec tbody");
+tb.innerHTML=PARTS.map(p=>`<tr data-n="${p.n}"><td>${p.n}</td><td>${p.name}</td><td>1</td></tr>`).join("");
+tb.querySelectorAll("tr").forEach(r=>r.onclick=()=>open(+r.dataset.n));
+
+function hi(n){svg.querySelectorAll(".part").forEach(g=>g.classList.toggle("hi",g.dataset.p==String(n)||g.dataset.p==="L"+n));
+  svg.querySelectorAll(".pos").forEach(g=>g.classList.toggle("hi",+g.dataset.n===n));tb.querySelectorAll("tr").forEach(r=>r.classList.toggle("hi",+r.dataset.n===n))}
+function open(n){const p=PARTS.find(x=>x.n===n);hi(n);
+  document.getElementById("cn").textContent=p.n;document.getElementById("ct").textContent=p.name;document.getElementById("cw").textContent="Из слова заказчика: «"+p.w+"»";
+  document.getElementById("cx").textContent=p.x;
+  document.getElementById("cd").innerHTML=p.d.map(([a,b])=>`<dt>${a}</dt><dd>${b}</dd>`).join("");
+  document.getElementById("ov").classList.add("on")}
+document.getElementById("x").onclick=()=>{document.getElementById("ov").classList.remove("on");hi(-1)};
+document.getElementById("ov").onclick=e=>{if(e.target.id==="ov"){e.currentTarget.classList.remove("on");hi(-1)}};
+
+/* анимация «чертёж чертится»: детали по очереди, потом выноски и номера */
+let tms=[];
+function draw(){
+  tms.forEach(clearTimeout);tms=[];document.getElementById("stamp").classList.remove("on");
+  const parts=[...svg.querySelectorAll(".part")];
+  parts.forEach(g=>{g.classList.remove("drawn");g.querySelectorAll(".ln").forEach(l=>{l.style.animation="none";void l.getBoundingClientRect();l.style.animation=""})});
+  svg.querySelectorAll(".pos").forEach(p=>p.classList.remove("show"));
+  const order=["9","8","0","1","2","3","4","5","6","7","10"];
+  order.forEach((k,i)=>tms.push(setTimeout(()=>{const g=svg.querySelector(`.part[data-p="${k}"]`);if(g)g.classList.add("drawn")},i*420)));
+  PARTS.forEach((p,i)=>tms.push(setTimeout(()=>{svg.querySelector(`.part[data-p="L${p.n}"]`).classList.add("drawn");svg.querySelector(`.pos[data-n="${p.n}"]`).classList.add("show")},order.length*420+i*180)));
+}
+document.getElementById("draw").onclick=draw;
+document.getElementById("check").onclick=()=>{const s=document.getElementById("stamp");s.classList.remove("on");void s.offsetWidth;s.classList.add("on");try{navigator.vibrate&&navigator.vibrate(60)}catch(e){}};
+draw();
+</script>
+</body>
+</html>
