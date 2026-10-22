@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Какая ты булочка?</title>
+<meta name="theme-color" content="#f6e3c6">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f6e3c6;--paper:#fffaf1;--ink:#4a3022;--muted:#9a7a62;--accent:#d9733b;--accent2:#a9501f;--line:#ecd6b6}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.45 "Nunito",system-ui,sans-serif;min-height:100%}
+body{background-image:radial-gradient(circle at 15% 10%,rgba(255,255,255,.55),transparent 40%),radial-gradient(circle at 90% 80%,rgba(217,115,59,.12),transparent 45%)}
+.wrap{max-width:520px;margin:0 auto;padding:22px 16px 40px}
+.card{background:var(--paper);border:1px solid var(--line);border-radius:22px;padding:22px 18px;box-shadow:0 12px 30px rgba(120,70,30,.12);animation:in .35s ease}
+@keyframes in{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+h1{font:700 44px/1 "Caveat",cursive;color:var(--accent);margin:0 0 6px;text-align:center}
+.sub{text-align:center;color:var(--muted);margin:0 0 16px}
+.big{font-size:84px;text-align:center;line-height:1;margin:6px 0 10px}
+.float span{display:inline-block;animation:bob 2.4s ease-in-out infinite}
+.float span:nth-child(2){animation-delay:.3s}.float span:nth-child(3){animation-delay:.6s}.float span:nth-child(4){animation-delay:.9s}.float span:nth-child(5){animation-delay:1.2s}
+@keyframes bob{50%{transform:translateY(-8px) rotate(6deg)}}
+.btn{display:block;width:100%;margin-top:14px;border:none;border-radius:16px;padding:15px;font:900 18px "Nunito",sans-serif;background:var(--accent);color:#fff;box-shadow:0 5px 0 var(--accent2);cursor:pointer}
+.btn:active{transform:translateY(4px);box-shadow:0 1px 0 var(--accent2)}
+.btn.ghost{background:transparent;color:var(--accent);border:2px solid var(--accent);box-shadow:none;padding:12px}
+.prog{height:8px;border-radius:8px;background:var(--line);overflow:hidden;margin:0 0 14px}
+.prog i{display:block;height:100%;background:var(--accent);transition:width .4s ease}
+.qn{font-size:13px;font-weight:900;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+.q{font:700 30px/1.1 "Caveat",cursive;margin:6px 0 14px}
+.opt{display:block;width:100%;text-align:left;margin:0 0 9px;border:2px solid var(--line);background:#fff;color:var(--ink);border-radius:16px;padding:13px 14px;font:700 16px "Nunito",sans-serif;cursor:pointer;transition:transform .1s,border-color .15s,background .2s;animation:in .35s ease both}
+.opt:nth-child(2){animation-delay:.05s}.opt:nth-child(3){animation-delay:.1s}.opt:nth-child(4){animation-delay:.15s}
+.opt:active{transform:scale(.98)}
+.opt.pick{border-color:var(--accent);background:#fff1e4}
+.res-emoji{font-size:110px;text-align:center;line-height:1;margin:4px 0 6px;animation:pop .7s cubic-bezier(.2,1.6,.4,1)}
+@keyframes pop{from{transform:scale(.2) rotate(-30deg);opacity:0}to{transform:none;opacity:1}}
+.res-name{font:700 40px/1 "Caveat",cursive;text-align:center;color:var(--accent);margin:0}
+.res-tag{text-align:center;color:var(--muted);font-weight:900;text-transform:uppercase;letter-spacing:.08em;font-size:13px;margin:6px 0 14px}
+.res-text{margin:0 0 12px}
+.box{background:#fff4e6;border:1px dashed var(--accent);border-radius:14px;padding:12px 14px;margin:12px 0;font-size:15px}
+.box b{display:block;margin-bottom:4px}
+.meter{height:14px;border-radius:8px;background:var(--line);overflow:hidden;margin:8px 0 4px}
+.meter i{display:block;height:100%;width:0;background:linear-gradient(90deg,#f29e6b,#e0457b);transition:width 1.6s cubic-bezier(.2,.8,.2,1)}
+.mv{font:900 22px "Nunito",sans-serif;color:#e0457b}
+.err{font-size:13px;color:var(--muted)}
+.shake{animation:shake .4s 2}
+@keyframes shake{25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+.all{display:grid;gap:10px;margin-top:10px}
+.all details{background:#fff;border:1px solid var(--line);border-radius:14px;padding:10px 14px}
+.all summary{font-weight:900;cursor:pointer}
+.all p{margin:8px 0 0;font-size:15px}
+.sig{font:700 26px "Caveat",cursive;color:var(--accent);text-align:right;margin:10px 0 0}
+.confetti{position:fixed;top:-14px;font-size:22px;z-index:20;pointer-events:none;animation:fall linear forwards}
+@keyframes fall{to{transform:translateY(110vh) rotate(540deg)}}
+</style>
+</head>
+<body>
+<div class="wrap" id="app"></div>
+<script>
+/* ======== булочки ======== */
+const BUNS={
+ cr:{e:"🥐",n:"Круассан",tag:"булочка-отличница",
+   t:"Снаружи ты хрустящая, собранная и безупречная. А внутри — сто нежных слоёв, о которых знают только самые близкие. Ты делаешь всё на совесть, даже то, что никто никогда не проверит, и именно поэтому у тебя всё получается.",
+   sost:"мука высшего сорта, сливочное масло, ответственность, щепотка перфекционизма",
+   tip:"Иногда можно вынуть себя из печи чуть раньше. Ты всё равно будешь идеальной."},
+ bu:{e:"🥯",n:"Бублик",tag:"булочка-староста",
+   t:"Надёжная, крепкая, и с дыркой ровно посередине — чтобы туда помещались все, кого ты держишь вместе. Вокруг тебя вращается этаж, группа и половина мира. Ты та, на кого можно положиться, даже когда расписание опять перекроили.",
+   sost:"тесто высшей прочности, мак, организаторский талант, терпение (много)",
+   tip:"Бублики тоже устают. Иногда дай кому-нибудь подержать себя."},
+ po:{e:"🍩",n:"Пончик",tag:"булочка-праздник",
+   t:"Тебя невозможно увидеть и не улыбнуться. Глазурь, посыпка и непоколебимая уверенность в том, что жизнь — это вкусно. Ты лечишь чужие грустные дни одним своим появлением, и подруги это прекрасно знают.",
+   sost:"сладкое тесто, глазурь, разноцветная посыпка, смех без причины",
+   tip:"Береги немного глазури и для себя. Ты тоже заслуживаешь праздника."},
+ kr:{e:"🥨",n:"Крендель с корицей",tag:"булочка-уют",
+   t:"Тёплая, мягкая, с корицей и лёгкой вредностью для пикантности. Рядом с тобой хочется завернуться в плед, налить чай и никуда не спешить. Ты пахнешь домом, даже когда сама далеко от дома.",
+   sost:"сдобное тесто, корица, сахар, плед, капелька вредности",
+   tip:"«Ещё пять минут» — это не слабость. Это рецепт."},
+ ba:{e:"🥖",n:"Багет",tag:"булочка-художница",
+   t:"Длинная история, хрустящая корочка и французский шарм. Ты видишь красоту там, где другие видят просто лужу, и можешь нарисовать её так, что все ахнут. Тебя невозможно поделить на кусочки — только целиком и с восхищением.",
+   sost:"мука, вода, соль, вдохновение, акварель, свободный вечер",
+   tip:"Не прячь свои рисунки в стол. Мир заслуживает на них посмотреть."}
+};
+const ORDER=["cr","bu","po","kr","ba"];
+/* ======== вопросы: каждый ответ даёт очки булочкам ======== */
+const Q=[
+ {q:"Утро. Звенит будильник. Твои действия?",a:[["Встаю сразу, у меня план",{bu:2}],["«Ещё пять минут»… четыре раза подряд",{kr:2}],["Сначала проверяю, кто что написал ночью",{po:2}],["Лежу и придумываю, что нарисую вечером",{ba:2}]]},
+ {q:"Пару отменили за пять минут до начала. Ты:",a:[["Расстраиваюсь. Я же готовилась!",{cr:2}],["Иду пить чай с подругами",{po:2}],["Сажусь доделывать другое задание",{bu:2}],["Это знак. Иду спать",{kr:2}]]},
+ {q:"Выбери напиток:",a:[["Крепкий чёрный чай без сахара",{bu:2}],["Какао с зефирками",{po:2}],["Чай с корицей и лимоном",{kr:2}],["Кофе, который остыл, пока я рисовала",{ba:2}]]},
+ {q:"На этаже шумят после одиннадцати. Ты как староста:",a:[["Выхожу и вежливо, но очень убедительно прошу тишины",{bu:2}],["Пишу одно сообщение в чат этажа. Все всё поняли",{cr:2}],["Сначала узнаю, что празднуют. Вдруг там торт",{po:2}],["Надеваю наушники и делаю вид, что я не староста",{kr:2}]]},
+ {q:"Свободный вечер. Целый. Без единого дела. Что делаешь?",a:[["Краски, бумага, музыка",{ba:2}],["Плед, сериал, вкусняшка",{kr:2}],["Подруги и разговоры до ночи",{po:2}],["Сделаю дела на завтра, чтобы завтра тоже было свободно",{cr:1,bu:1}]]},
+ {q:"Задание можно сделать «нормально» за час или «идеально» за пять. Ты:",a:[["Пять часов. Иначе я не могу",{cr:2}],["Час, а остальное время — на себя. Я учусь!",{kr:2}],["Два часа: хорошо, но без фанатизма",{bu:2}],["Сделаю красиво, даже если никто не просил",{ba:2}]]},
+ {q:"Что всегда лежит в твоей сумке?",a:[["Ручка, запасная ручка и ещё одна ручка",{bu:1,cr:1}],["Что-нибудь сладкое",{po:2}],["Карандаш и маленький блокнот для рисунков",{ba:2}],["Плед. Ну, лежал бы, если бы влез",{kr:2}]]},
+ {q:"Подруге грустно. Ты:",a:[["Обнимаю и молча слушаю",{kr:2}],["Смешу, пока она не забудет, почему грустила",{po:2}],["Раскладываю проблему по пунктам и нахожу решение",{bu:1,cr:1}],["Рисую ей что-нибудь смешное",{ba:2}]]},
+ {q:"Внезапно вместо пары — английский. Первая мысль?",a:[["«I am tired»",{kr:2}],["Справлюсь. Я же отличница",{cr:2}],["Главное — сесть рядом с подругами",{po:2}],["Буду рисовать на полях Биг-Бен",{ba:2}]]},
+ {q:"Где бы ты хотела оказаться прямо сейчас?",a:[["На набережной Невы на закате",{ba:1,cr:1}],["На маминой кухне, где пахнет пирогами",{kr:2}],["В уютной кофейне с подругами",{po:2}],["В тихой пустой аудитории, где можно спокойно всё доделать",{bu:1,cr:1}]]}
+];
+let i=0,score={},picks=[];
+const app=document.getElementById("app");
+function start(){
+  i=0;score={};picks=[];window.scrollTo({top:0});
+  app.innerHTML=`<div class="card"><div class="big float"><span>🥐</span><span>🥯</span><span>🍩</span><span>🥨</span><span>🥖</span></div>
+    <h1>Какая ты булочка?</h1><p class="sub">Научно-кулинарный тест из 10 вопросов. Отвечай честно: пекарь всё видит.</p>
+    <button class="btn" id="go">Начать выпечку</button></div>`;
+  document.getElementById("go").onclick=ask;
+}
+function ask(){
+  window.scrollTo({top:0});const x=Q[i];
+  app.innerHTML=`<div class="card"><div class="prog"><i style="width:${i/Q.length*100}%"></i></div><div class="qn">Вопрос ${i+1} из ${Q.length}</div>
+    <div class="q">${x.q}</div>${x.a.map((o,k)=>`<button class="opt" data-k="${k}">${o[0]}</button>`).join("")}</div>`;
+  requestAnimationFrame(()=>{const p=app.querySelector(".prog i");p.style.width=((i+1)/Q.length*100)+"%"});
+  app.querySelectorAll(".opt").forEach(b=>b.onclick=()=>{
+    if(b.dataset.done)return;app.querySelectorAll(".opt").forEach(z=>z.dataset.done=1);b.classList.add("pick");
+    const pts=x.a[+b.dataset.k][1];for(const k in pts)score[k]=(score[k]||0)+pts[k];picks.push(+b.dataset.k);
+    setTimeout(()=>{i++;i<Q.length?ask():baking()},380);
+  });
+}
+function baking(){
+  app.innerHTML=`<div class="card" style="text-align:center"><div class="big" id="ov">🔥</div><div class="q" id="bt">Разогреваем духовку…</div><p class="sub">Пожалуйста, не открывай дверцу.</p></div>`;
+  const steps=["Замешиваем тесто из твоих ответов…","Добавляем щепотку характера…","Выпекаем при 180 градусах любви…","Почти готово. Пахнет потрясающе…"];
+  steps.forEach((s,k)=>setTimeout(()=>{const e=document.getElementById("bt");if(e)e.textContent=s},700+k*700));
+  setTimeout(result,3600);
+}
+function winner(){let best=null,bv=-1;ORDER.forEach(k=>{const v=score[k]||0;if(v>bv){bv=v;best=k}});return best}
+function result(){
+  const k=winner(),B=BUNS[k];window.scrollTo({top:0});
+  app.innerHTML=`<div class="card"><div class="res-emoji">${B.e}</div><p class="res-name">Ты — ${B.n}!</p><div class="res-tag">${B.tag}</div>
+    <p class="res-text">${B.t}</p>
+    <div class="box"><b>🧾 Состав:</b>${B.sost}.</div>
+    <div class="box"><b>👨‍🍳 Совет пекаря:</b>${B.tip}</div>
+    <div class="box" id="cm"><b>💞 Совместимость с Андреем</b><div class="meter"><i id="mt"></i></div><span class="mv" id="mv">0%</span> <span class="err" id="me"></span></div>
+    <p class="sig">— главный дегустатор, Андрей</p>
+    <button class="btn" id="again">Испечь заново</button><button class="btn ghost" id="all">Посмотреть все булочки</button><div id="allb"></div></div>`;
+  confetti(B.e);
+  setTimeout(()=>{const mt=document.getElementById("mt");if(!mt)return;mt.style.width="100%";let v=0;const iv=setInterval(()=>{v+=4;const mv=document.getElementById("mv");if(!mv){clearInterval(iv);return}
+    if(v<=100)mv.textContent=v+"%";else{clearInterval(iv);mv.textContent="999%";document.getElementById("cm").classList.add("shake");document.getElementById("me").textContent="⚠ шкала сломалась: значение превышает допустимое"}},60)},900);
+  document.getElementById("again").onclick=start;
+  document.getElementById("all").onclick=()=>{document.getElementById("allb").innerHTML=`<div class="all">${ORDER.map(x=>`<details ${x===k?"open":""}><summary>${BUNS[x].e} ${BUNS[x].n} · ${BUNS[x].tag}</summary><p>${BUNS[x].t}</p></details>`).join("")}</div>
+    <p class="sub" style="margin-top:12px">Если честно, ты все пять сразу. Тест просто выбрал, какая сегодня главная 😉</p>`;document.getElementById("all").remove()};
+}
+function confetti(e){const set=[e,"✨","🧡",e,"🍯"];for(let k=0;k<36;k++){const s=document.createElement("span");s.className="confetti";s.textContent=set[k%set.length];
+  s.style.left=Math.random()*100+"vw";s.style.animationDuration=(2.4+Math.random()*2)+"s";s.style.animationDelay=(Math.random()*.6)+"s";document.body.appendChild(s);setTimeout(()=>s.remove(),5200)}}
+start();
+</script>
+</body>
+</html>
