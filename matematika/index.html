@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Математика любви</title>
+<meta name="theme-color" content="#f7f9fc">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Nunito:wght@400;700;900&family=PT+Serif:ital@0;1&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#1f3b73;--pen:#2457c5;--red:#e0457b;--muted:#6b7a99;--paper:#fbfcff}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:#eef2f8;color:#23314f;font:17px/1.45 "Nunito",system-ui,sans-serif}
+.wrap{max-width:520px;margin:0 auto;padding:18px 14px 40px}
+.sheet{background:var(--paper);border-radius:18px;box-shadow:0 12px 30px rgba(30,50,100,.12);padding:16px;position:relative;overflow:hidden;
+  background-image:linear-gradient(rgba(36,87,197,.09) 1px,transparent 1px),linear-gradient(90deg,rgba(36,87,197,.09) 1px,transparent 1px);background-size:18px 18px}
+.sheet:before{content:"";position:absolute;top:0;bottom:0;left:30px;width:2px;background:rgba(224,69,123,.25)}
+.k{font-weight:900;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-left:26px}
+h1{font:700 38px/1.05 "Caveat",cursive;color:var(--ink);margin:4px 0 6px 26px}
+.f{font:italic 20px/1.35 "PT Serif",serif;color:var(--pen);margin:6px 0 10px 26px;min-height:28px}
+.f sup{font-size:.65em}
+canvas{display:block;width:100%;aspect-ratio:1/1;border-radius:12px;background:rgba(255,255,255,.65);border:1px solid rgba(36,87,197,.15)}
+.cap{font:700 24px/1.2 "Caveat",cursive;color:#23314f;margin:12px 4px 4px 26px;min-height:60px}
+.row{display:flex;gap:8px;margin-top:14px}
+.btn{flex:1;border:none;border-radius:14px;padding:14px;font:900 17px "Nunito",sans-serif;background:var(--pen);color:#fff;box-shadow:0 4px 0 #173a8a;cursor:pointer}
+.btn:active{transform:translateY(3px);box-shadow:0 1px 0 #173a8a}
+.btn.ghost{background:#fff;color:var(--pen);border:2px solid var(--pen);box-shadow:none}
+.dots{display:flex;gap:6px;justify-content:center;margin-top:12px}
+.dots i{width:8px;height:8px;border-radius:50%;background:#c9d3e6}.dots i.on{background:var(--pen)}
+.desmos{display:none;margin:10px 0 0;font-size:13px;color:var(--muted);text-align:center}
+.desmos code{display:block;margin-top:4px;background:#fff;border:1px dashed #9db1dc;border-radius:8px;padding:6px;font-size:12px;color:#23314f;word-break:break-all;user-select:all}
+.sig{font:700 30px "Caveat",cursive;color:var(--red);text-align:right;margin:4px 6px 0}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="sheet">
+    <div class="k" id="k">Контрольная работа · вариант «Юля»</div>
+    <h1 id="t">Математика любви</h1>
+    <div class="f" id="f">Решение в 6 шагах и ответ</div>
+    <canvas id="cv" width="900" height="900"></canvas>
+    <div class="cap" id="cap">Я не математик. Но некоторые вещи проще доказать формулами, чем словами.</div>
+    <div class="row"><button class="btn ghost" id="prev" style="display:none">‹</button><button class="btn" id="next">Начать решение</button></div>
+    <div class="dots" id="dots"></div>
+    <div class="desmos" id="dm">Хочешь проверить сама? Вставь в Desmos:<code id="dmc"></code></div>
+  </div>
+</div>
+<script>
+const cv=document.getElementById("cv"),ctx=cv.getContext("2d"),W=900;
+const PI=Math.PI;
+/* шаги: заголовок, формула (html), подпись, область графика, кривые (функции t→[x,y]) */
+const STEPS=[
+ {t:"Шаг 1. Разминка",f:"y = 1/x &nbsp; x<sup>2</sup>+y<sup>2</sup> = 9 &nbsp; y = |−2x| &nbsp; x = −3|sin y|",
+  c:"Четыре обычных школьных графика. Ничего особенного. Просто посмотри, что они вместе пишут.",
+  love:true,dm:"y=1/x ; x^2+y^2=9 ; y=|-2x| ; x=-3|\\sin y|"},
+ {t:"Шаг 2. Сердце",f:"x = 16 sin<sup>3</sup>t<br>y = 13 cos t − 5 cos 2t − 2 cos 3t − cos 4t",
+  c:"Самое известное уравнение сердца. Я проверил: оно точно описывает моё, когда ты мне пишешь.",
+  box:[-19,19,-19,15],curves:[{fn:t=>[16*Math.sin(t)**3,13*Math.cos(t)-5*Math.cos(2*t)-2*Math.cos(3*t)-Math.cos(4*t)],a:0,b:2*PI,col:"#e0457b",w:7}],
+  dm:"(16\\sin^3t,13\\cos t-5\\cos 2t-2\\cos 3t-\\cos 4t)"},
+ {t:"Шаг 3. Рост",f:"любовь(t) = e<sup>t</sup>",
+  c:"Моя любовь к тебе — экспонента. Растёт каждый день, и с каждым днём всё быстрее. Предела у неё нет, я проверял.",
+  box:[-3.2,3,-0.8,13],axes:true,curves:[{fn:t=>[t,Math.exp(t)],a:-3.2,b:2.55,col:"#2457c5",w:7}],dm:"y=e^x"},
+ {t:"Шаг 4. Цветы",f:"r = sin 5θ",
+  c:"Цветы за 2000 километров не доставишь. Поэтому вот роза, выращенная тригонометрией. Пять лепестков, не вянет никогда.",
+  box:[-1.2,1.2,-1.2,1.2],curves:[{fn:t=>{const r=Math.sin(5*t);return [r*Math.cos(t),r*Math.sin(t)]},a:0,b:PI,col:"#e0457b",w:6}],dm:"r=\\sin(5\\theta)"},
+ {t:"Шаг 5. Бабочки",f:"r = e<sup>sin θ</sup> − 2 cos 4θ + sin<sup>5</sup>((2θ − π)/24)",
+  c:"Бабочки в животе — это не метафора, а кривая Темпла Фэя. Наконец-то кто-то описал формулой то, что со мной происходит.",
+  box:[-4,4,-3.2,4.8],curves:[{fn:t=>{const r=Math.exp(Math.sin(t))-2*Math.cos(4*t)+Math.sin((2*t-PI)/24)**5;return [r*Math.cos(t),r*Math.sin(t)]},a:0,b:12*PI,col:"#8a5be0",w:3.2,n:4000}],
+  dm:"r=e^{\\sin\\theta}-2\\cos(4\\theta)+\\sin^5((2\\theta-\\pi)/24)"},
+ {t:"Шаг 6. Сколько",f:"(x<sup>2</sup> + y<sup>2</sup>)<sup>2</sup> = 2(x<sup>2</sup> − y<sup>2</sup>)",
+  c:"Лемниската Бернулли. Математики называют её знаком бесконечности. Я называю её «сколько я хочу быть с тобой».",
+  box:[-1.7,1.7,-1.7,1.7],curves:[{fn:t=>{const s=Math.sin(t),c=Math.cos(t),d=1+s*s;return [1.414*c/d,1.414*s*c/d]},a:0,b:2*PI,col:"#2457c5",w:7}],dm:"(x^2+y^2)^2=2(x^2-y^2)"},
+ {t:"Ответ",f:"Решение существует, единственно и равно тебе.",
+  c:"Задача решена. Перепроверять не нужно: я пересчитываю этот ответ каждый день, и он не меняется.",
+  final:true}
+];
+let step=-1,raf=0;
+const dots=document.getElementById("dots");dots.innerHTML=STEPS.map(()=>"<i></i>").join("");
+function grid(){ctx.clearRect(0,0,W,W)}
+function mapper(b,pad=70){const [x0,x1,y0,y1]=b,s=Math.min((W-2*pad)/(x1-x0),(W-2*pad)/(y1-y0)),cx=W/2-(x0+x1)/2*s,cy=W/2+(y0+y1)/2*s;return ([x,y])=>[cx+x*s,cy-y*s]}
+function axes(m,b){ctx.strokeStyle="rgba(31,59,115,.45)";ctx.lineWidth=2.5;const [x0,x1,y0,y1]=b;
+  let p=m([x0,0]),q=m([x1,0]);ctx.beginPath();ctx.moveTo(...p);ctx.lineTo(...q);ctx.stroke();
+  p=m([0,y0]);q=m([0,y1]);ctx.beginPath();ctx.moveTo(...p);ctx.lineTo(...q);ctx.stroke();
+  ctx.fillStyle="rgba(31,59,115,.6)";ctx.font="italic 30px 'PT Serif',serif";const ox=m([x1,0]),oy=m([0,y1]);ctx.fillText("t",ox[0]-24,ox[1]+36);ctx.fillText("любовь",oy[0]+12,oy[1]+26)}
+/* постепенная отрисовка кривой */
+function animCurve(cs,m,dur,done,pre){
+  const t0=performance.now();
+  const pts=cs.map(c=>{const n=c.n||900,a=[];for(let i=0;i<=n;i++){const t=c.a+(c.b-c.a)*i/n;a.push(m(c.fn(t)))}return a});
+  const frame=now=>{const k=Math.min(1,(now-t0)/dur);
+    cs.forEach((c,j)=>{const P=pts[j],upto=Math.floor(P.length*k);ctx.strokeStyle=c.col;ctx.lineWidth=c.w;ctx.lineCap=ctx.lineJoin="round";ctx.shadowColor=c.col;ctx.shadowBlur=8;
+      ctx.beginPath();for(let i=0;i<upto;i++){const p=P[i];if(!isFinite(p[0])||!isFinite(p[1])||Math.abs(p[1])>3*W){ctx.stroke();ctx.beginPath();continue}i?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1])}ctx.stroke();ctx.shadowBlur=0});
+    if(k<1)raf=requestAnimationFrame(frame);else done&&done()};
+  raf=requestAnimationFrame(now=>{grid();pre&&pre();frame(now)});
+}
+/* шаг 1: четыре графика по клеткам — L, O, V, E */
+function drawLove(){
+  const cells=[{b:[-0.5,5.5,-0.5,5.5],c:[{fn:t=>[t,1/t],a:.2,b:5.2,col:"#e0457b",w:7}]},
+    {b:[-4,4,-4,4],c:[{fn:t=>[3*Math.cos(t),3*Math.sin(t)],a:0,b:2*PI,col:"#e0457b",w:7}]},
+    {b:[-3,3,-0.5,6],c:[{fn:t=>[t,Math.abs(-2*t)],a:-2.8,b:2.8,col:"#e0457b",w:7}]},
+    {b:[-3.6,0.6,-0.4,6.7],c:[{fn:t=>[-3*Math.abs(Math.sin(t)),t],a:0,b:2*PI,col:"#e0457b",w:7}]}];
+  grid();const H=W/2;let i=0;
+  const next=()=>{if(i>=4)return;const C=cells[i],ox=(i%2)*H,oy=Math.floor(i/2)*H;const [x0,x1,y0,y1]=C.b,s=Math.min((H-80)/(x1-x0),(H-80)/(y1-y0)),cx=ox+H/2-(x0+x1)/2*s,cy=oy+H/2+(y0+y1)/2*s;
+    const m=([x,y])=>[cx+x*s,cy-y*s];
+    const t0=performance.now(),pts=C.c[0];const P=[];for(let k=0;k<=500;k++){const t=pts.a+(pts.b-pts.a)*k/500;P.push(m(pts.fn(t)))}
+    const fr=now=>{const k=Math.min(1,(now-t0)/700),up=Math.floor(P.length*k);ctx.save();ctx.beginPath();ctx.rect(ox,oy,H,H);ctx.clip();ctx.strokeStyle=pts.col;ctx.lineWidth=pts.w;ctx.lineCap="round";ctx.shadowColor=pts.col;ctx.shadowBlur=8;ctx.beginPath();for(let j=0;j<up;j++)j?ctx.lineTo(...P[j]):ctx.moveTo(...P[j]);ctx.stroke();ctx.restore();
+      if(k<1)raf=requestAnimationFrame(fr);else{ctx.fillStyle="#23314f";ctx.font="bold 64px 'Caveat',cursive";ctx.fillText("LOVE"[i],ox+H-70,oy+H-30);i++;setTimeout(next,250)}};
+    raf=requestAnimationFrame(fr)};
+  ctx.strokeStyle="rgba(36,87,197,.25)";ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(H,20);ctx.lineTo(H,W-20);ctx.moveTo(20,H);ctx.lineTo(W-20,H);ctx.stroke();
+  next();
+}
+/* финал: сердце закрашивается и бьётся */
+function drawFinal(){
+  const m=mapper([-19,19,-19,15]),P=[];for(let i=0;i<=600;i++){const t=2*PI*i/600;P.push(m([16*Math.sin(t)**3,13*Math.cos(t)-5*Math.cos(2*t)-2*Math.cos(3*t)-Math.cos(4*t)]))}
+  const t0=performance.now();
+  const fr=now=>{const k=(now-t0)/1000,beat=1+0.05*Math.max(0,Math.sin(k*6))**8+0.03*Math.max(0,Math.sin(k*6+0.9))**8;grid();
+    ctx.save();ctx.translate(W/2,W/2);ctx.scale(beat,beat);ctx.translate(-W/2,-W/2);
+    const fill=Math.min(1,k/1.6);const g=ctx.createLinearGradient(0,W*.85,0,W*.15);g.addColorStop(0,"#e0457b");g.addColorStop(fill,"#ff8fb1");g.addColorStop(Math.min(1,fill+.001),"rgba(255,255,255,0)");
+    ctx.beginPath();P.forEach((p,i)=>i?ctx.lineTo(...p):ctx.moveTo(...p));ctx.closePath();ctx.fillStyle=g;ctx.fill();ctx.strokeStyle="#e0457b";ctx.lineWidth=7;ctx.stroke();
+    ctx.fillStyle="#fff";ctx.font="bold 92px 'Caveat',cursive";ctx.textAlign="center";if(fill>.6){ctx.globalAlpha=Math.min(1,(fill-.6)*3);ctx.fillText("Юля",W/2,W/2+10);ctx.globalAlpha=1}
+    ctx.restore();raf=requestAnimationFrame(fr)};
+  raf=requestAnimationFrame(fr);
+}
+function show(i){
+  cancelAnimationFrame(raf);step=i;const S=STEPS[i];
+  document.getElementById("k").textContent=i===STEPS.length-1?"Итог":"Шаг "+(i+1)+" из "+(STEPS.length-1);
+  document.getElementById("t").textContent=S.t;document.getElementById("f").innerHTML=S.f;document.getElementById("cap").textContent=S.c;
+  [...dots.children].forEach((d,k)=>d.classList.toggle("on",k<=i));
+  document.getElementById("prev").style.display=i>0?"block":"none";
+  document.getElementById("next").textContent=i===STEPS.length-1?"Решить ещё раз":"Дальше";
+  const dm=document.getElementById("dm");if(S.dm){dm.style.display="block";document.getElementById("dmc").textContent=S.dm}else dm.style.display="none";
+  const old=document.querySelector(".sig");if(old)old.remove();
+  if(S.love)drawLove();
+  else if(S.final){drawFinal();document.getElementById("cap").insertAdjacentHTML("afterend",'<div class="sig">— Андрей</div>')}
+  else{grid();const m=mapper(S.box);animCurve(S.curves,m,S.curves[0].n?3200:1800,null,S.axes?()=>axes(m,S.box):null)}
+}
+document.getElementById("next").onclick=()=>show(step>=STEPS.length-1?0:step+1);
+document.getElementById("prev").onclick=()=>show(Math.max(0,step-1));
+/* заставка: маленькое сердечко пунктиром */
+(function intro(){const m=mapper([-19,19,-19,15],180);ctx.setLineDash([10,14]);ctx.strokeStyle="rgba(36,87,197,.5)";ctx.lineWidth=4;ctx.beginPath();
+  for(let i=0;i<=300;i++){const t=2*PI*i/300,p=m([16*Math.sin(t)**3,13*Math.cos(t)-5*Math.cos(2*t)-2*Math.cos(3*t)-Math.cos(4*t)]);i?ctx.lineTo(...p):ctx.moveTo(...p)}ctx.stroke();ctx.setLineDash([]);
+  ctx.fillStyle="rgba(31,59,115,.7)";ctx.font="italic 40px 'PT Serif',serif";ctx.textAlign="center";ctx.fillText("Дано: Андрей, Юля",W/2,120);ctx.fillText("Найти: ?",W/2,W-100);ctx.textAlign="left"})();
+</script>
+</body>
+</html>
