@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<title>Котёл зелий</title>
+<meta name="theme-color" content="#1a0f24">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Nunito:wght@600;800;900&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none}
+html,body{margin:0;min-height:100%;background:#1a0f24;color:#f6ead8;font:16px/1.4 "Nunito",system-ui,sans-serif;overflow-x:hidden}
+body{background:radial-gradient(ellipse at 50% 0%,#3b1f4f 0%,#1a0f24 60%) fixed}
+.wrap{max-width:520px;margin:0 auto;padding:16px 14px 40px;position:relative}
+h1{font:700 44px/1 "Caveat",cursive;color:#ff9a3c;text-align:center;margin:6px 0 2px;text-shadow:0 0 18px rgba(255,140,40,.5)}
+.sub{text-align:center;opacity:.8;margin:0 0 10px;font-size:15px}
+.stage{position:relative;height:300px;margin:4px 0 8px}
+.moon{position:absolute;right:14px;top:4px;font-size:44px;filter:drop-shadow(0 0 14px #ffe9a8)}
+.bat{position:absolute;font-size:26px;animation:fly 9s linear infinite;opacity:.9}
+@keyframes fly{0%{transform:translate(-60px,40px) scaleX(1)}45%{transform:translate(420px,0) scaleX(1)}50%{transform:translate(440px,10px) scaleX(-1)}95%{transform:translate(-40px,60px) scaleX(-1)}100%{transform:translate(-60px,40px) scaleX(1)}}
+.pot{position:absolute;left:50%;bottom:6px;transform:translateX(-50%);width:220px;height:200px}
+.pot svg{width:100%;height:100%;overflow:visible}
+#liquid{transition:fill 1.2s}
+.bub{position:absolute;border-radius:50%;background:var(--c,#7dff8a);opacity:.8;pointer-events:none;animation:rise 1.6s ease-in forwards}
+@keyframes rise{to{transform:translateY(-110px) scale(.4);opacity:0}}
+.smoke{position:absolute;left:50%;bottom:150px;width:60px;height:60px;border-radius:50%;background:radial-gradient(circle,rgba(220,200,255,.55),transparent 70%);pointer-events:none;animation:smoke 2.4s ease-out forwards}
+@keyframes smoke{to{transform:translate(calc(var(--dx)*1px),-150px) scale(3);opacity:0}}
+.fly{position:fixed;font-size:42px;z-index:20;pointer-events:none;transition:transform .7s cubic-bezier(.4,-.3,.6,1.2),opacity .7s}
+.shelf{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.ing{background:rgba(255,255,255,.06);border:1px solid rgba(255,190,120,.25);border-radius:14px;padding:8px 4px 6px;text-align:center;cursor:pointer;color:#f6ead8;font:800 11px/1.15 "Nunito",sans-serif;overflow-wrap:anywhere;hyphens:auto;transition:transform .12s,background .2s}
+.ing span{display:block;font-size:30px;margin-bottom:4px}
+.ing:active{transform:scale(.93)}
+.ing.used{opacity:.25;pointer-events:none}
+.slots{display:flex;justify-content:center;gap:10px;margin:2px 0 12px}
+.slot{width:46px;height:46px;border-radius:50%;border:2px dashed rgba(255,154,60,.5);display:grid;place-items:center;font-size:24px}
+.slot.on{border-style:solid;border-color:#ff9a3c;background:rgba(255,154,60,.12)}
+.btn{display:block;width:100%;margin-top:12px;border:none;border-radius:16px;padding:15px;font:900 18px "Nunito",sans-serif;background:#ff8a2a;color:#2a1305;box-shadow:0 5px 0 #b3520f;cursor:pointer}
+.btn:active{transform:translateY(4px);box-shadow:0 1px 0 #b3520f}
+.btn:disabled{opacity:.4}
+.btn.ghost{background:transparent;color:#ff9a3c;border:2px solid #ff9a3c;box-shadow:none;padding:12px}
+.res{display:none;background:linear-gradient(160deg,#2c1840,#1d1029);border:2px solid var(--c,#ff9a3c);border-radius:20px;padding:18px;margin-top:12px;box-shadow:0 0 30px color-mix(in srgb,var(--c,#ff9a3c) 40%,transparent);animation:pop .6s cubic-bezier(.2,1.5,.4,1)}
+@keyframes pop{from{transform:scale(.7);opacity:0}to{transform:none;opacity:1}}
+.res .bottle{font-size:64px;text-align:center;line-height:1}
+.res h2{font:700 34px/1.05 "Caveat",cursive;text-align:center;margin:6px 0 4px;color:var(--c,#ff9a3c)}
+.res .k{text-align:center;font-size:12px;font-weight:900;letter-spacing:.1em;text-transform:uppercase;opacity:.7}
+.res p{margin:10px 0 6px}
+.res .side{font-size:14px;opacity:.85;border-top:1px dashed rgba(255,255,255,.2);padding-top:8px;margin-top:8px}
+.book{margin-top:16px;font-size:14px;opacity:.85;text-align:center}
+.book b{color:#ff9a3c}
+.leaf{position:fixed;top:-30px;font-size:22px;pointer-events:none;z-index:0;animation:leaf linear forwards}
+@keyframes leaf{to{transform:translateY(110vh) translateX(60px) rotate(400deg)}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Котёл зелий</h1>
+  <p class="sub">Ведьминская лавка открыта только для Юли. Брось в котёл три ингредиента.</p>
+  <div class="stage" id="stage">
+    <div class="moon">🌕</div><div class="bat">🦇</div><div class="bat" style="animation-delay:-4s;top:40px;font-size:20px">🦇</div>
+    <div class="pot" id="pot"><svg viewBox="0 0 220 200">
+      <ellipse cx="110" cy="186" rx="70" ry="10" fill="rgba(0,0,0,.4)"/>
+      <path d="M38,110 Q32,190 110,192 Q188,190 182,110 Z" fill="#20202a" stroke="#0c0c12" stroke-width="4"/>
+      <ellipse cx="110" cy="110" rx="78" ry="20" fill="#2c2c38" stroke="#0c0c12" stroke-width="4"/>
+      <ellipse id="liquid" cx="110" cy="112" rx="66" ry="14" fill="#5bd16b"/>
+      <ellipse cx="96" cy="108" rx="18" ry="4" fill="rgba(255,255,255,.25)"/>
+      <path d="M70,190 l-8,10 M150,190 l8,10" stroke="#0c0c12" stroke-width="6" stroke-linecap="round"/>
+      <g id="fire"><path d="M80,200 q10,-30 20,0 q10,-36 20,0 q10,-30 20,0" fill="#ff8a2a" opacity=".9"><animate attributeName="opacity" values=".6;1;.6" dur=".6s" repeatCount="indefinite"/></path></g>
+    </svg></div>
+  </div>
+  <div class="slots" id="slots"><div class="slot"></div><div class="slot"></div><div class="slot"></div></div>
+  <div class="shelf" id="shelf"></div>
+  <button class="btn" id="brew" disabled>Выбери 3 ингредиента</button>
+  <div class="res" id="res"></div>
+  <p class="book">Рецептов в книге: <b id="cnt">0</b> из <span id="tot"></span>. Говорят, есть один секретный.</p>
+</div>
+<script>
+const ING=[["🦇","Крыло летучей мыши"],["🕸","Паутинка"],["🍄","Подозрительный гриб"],["🌙","Лунный свет"],["🍫","Шоколадка"],["🍂","Осенний лист"],["🧦","Потерянный носок"],["☕","Остывший чай"],["✨","Звёздная пыль"],["🐸","Кваканье лягушки"],["🎃","Тыквенная мякоть"],["📚","Страница конспекта"]];
+/* зелья: обычные выбираются по сумме ингредиентов, особые — по точному рецепту */
+const POTIONS=[
+ {n:"Эликсир «Ещё пять минут»",c:"#7ec8ff",b:"🧪",t:"Делает утро на пять минут длиннее. Будильник звонит, а ты всё ещё спишь, и тебе ничего за это не будет.",s:"Побочный эффект: желание выпить ещё один."},
+ {n:"Зелье отменённой пары",c:"#ff9a3c",b:"⚗️",t:"Одна капля — и первая пара отменяется сама собой. Преподаватель внезапно вспоминает, что у него важные дела.",s:"Побочный эффект: группа считает тебя святой."},
+ {n:"Отвар бесконечного вдохновения",c:"#c07bff",b:"🫙",t:"Кисточка сама просится в руку, краски смешиваются как надо, а свободный вечер появляется из ниоткуда.",s:"Побочный эффект: соседка просит портрет."},
+ {n:"Настойка сладкого сна",c:"#9fa8ff",b:"🧴",t:"Засыпаешь за три минуты, снится что-то тёплое, утром просыпаешься бодрой, как будто проспала неделю.",s:"Побочный эффект: подушка становится ещё мягче."},
+ {n:"Эликсир «Сдала с первого раза»",c:"#5bd16b",b:"🧪",t:"Любая контрольная, практика и тест решаются сами. Ручка пишет правильные ответы и даже не просит отдыха.",s:"Побочный эффект: синдром отличницы урчит от удовольствия."},
+ {n:"Зелье невидимости для старосты",c:"#a7b3c2",b:"⚗️",t:"На один вечер тебя никто не ищет, никто не стучит в дверь и никто не спрашивает, где ключ от душа.",s:"Побочный эффект: этаж всё равно ведёт себя прилично, потому что боится."},
+ {n:"Тыквенный латте силы",c:"#ff7b2e",b:"☕",t:"Тёплый, пряный, наполняет энергией на весь день. После него можно пережить даже перенесённое расписание.",s:"Побочный эффект: хочется надеть свитер и смотреть на дождь."},
+ {n:"Отвар «Всё будет хорошо»",c:"#ffd166",b:"🫙",t:"Медленно разливается теплом изнутри. Тревоги становятся маленькими и смешными, как носок без пары.",s:"Побочный эффект: улыбка без причины."},
+ {n:"Зелье смелости",c:"#ff5d73",b:"🧪",t:"Даёт сил выйти к доске, ответить первой и сказать «нет», когда очень хочется сказать «нет».",s:"Побочный эффект: преподаватели начинают тебя уважать вдвое сильнее."},
+ {n:"Эликсир найденного носка",c:"#6ee7d6",b:"⚗️",t:"Через час после приёма находится пропавший носок. Иногда два. Иногда чужой, но очень красивый.",s:"Побочный эффект: стиральная машина в общаге чувствует себя виноватой."}
+];
+const SECRET={key:["🌙","🍫","🐸"],n:"Зелье «Питер на связи»",c:"#ff8fb1",b:"💌",t:"Секретный рецепт! Вызывает непреодолимое желание написать одному человеку в Санкт-Петербург. А он, между прочим, уже ждёт.",s:"Побочный эффект: у этого человека резко поднимается настроение. Проверено."};
+const SPECIAL=[
+ {key:["☕","📚","🧦"],n:"Зелье «Обычный вторник»",c:"#c9b38f",b:"🫖",t:"Остывший чай, конспект и потерянный носок. Ты сварила самый честный студенческий напиток в истории. Вкус — как вторник: нормально, но хочется пятницу.",s:"Побочный эффект: внезапно наступает пятница."},
+ {key:["🎃","🦇","🕸"],n:"Настоящее хэллоуинское зелье",c:"#ff8a2a",b:"🎃",t:"Классика! Пахнет тыквой, шуршит крыльями и слегка липнет. Делает тебя самой очаровательной ведьмой Армавира.",s:"Побочный эффект: коты начинают ходить за тобой по пятам."}
+];
+const ALL=[...POTIONS,...SPECIAL,SECRET];
+const store={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
+let book=[];try{book=JSON.parse(store.get("kotel-book")||"[]")}catch(e){}
+document.getElementById("tot").textContent=ALL.length;
+const shelf=document.getElementById("shelf"),slots=[...document.querySelectorAll(".slot")],brew=document.getElementById("brew");
+let picked=[];
+function renderShelf(){shelf.innerHTML=ING.map(([e,n],i)=>`<button class="ing ${picked.includes(i)?"used":""}" data-i="${i}"><span>${e}</span>${n}</button>`).join("");
+  shelf.querySelectorAll(".ing").forEach(b=>b.onclick=()=>add(+b.dataset.i,b))}
+function add(i,el){if(picked.length>=3)return;picked.push(i);
+  const r=el.getBoundingClientRect(),pot=document.getElementById("pot").getBoundingClientRect();
+  const f=document.createElement("div");f.className="fly";f.textContent=ING[i][0];f.style.left=r.left+r.width/2-21+"px";f.style.top=r.top+6+"px";document.body.appendChild(f);
+  requestAnimationFrame(()=>{f.style.transform=`translate(${pot.left+pot.width/2-r.left-r.width/2}px,${pot.top+pot.height*.5-r.top-6}px) scale(.4) rotate(220deg)`;f.style.opacity=".2"});
+  setTimeout(()=>{f.remove();splash(["#7dff8a","#ffd166","#c07bff"][picked.length-1])},700);
+  slots[picked.length-1].textContent=ING[i][0];slots[picked.length-1].classList.add("on");
+  renderShelf();brew.disabled=picked.length<3;brew.textContent=picked.length<3?`Ещё ${3-picked.length}`:"🔥 Сварить зелье";
+  try{navigator.vibrate&&navigator.vibrate(10)}catch(e){}
+}
+function splash(c){const st=document.getElementById("stage");for(let k=0;k<8;k++){const b=document.createElement("div");b.className="bub";const s=6+Math.random()*14;
+  b.style.width=b.style.height=s+"px";b.style.left=(50+(Math.random()-.5)*45)+"%";b.style.bottom="120px";b.style.setProperty("--c",c);b.style.animationDelay=Math.random()*.4+"s";st.appendChild(b);setTimeout(()=>b.remove(),2200)}}
+function smoke(n){const st=document.getElementById("stage");for(let k=0;k<n;k++){const s=document.createElement("div");s.className="smoke";s.style.setProperty("--dx",(Math.random()-.5)*160);s.style.animationDelay=k*.15+"s";st.appendChild(s);setTimeout(()=>s.remove(),3200)}}
+function choose(){
+  const em=picked.map(i=>ING[i][0]).sort().join("");
+  const sp=[SECRET,...SPECIAL].find(p=>p.key.slice().sort().join("")===em);if(sp)return sp;
+  const h=picked.reduce((a,i)=>a*31+i*7+3,17);return POTIONS[h%POTIONS.length];
+}
+brew.onclick=()=>{
+  if(picked.length<3)return;brew.disabled=true;brew.textContent="Бурлит…";
+  const P=choose(),liq=document.getElementById("liquid");
+  let k=0;const cols=["#5bd16b","#c07bff","#ff8a2a",P.c];
+  const iv=setInterval(()=>{liq.setAttribute("fill",cols[k%cols.length]);splash(cols[k%cols.length]);k++;if(k>6){clearInterval(iv);liq.setAttribute("fill",P.c)}},350);
+  document.getElementById("pot").animate([{transform:"translateX(-50%)"},{transform:"translateX(-52%) rotate(-2deg)"},{transform:"translateX(-48%) rotate(2deg)"},{transform:"translateX(-50%)"}],{duration:300,iterations:8});
+  setTimeout(()=>smoke(6),1600);
+  setTimeout(()=>{
+    const res=document.getElementById("res");res.style.setProperty("--c",P.c);
+    const isNew=!book.includes(P.n);if(isNew){book.push(P.n);store.set("kotel-book",JSON.stringify(book))}
+    res.innerHTML=`<div class="bottle">${P.b}</div><div class="k">${P===SECRET?"🔮 Секретный рецепт":isNew?"Новый рецепт в книге":"Уже есть в книге"}</div><h2>${P.n}</h2><p>${P.t}</p><div class="side">${P.s}</div>
+      <p style="font-size:13px;opacity:.7;margin-top:10px">Состав: ${picked.map(i=>ING[i][0]+" "+ING[i][1].toLowerCase()).join(", ")}</p>
+      <button class="btn ghost" id="again">Сварить ещё</button>`;
+    res.style.display="block";res.style.animation="none";void res.offsetWidth;res.style.animation="";
+    res.scrollIntoView({behavior:"smooth",block:"center"});
+    document.getElementById("cnt").textContent=book.length;
+    if(P===SECRET)for(let j=0;j<30;j++)setTimeout(()=>leaf("💌"),j*60);
+    try{navigator.vibrate&&navigator.vibrate([30,40,60])}catch(e){}
+    document.getElementById("again").onclick=reset;
+    brew.textContent="Готово!";
+  },2800);
+};
+function reset(){picked=[];slots.forEach(s=>{s.textContent="";s.classList.remove("on")});document.getElementById("res").style.display="none";renderShelf();brew.disabled=true;brew.textContent="Выбери 3 ингредиента";window.scrollTo({top:0,behavior:"smooth"})}
+function leaf(e){const l=document.createElement("div");l.className="leaf";l.textContent=e||["🍂","🍁","🍂"][Math.floor(Math.random()*3)];l.style.left=Math.random()*100+"vw";l.style.animationDuration=(5+Math.random()*5)+"s";document.body.appendChild(l);setTimeout(()=>l.remove(),11000)}
+setInterval(()=>leaf(),1400);
+document.getElementById("cnt").textContent=book.length;
+renderShelf();
+</script>
+</body>
+</html>
