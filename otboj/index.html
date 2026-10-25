@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<title>Отбой на этаже</title>
+<meta name="theme-color" content="#0b1030">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Nunito:wght@600;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none}
+html,body{margin:0;height:100%;overflow:hidden;background:#0b1030;color:#f4efe6;font-family:"Nunito",system-ui,sans-serif}
+#sky{position:fixed;inset:0;background:linear-gradient(#070a22 0%,#141a4a 55%,#2b2a5e 100%);transition:filter 2s}
+.star{position:absolute;width:2px;height:2px;border-radius:50%;background:#fff;opacity:.5}
+#moon{position:absolute;right:9%;top:9%;width:54px;height:54px;border-radius:50%;background:#fff3cf;box-shadow:0 0 40px 8px rgba(255,240,200,.25)}
+#moon::after{content:"";position:absolute;left:14px;top:-6px;width:54px;height:54px;border-radius:50%;background:#0d1236}
+#cloud{position:absolute;top:19%;left:-160px;width:150px;height:38px;border-radius:30px;background:rgba(160,170,230,.13);animation:cloud 60s linear infinite}
+#cloud::before,#cloud::after{content:"";position:absolute;border-radius:50%;background:inherit}
+#cloud::before{width:60px;height:50px;left:24px;top:-24px}#cloud::after{width:70px;height:60px;left:62px;top:-32px}
+@keyframes cloud{to{transform:translateX(calc(100vw + 340px))}}
+
+#top{position:fixed;top:calc(12px + env(safe-area-inset-top));left:16px;right:16px;text-align:center;z-index:5;transition:opacity .6s}
+#clock{font:800 13px "Nunito";letter-spacing:2px;opacity:.6}
+#title{font:700 32px/1.05 "Caveat",cursive;color:#ffe3a3;margin:2px 0 4px}
+#hint{font-size:14px;opacity:.8;min-height:20px}
+#count{display:inline-block;margin-top:6px;padding:3px 12px;border-radius:20px;background:rgba(255,227,163,.12);border:1px solid rgba(255,227,163,.3);font-size:13px;font-weight:800;color:#ffe3a3}
+
+#scene{position:fixed;left:0;right:0;bottom:0;display:flex;justify-content:center;align-items:flex-end;height:100%}
+#bld{position:relative;width:min(84vw,360px);margin-bottom:calc(46px + env(safe-area-inset-bottom))}
+#roof{height:16px;background:#3a2f4d;border-radius:4px 4px 0 0;margin:0 -8px;position:relative}
+#sign{position:absolute;left:50%;bottom:16px;transform:translateX(-50%);background:#22193a;border:2px solid #4a3b66;border-bottom:none;padding:3px 12px 2px;font:800 11px "Nunito";letter-spacing:3px;color:#c9a6ff;border-radius:4px 4px 0 0;white-space:nowrap}
+#ant{position:absolute;right:30px;bottom:16px;width:2px;height:26px;background:#4a3b66}
+#ant::after{content:"";position:absolute;top:-4px;left:-3px;width:8px;height:8px;border-radius:50%;background:#ff4d6d;animation:blink 2s infinite}
+@keyframes blink{50%{opacity:.15}}
+#wall{background:repeating-linear-gradient(0deg,#4b3a5c 0 14px,#45354f 14px 15px),#4b3a5c;padding:14px 14px 0;display:grid;grid-template-columns:repeat(4,1fr);gap:14px 12px;box-shadow:inset 0 0 40px rgba(0,0,0,.45)}
+.win{position:relative;aspect-ratio:3/4;border-radius:3px;background:#1a1730;border:3px solid #6b5880;overflow:hidden;cursor:pointer;transition:background .5s,box-shadow .5s}
+.win::before,.win::after{content:"";position:absolute;top:0;bottom:0;width:22%;background:rgba(120,40,60,.55);transition:width .5s}
+.win::before{left:0}.win::after{right:0}
+.win.dark::before,.win.dark::after{width:8%;background:rgba(60,30,50,.5)}
+.win .f{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:clamp(18px,6vw,28px);transition:opacity .5s,transform .3s;z-index:1}
+.win.lit{background:radial-gradient(circle at 50% 60%,#ffe9a6 0%,#ffc764 55%,#e8954a 100%);box-shadow:0 0 18px rgba(255,200,100,.45)}
+.win.lit .f{filter:drop-shadow(0 1px 1px rgba(0,0,0,.25))}
+.win.dark .f{opacity:0}
+.win.poke .f{transform:scale(1.25) rotate(-8deg)}
+.win .sill{position:absolute;left:-3px;right:-3px;bottom:-3px;height:5px;background:#7d6a93;z-index:2}
+.win.hers.lit.last{animation:hers 1.8s ease-in-out infinite}
+@keyframes hers{50%{box-shadow:0 0 30px 6px rgba(255,170,190,.75)}}
+#ground{position:relative;height:44px;background:#4b3a5c;padding:0 14px;display:flex;justify-content:center;align-items:flex-end}
+#door{width:54px;height:40px;background:#2a2140;border:3px solid #6b5880;border-bottom:none;border-radius:4px 4px 0 0;position:relative}
+#door::after{content:"";position:absolute;top:-14px;left:50%;transform:translateX(-50%);width:20px;height:8px;border-radius:4px;background:#ffd98a;box-shadow:0 0 12px #ffcf70;transition:.8s}
+#street{position:fixed;left:0;right:0;bottom:0;height:calc(46px + env(safe-area-inset-bottom));background:#1b1733}
+#lamp{position:absolute;left:6%;bottom:calc(46px + env(safe-area-inset-bottom));width:4px;height:130px;background:#2f2944}
+#lamp::before{content:"";position:absolute;top:-4px;left:-2px;width:26px;height:6px;background:#2f2944;border-radius:3px}
+#lamp::after{content:"";position:absolute;top:2px;left:14px;width:12px;height:8px;border-radius:0 0 6px 6px;background:#ffe39a;box-shadow:0 10px 40px 14px rgba(255,220,140,.18)}
+.z{position:absolute;font:700 18px "Caveat";color:#c9d4ff;pointer-events:none;z-index:8;animation:zz 1.8s ease-out forwards}
+@keyframes zz{from{opacity:0;transform:translate(0,0)}20%{opacity:1}to{opacity:0;transform:translate(14px,-46px)}}
+
+#bub{position:fixed;z-index:9;max-width:210px;background:#fffaf0;color:#2b2240;border-radius:14px;padding:8px 12px;font-size:14px;font-weight:700;line-height:1.3;box-shadow:0 6px 20px rgba(0,0,0,.35);opacity:0;transform:translateY(6px);transition:opacity .2s,transform .2s;pointer-events:none}
+#bub.on{opacity:1;transform:none}
+#bub::after{content:"";position:absolute;left:var(--ax,50%);bottom:-7px;width:14px;height:14px;background:#fffaf0;transform:translateX(-50%) rotate(45deg);border-radius:2px}
+#bub.below::after{bottom:auto;top:-7px}
+#bub small{display:block;font-weight:600;opacity:.55;font-size:11px;margin-bottom:2px}
+
+#final{position:fixed;inset:0;z-index:10;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:28px;text-align:center;pointer-events:none;opacity:0;transition:opacity 1.6s}
+#final.on{opacity:1;pointer-events:auto}
+#final .card{background:rgba(9,12,38,.78);border:1px solid rgba(255,227,163,.25);border-radius:20px;padding:22px 20px;max-width:380px;backdrop-filter:blur(3px)}
+#final h1{font:700 44px/1 "Caveat",cursive;color:#ffe3a3;margin:0 0 12px}
+#final p{font-size:16px;line-height:1.5;margin:8px 0;opacity:.92}
+#final .sig{font:700 28px "Caveat",cursive;color:#ffe3a3;margin-top:12px}
+#final .stamp{display:inline-block;margin-top:10px;font:800 11px "Nunito";letter-spacing:2px;color:#ff8fa3;border:2px solid #ff8fa3;border-radius:6px;padding:4px 10px;white-space:nowrap;transform:rotate(-6deg);opacity:.85}
+body.night #sky{filter:brightness(.75)}
+body.night .star{opacity:.95!important}
+body.night #door::after{background:#4a4060;box-shadow:none}
+</style>
+</head>
+<body>
+<div id="sky"><div id="moon"></div><div id="cloud"></div></div>
+<div id="top">
+  <div id="clock"></div>
+  <div id="title">Этаж не спит</div>
+  <div id="hint">Староста, пора объявить отбой. Нажимай на окна</div>
+  <div id="count"></div>
+</div>
+<div id="lamp"></div>
+<div id="street"></div>
+<div id="scene">
+  <div id="bld">
+    <div id="roof"><div id="sign">ОБЩЕЖИТИЕ</div><div id="ant"></div></div>
+    <div id="wall"></div>
+    <div id="ground"><div id="door"></div></div>
+  </div>
+</div>
+<div id="bub"></div>
+<div id="final"><div class="card">
+  <h1>Отбой объявлен</h1>
+  <p>Весь этаж спит, потому что ты так решила.</p>
+  <p>Ты сегодня держала на себе кучу всего: людей, учёбу, кисточки и чужие «а что делать?». И у тебя всё получилось. Как всегда.</p>
+  <p>Теперь отдыхает и главная решала. Это не просьба, это приказ Совета Вселенной.</p>
+  <p>Спокойной ночи, Юль. Ты потрясающая.</p>
+  <div class="sig">— Андрей 🌙</div>
+  <div class="stamp">ПРИКАЗ В СИЛЕ С 00:00</div>
+</div></div>
+<script>
+const R=[
+ {f:"📺",who:"Комната 401",say:["Ещё одну серию! Последнюю! Честно!"],off:"Ладно-ладно, выключаю…"},
+ {f:"📚",who:"Комната 402",say:["У меня завтра коллоквиум, я учу!"],off:"…уснула на учебнике"},
+ {f:"🍜",who:"Комната 404",say:["Я только доширак заварила!"],off:"Доедаю и сплю, честно"},
+ {f:"🎸",who:"Комната 305",say:["Я песню сочиняю, муза пришла!"],off:"Муза ушла спать. Я тоже"},
+ {f:"🧘",who:"Комната 307",say:["Я не сплю, я медитирую."],off:"Медитирую с закрытыми глазами"},
+ {f:"📱",who:"Комната 302",say:["Я уже почти сплю, просто листаю…","Ну ещё пять видосиков!"],off:"Всё-всё, телефон на зарядке"},
+ {f:"🐈",who:"Подоконник 206",say:["Мяу.","МЯУ.","…мур."],off:"Кот сдался и свернулся клубком"},
+ {f:"🧖‍♀️",who:"Комната 203",say:["У меня маска на лице, ещё десять минут!"],off:"Смыла. Сияю. Сплю"},
+ {f:"🎮",who:"Комната 201",say:["Это финальный босс!!!","Ну пожалуйста, я почти!"],off:"Сохранился. Босс подождёт до завтра"},
+ {f:"☎️",who:"Комната 208",say:["Я с мамой разговариваю!"],off:"«Пока, мам, тут староста пришла»"},
+ {f:"🥞",who:"Кухня",say:["Блины в полночь. А что такого?"],off:"Блины конфискованы старостой"},
+ {f:"🦉",who:"Комната 103",say:["Я сова, мне можно!","Совам правда можно!"],off:"Сова сдалась"},
+ {f:"👻",who:"Комната 106",say:["А я вообще не из этой комнаты…"],off:"*растворяется в темноте*"}
+];
+const HERS={f:"🎨",who:"Последнее окно",say:["Тут ещё кто-то рисует…","Ой. Да это же окно главной решалы."],off:""};
+const N=20, wall=document.getElementById("wall");
+const HERS_AT=6;
+/* раскладываем жильцов по окнам: 13 + её окно горят, остальные тёмные */
+let slots=[...Array(N).keys()].filter(i=>i!==HERS_AT);
+for(let i=slots.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[slots[i],slots[j]]=[slots[j],slots[i]]}
+const map={};slots.slice(0,R.length).forEach((s,k)=>map[s]=R[k]);map[HERS_AT]=HERS;
+let left=R.length,bubT=0;
+const W=[];
+for(let i=0;i<N;i++){
+  const d=document.createElement("div");const r=map[i];
+  d.className="win "+(r?"lit":"dark")+(r===HERS?" hers":"");
+  d.innerHTML=`<div class="f">${r?r.f:""}</div><div class="sill"></div>`;
+  if(r){d._r=r;d._n=0;d.onclick=()=>tap(d)}
+  wall.appendChild(d);W.push(d);
+}
+const cnt=document.getElementById("count"),hint=document.getElementById("hint"),bub=document.getElementById("bub");
+function upd(){cnt.textContent=left>0?`Не спят: ${left+1}`:"Не спит: 1";}
+upd();
+function say(d,text,who){
+  bub.innerHTML=(who?`<small>${who}</small>`:"")+text;
+  const r=d.getBoundingClientRect();bub.classList.add("on");
+  const bw=bub.offsetWidth,bh=bub.offsetHeight;
+  let x=r.left+r.width/2-bw/2;x=Math.max(10,Math.min(innerWidth-bw-10,x));
+  let y=r.top-bh-12,below=false;if(y<120){y=r.bottom+12;below=true}
+  bub.classList.toggle("below",below);
+  bub.style.left=x+"px";bub.style.top=y+"px";
+  bub.style.setProperty("--ax",(r.left+r.width/2-x)+"px");
+  clearTimeout(bubT);bubT=setTimeout(()=>bub.classList.remove("on"),2600);
+}
+function zz(d){const r=d.getBoundingClientRect();for(let k=0;k<3;k++)setTimeout(()=>{const z=document.createElement("div");z.className="z";z.textContent="z";z.style.left=(r.left+r.width*.6)+"px";z.style.top=(r.top+r.height*.3)+"px";document.body.appendChild(z);setTimeout(()=>z.remove(),1900)},k*300)}
+function buzz(ms){try{navigator.vibrate&&navigator.vibrate(ms)}catch(e){}}
+function tap(d){
+  const r=d._r;if(d.classList.contains("dark")||d._busy)return;
+  if(r===HERS&&left>0){say(d,"А тут пусть пока горит. Сначала уложи остальных 😉",r.who);return}
+  d.classList.add("poke");setTimeout(()=>d.classList.remove("poke"),250);buzz(10);
+  if(d._n<r.say.length){say(d,r.say[d._n],r.who);d._n++;
+    if(d._n===1&&r!==HERS)hint.textContent="Отмазка принята к сведению. Нажми ещё раз, настаивай";
+    return}
+  if(r===HERS){finale(d);return}
+  d._busy=true;say(d,r.off,r.who);
+  setTimeout(()=>{d.classList.remove("lit");d.classList.add("dark");zz(d);buzz(20);left--;upd();
+    if(left===0){W[HERS_AT].classList.add("last");hint.textContent="Весь этаж спит. Почти. Одно окно ещё горит…";document.getElementById("title").textContent="Остался один свет"}
+    else hint.textContent=["Минус один. Так держать!","Этаж засыпает…","Староста знает своё дело","Ещё немного!","Порядок наводится"][Math.floor(Math.random()*5)];
+  },700);
+}
+function finale(d){
+  d._busy=true;bub.classList.remove("on");
+  setTimeout(()=>{d.classList.remove("lit");d.classList.add("dark");zz(d);buzz([20,60,20]);
+    document.body.classList.add("night");document.getElementById("top").style.opacity=0;
+    setTimeout(()=>document.getElementById("final").classList.add("on"),1400);
+  },500);
+}
+/* звёзды */
+const sky=document.getElementById("sky");
+for(let i=0;i<90;i++){const s=document.createElement("div");s.className="star";s.style.left=Math.random()*100+"%";s.style.top=Math.random()*62+"%";
+  const z=Math.random()*1.6+1;s.style.width=s.style.height=z+"px";
+  s.animate([{opacity:.15},{opacity:Math.random()*.6+.4},{opacity:.15}],{duration:2000+Math.random()*3000,iterations:Infinity,delay:-Math.random()*3000});sky.appendChild(s)}
+/* часы */
+function tick(){const t=new Date();document.getElementById("clock").textContent=String(t.getHours()).padStart(2,"0")+":"+String(t.getMinutes()).padStart(2,"0")}
+tick();setInterval(tick,20000);
+</script>
+</body>
+</html>
