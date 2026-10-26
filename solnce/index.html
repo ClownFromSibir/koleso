@@ -23,7 +23,8 @@ html,body{margin:0;height:100%;overflow:hidden;background:#0b0d2a;font-family:"N
 .cloud::before,.cloud::after{content:"";position:absolute;border-radius:50%;background:inherit}
 .cloud::before{width:46%;height:180%;left:16%;top:-80%}.cloud::after{width:38%;height:150%;left:48%;top:-55%}
 #land{position:fixed;left:0;right:0;bottom:0;height:36vh;z-index:4}
-#land svg{width:100%;height:100%;display:block}
+#land svg{position:absolute;inset:0;width:100%;height:100%;display:block}
+#svgB{pointer-events:none}
 #top{position:fixed;top:calc(14px + env(safe-area-inset-top));left:16px;right:16px;text-align:center;z-index:6;color:#fff;transition:opacity .8s;pointer-events:none}
 #date{font:800 12px "Nunito";letter-spacing:2px;text-transform:uppercase;opacity:.7}
 #title{font:700 36px/1.05 "Caveat",cursive;margin:2px 0 4px;text-shadow:0 2px 10px rgba(0,0,0,.25)}
@@ -51,13 +52,15 @@ html,body{margin:0;height:100%;overflow:hidden;background:#0b0d2a;font-family:"N
 <div id="glow"></div><div id="rays"></div>
 <div id="sun"><div class="face">😴</div></div>
 <div id="hand">☝️</div>
-<div id="land"><svg viewBox="0 0 400 300" preserveAspectRatio="xMidYMax slice">
+<div id="land">
+<svg id="svgA" viewBox="0 0 400 300" preserveAspectRatio="xMidYMax slice">
   <path id="hill2" d="M0 120 Q80 70 170 105 T330 90 T400 100 L400 300 L0 300Z"/>
   <path id="hill1" d="M0 170 Q100 130 210 160 T400 150 L400 300 L0 300Z"/>
-  <g id="houses"></g>
-  <g id="fence"></g>
   <rect id="road" x="0" y="262" width="400" height="38"/>
-</svg></div>
+</svg>
+<svg id="svgB" viewBox="0 0 400 300" preserveAspectRatio="xMidYMax slice"><g id="houses"></g></svg>
+<svg id="svgC" viewBox="0 0 400 300" preserveAspectRatio="xMidYMax slice"><g id="fence"></g></svg>
+</div>
 <div id="top"><div id="date"></div><div id="title">Разбуди солнце</div><div id="ev">Потяни солнце вверх</div></div>
 <div id="bar"><i></i></div>
 <div id="final"><div class="card">
@@ -98,10 +101,10 @@ const NS="http://www.w3.org/2000/svg",houses=$("houses");const WINS=[];
     el._at=.32+Math.random()*.33;g.appendChild(el);WINS.push(el)}
   houses.appendChild(g)});
 /* заборчик, на нём петух и кот на крыше */
-let fz="";for(let x=0;x<400;x+=9)fz+=`<rect x="${x}" y="246" width="5" height="18" rx="1"/>`;fz+=`<rect x="0" y="251" width="400" height="3"/>`;$("fence").innerHTML=fz;
+function buildFence(a,b){let fz="";for(let x=Math.floor(a/9)*9;x<b;x+=9)fz+=`<rect x="${x}" y="246" width="5" height="18" rx="1"/>`;fz+=`<rect x="${a}" y="251" width="${b-a}" height="3"/>`;$("fence").innerHTML=fz}
 const fence=$("fence");
-const ROOSTER=document.createElementNS(NS,"text");ROOSTER.setAttribute("x",300);ROOSTER.setAttribute("y",250);ROOSTER.setAttribute("font-size",26);ROOSTER.textContent="🐓";ROOSTER.style.opacity=0;ROOSTER.style.transition="opacity .8s";$("land").querySelector("svg").appendChild(ROOSTER);
-const CAT=document.createElementNS(NS,"text");CAT.setAttribute("x",150);CAT.setAttribute("y",168);CAT.setAttribute("font-size",18);CAT.textContent="🐈‍⬛";$("land").querySelector("svg").appendChild(CAT);
+const ROOSTER=document.createElementNS(NS,"text");ROOSTER.setAttribute("x",300);ROOSTER.setAttribute("y",245);ROOSTER.setAttribute("font-size",26);ROOSTER.textContent="🐓";ROOSTER.style.opacity=0;ROOSTER.style.transition="opacity .8s";$("svgB").appendChild(ROOSTER);
+const CAT=document.createElementNS(NS,"text");CAT.setAttribute("x",150);CAT.setAttribute("y",168);CAT.setAttribute("font-size",18);CAT.textContent="🐈‍⬛";$("svgB").appendChild(CAT);
 /* ---------- облака ---------- */
 const clouds=[];
 [[.08,.2,110],[.62,.14,90],[.35,.32,130]].forEach(([x,y,w],k)=>{const c=document.createElement("div");c.className="cloud";c.style.width=w+"px";c._x=x;c._y=y;c._v=4+k*2;
@@ -111,7 +114,7 @@ const clouds=[];
 const EV=[[.12,"Где-то зевнул первый кот"],[.26,"Будильники готовятся к атаке"],[.4,"В окнах загорается свет"],[.55,"Петух вышел на смену"],[.7,"Чайники закипают по всему городу"],[.84,"Птицы проверяют голоса"],[.94,"Почти! Ещё чуть-чуть"]];
 let evI=-1;
 function bub(x,y,t){const b=document.createElement("div");b.className="bub";b.textContent=t;b.style.left=Math.max(8,Math.min(W()-150,x-40))+"px";b.style.top=y+"px";document.body.appendChild(b);setTimeout(()=>b.remove(),2300)}
-function svgToScreen(x,y){const sv=$("land").querySelector("svg"),pt=sv.createSVGPoint();pt.x=x;pt.y=y;const m=sv.getScreenCTM();const r=pt.matrixTransform(m);return[r.x,r.y]}
+function svgToScreen(x,y){const sv=$("svgB"),pt=sv.createSVGPoint();pt.x=x;pt.y=y;const m=sv.getScreenCTM();const r=pt.matrixTransform(m);return[r.x,r.y]}
 let crowed=false,catDone=false,birdsDone=false;
 function events(p){
   let k=-1;EV.forEach(([t],i)=>{if(p>=t)k=i});
@@ -170,7 +173,16 @@ fetch("https://api.open-meteo.com/v1/forecast?latitude=44.99&longitude=41.12&cur
   else if(c<=1)tip="ловить солнце на переменах ☀️";
   const w=$("wx");w.innerHTML=`В Армавире сейчас <b>${s}</b>, ${WX[c]||"погода"}. Днём до ${smx}.<br>Совет дня: ${tip}`;w.style.display="block";
  }).catch(()=>{});
-addEventListener("resize",()=>render(P));
+function fit(){const l=$("land"),r=l.clientWidth/l.clientHeight,wide=r>400/300;
+  const VW=wide?300*r:400,x0=wide?-(VW-400)/2:0,vb=`${x0} 0 ${VW} 300`;
+  $("svgA").setAttribute("preserveAspectRatio",wide?"none":"xMidYMax slice");
+  ["svgB","svgC"].forEach(id=>$(id).setAttribute("viewBox",vb));
+  /* на широком экране повторяем дома по бокам */
+  document.querySelectorAll(".hcopy").forEach(e=>e.remove());
+  const n=Math.ceil(-x0/400);
+  for(let i=1;i<=n;i++)for(const sg of [-1,1]){const u=document.createElementNS(NS,"use");u.setAttribute("href","#houses");u.setAttribute("x",sg*i*400);u.setAttribute("class","hcopy");$("svgB").insertBefore(u,$("houses").nextSibling)}
+  buildFence(x0,x0+VW)}
+fit();addEventListener("resize",()=>{fit();render(P)});
 render(0);
 </script>
 </body>
