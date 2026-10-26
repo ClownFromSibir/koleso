@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<title>Разбуди солнце</title>
+<meta name="theme-color" content="#0b0d2a">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Nunito:wght@600;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none}
+html,body{margin:0;height:100%;overflow:hidden;background:#0b0d2a;font-family:"Nunito",system-ui,sans-serif;touch-action:none}
+#sky{position:fixed;inset:0}
+.star{position:absolute;border-radius:50%;background:#fff}
+#moon{position:fixed;right:12%;width:40px;height:40px;border-radius:50%;background:#f4efd8;box-shadow:0 0 30px 6px rgba(255,245,210,.25)}
+#sun{position:fixed;left:50%;width:96px;height:96px;margin-left:-48px;border-radius:50%;background:radial-gradient(circle,#fff7c2 0%,#ffd84a 45%,#ffab2e 100%);box-shadow:0 0 24px 6px rgba(255,200,80,.5);cursor:grab;z-index:3}
+#glow{position:fixed;left:50%;width:420px;height:420px;margin-left:-210px;border-radius:50%;background:radial-gradient(circle,rgba(255,200,90,.5) 0%,rgba(255,170,70,.22) 35%,rgba(255,160,60,0) 70%);z-index:2;pointer-events:none}
+#sun .face{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:34px;transition:transform .3s}
+#rays{position:fixed;left:50%;width:240px;height:240px;margin-left:-120px;z-index:2;pointer-events:none;opacity:0;background:repeating-conic-gradient(rgba(255,230,140,.22) 0deg 8deg,transparent 8deg 30deg);border-radius:50%;-webkit-mask:radial-gradient(circle,#000 30%,transparent 70%);mask:radial-gradient(circle,#000 30%,transparent 70%);animation:spin 40s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.cloud{position:fixed;height:30px;border-radius:30px;z-index:2;pointer-events:auto}
+.cloud::before,.cloud::after{content:"";position:absolute;border-radius:50%;background:inherit}
+.cloud::before{width:46%;height:180%;left:16%;top:-80%}.cloud::after{width:38%;height:150%;left:48%;top:-55%}
+#land{position:fixed;left:0;right:0;bottom:0;height:36vh;z-index:4}
+#land svg{width:100%;height:100%;display:block}
+#top{position:fixed;top:calc(14px + env(safe-area-inset-top));left:16px;right:16px;text-align:center;z-index:6;color:#fff;transition:opacity .8s;pointer-events:none}
+#date{font:800 12px "Nunito";letter-spacing:2px;text-transform:uppercase;opacity:.7}
+#title{font:700 36px/1.05 "Caveat",cursive;margin:2px 0 4px;text-shadow:0 2px 10px rgba(0,0,0,.25)}
+#ev{font-size:15px;font-weight:700;min-height:22px;opacity:.9;transition:opacity .4s;text-shadow:0 1px 6px rgba(0,0,0,.35)}
+#hand{position:fixed;left:50%;z-index:5;font-size:30px;margin-left:30px;pointer-events:none;animation:hand 1.6s ease-in-out infinite;transition:opacity .5s}
+@keyframes hand{0%,100%{transform:translateY(0)}50%{transform:translateY(-34px)}}
+#bar{position:fixed;left:50%;bottom:calc(10px + env(safe-area-inset-bottom));width:160px;margin-left:-80px;height:6px;border-radius:4px;background:rgba(255,255,255,.18);z-index:6;overflow:hidden;transition:opacity .6s}
+#bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,#ffb347,#ffe27a);border-radius:4px}
+.bub{position:fixed;z-index:7;background:#fff;color:#3a2a10;font:800 14px "Nunito";padding:6px 10px;border-radius:12px;box-shadow:0 4px 14px rgba(0,0,0,.25);pointer-events:none;animation:bub 2.2s ease forwards}
+@keyframes bub{0%{opacity:0;transform:translateY(6px) scale(.8)}12%{opacity:1;transform:none}80%{opacity:1}100%{opacity:0;transform:translateY(-8px)}}
+.bird{position:fixed;z-index:3;pointer-events:none;font:700 18px monospace;color:#3b3550}
+#final{position:fixed;left:0;right:0;bottom:calc(16px + env(safe-area-inset-bottom));z-index:8;display:flex;justify-content:center;padding:0 16px;opacity:0;transform:translateY(20px);transition:opacity 1.4s,transform 1.4s;pointer-events:none}
+#final.on{opacity:1;transform:none;pointer-events:auto}
+#final .card{max-width:390px;width:100%;background:rgba(255,253,245,.93);color:#3d2c14;border-radius:20px;padding:18px 18px 16px;text-align:center;box-shadow:0 10px 30px rgba(120,70,0,.25)}
+#final h1{font:700 42px/1 "Caveat",cursive;color:#e0761c;margin:0 0 8px}
+#final p{font-size:15px;line-height:1.45;margin:6px 0}
+#wx{display:none;margin:10px auto 4px;padding:8px 12px;border-radius:12px;background:#fff1d6;font-size:14px;font-weight:700}
+#wx b{font-size:20px;color:#e0761c}
+#final .sig{font:700 26px "Caveat",cursive;color:#e0761c;margin-top:6px}
+</style>
+</head>
+<body>
+<div id="sky"></div>
+<div id="moon"></div>
+<div id="glow"></div><div id="rays"></div>
+<div id="sun"><div class="face">😴</div></div>
+<div id="hand">☝️</div>
+<div id="land"><svg viewBox="0 0 400 300" preserveAspectRatio="xMidYMax slice">
+  <path id="hill2" d="M0 120 Q80 70 170 105 T330 90 T400 100 L400 300 L0 300Z"/>
+  <path id="hill1" d="M0 170 Q100 130 210 160 T400 150 L400 300 L0 300Z"/>
+  <g id="houses"></g>
+  <g id="fence"></g>
+  <rect id="road" x="0" y="262" width="400" height="38"/>
+</svg></div>
+<div id="top"><div id="date"></div><div id="title">Разбуди солнце</div><div id="ev">Потяни солнце вверх</div></div>
+<div id="bar"><i></i></div>
+<div id="final"><div class="card">
+  <h1>Доброе утро!</h1>
+  <p>Солнце встало, потому что его подняла ты. Значит, и с этим днём точно справишься.</p>
+  <div id="wx"></div>
+  <p>Пусть сегодня всё складывается легко, а вечером будет повод улыбнуться.</p>
+  <div class="sig">— Андрей ☀️</div>
+</div></div>
+<script>
+const $=id=>document.getElementById(id);
+const W=()=>innerWidth,H=()=>innerHeight;
+/* ---------- цвета ---------- */
+const hex=h=>[1,3,5].map(i=>parseInt(h.slice(i,i+2),16));
+const mix=(a,b,t)=>{a=hex(a);b=hex(b);return`rgb(${a.map((v,i)=>Math.round(v+(b[i]-v)*t)).join(",")})`};
+function ramp(stops,p){for(let i=1;i<stops.length;i++)if(p<=stops[i][0]){const[a,ca]=stops[i-1],[b,cb]=stops[i];return mix(ca,cb,(p-a)/(b-a))}return mix(stops.at(-1)[1],stops.at(-1)[1],0)}
+const SKY_T=[[0,"#060820"],[.35,"#27225a"],[.6,"#4f78c4"],[1,"#79c2f4"]];
+const SKY_B=[[0,"#1a1c48"],[.35,"#c25f78"],[.6,"#ffad78"],[1,"#fde6b4"]];
+const HILL2=[[0,"#15122c"],[.4,"#3a3050"],[1,"#8cc07a"]];
+const HILL1=[[0,"#0e0c22"],[.4,"#2e2840"],[1,"#5f9e4f"]];
+const ROAD=[[0,"#0a0918"],[1,"#8a8378"]];
+const WALL=[[0,"#1c1830"],[.5,"#5a4a5e"],[1,"#f2d7b0"]];
+const ROOF=[[0,"#120f22"],[.5,"#4a2f3a"],[1,"#c4583e"]];
+const CLOUD=[[0,"#1d1f48"],[.35,"#d88aa0"],[.6,"#ffd2b8"],[1,"#ffffff"]];
+/* ---------- звёзды ---------- */
+const sky=$("sky"),stars=[];
+for(let i=0;i<90;i++){const s=document.createElement("div");s.className="star";const z=Math.random()*1.6+.6;
+  s.style.cssText=`left:${Math.random()*100}%;top:${Math.random()*60}%;width:${z}px;height:${z}px`;s._b=Math.random()*.6+.4;sky.appendChild(s);stars.push(s)}
+/* ---------- домики ---------- */
+const NS="http://www.w3.org/2000/svg",houses=$("houses");const WINS=[];
+[[22,190,48,52],[82,200,40,44],[134,182,56,62],[204,196,44,48],[262,186,52,58],[324,198,46,46]].forEach(([x,y,w,h],k)=>{
+  const g=document.createElementNS(NS,"g");
+  g.innerHTML=`<rect class="wall" x="${x}" y="${y}" width="${w}" height="${h}"/><path class="roof" d="M${x-5} ${y} L${x+w/2} ${y-22} L${x+w+5} ${y}Z"/>`;
+  const cols=w>50?3:2,rows=h>50?2:1;
+  for(let r=0;r<rows;r++)for(let c=0;c<cols;c++){
+    const wx=x+6+c*((w-12)/cols)+2,wy=y+8+r*22,ww=(w-12)/cols-4;
+    const el=document.createElementNS(NS,"rect");el.setAttribute("x",wx);el.setAttribute("y",wy);el.setAttribute("width",ww);el.setAttribute("height",13);el.setAttribute("rx",1.5);
+    el._at=.32+Math.random()*.33;g.appendChild(el);WINS.push(el)}
+  houses.appendChild(g)});
+/* заборчик, на нём петух и кот на крыше */
+let fz="";for(let x=0;x<400;x+=9)fz+=`<rect x="${x}" y="246" width="5" height="18" rx="1"/>`;fz+=`<rect x="0" y="251" width="400" height="3"/>`;$("fence").innerHTML=fz;
+const fence=$("fence");
+const ROOSTER=document.createElementNS(NS,"text");ROOSTER.setAttribute("x",300);ROOSTER.setAttribute("y",250);ROOSTER.setAttribute("font-size",26);ROOSTER.textContent="🐓";ROOSTER.style.opacity=0;ROOSTER.style.transition="opacity .8s";$("land").querySelector("svg").appendChild(ROOSTER);
+const CAT=document.createElementNS(NS,"text");CAT.setAttribute("x",150);CAT.setAttribute("y",168);CAT.setAttribute("font-size",18);CAT.textContent="🐈‍⬛";$("land").querySelector("svg").appendChild(CAT);
+/* ---------- облака ---------- */
+const clouds=[];
+[[.08,.2,110],[.62,.14,90],[.35,.32,130]].forEach(([x,y,w],k)=>{const c=document.createElement("div");c.className="cloud";c.style.width=w+"px";c._x=x;c._y=y;c._v=4+k*2;
+  c.onclick=e=>{e.stopPropagation();c.animate([{transform:"scale(1)"},{transform:"scale(1.15,.9)"},{transform:"scale(1)"}],{duration:400});bub(e.clientX,e.clientY-40,["пуф!","я облачко","не трогай, я сплю"][k])};
+  document.body.appendChild(c);clouds.push(c)});
+/* ---------- события ---------- */
+const EV=[[.12,"Где-то зевнул первый кот"],[.26,"Будильники готовятся к атаке"],[.4,"В окнах загорается свет"],[.55,"Петух вышел на смену"],[.7,"Чайники закипают по всему городу"],[.84,"Птицы проверяют голоса"],[.94,"Почти! Ещё чуть-чуть"]];
+let evI=-1;
+function bub(x,y,t){const b=document.createElement("div");b.className="bub";b.textContent=t;b.style.left=Math.max(8,Math.min(W()-150,x-40))+"px";b.style.top=y+"px";document.body.appendChild(b);setTimeout(()=>b.remove(),2300)}
+function svgToScreen(x,y){const sv=$("land").querySelector("svg"),pt=sv.createSVGPoint();pt.x=x;pt.y=y;const m=sv.getScreenCTM();const r=pt.matrixTransform(m);return[r.x,r.y]}
+let crowed=false,catDone=false,birdsDone=false;
+function events(p){
+  let k=-1;EV.forEach(([t],i)=>{if(p>=t)k=i});
+  if(k>evI){evI=k;const ev=$("ev");ev.style.opacity=0;setTimeout(()=>{ev.textContent=EV[k][1];ev.style.opacity=.9},200);buzz(8)}
+  if(p>.12&&!catDone){catDone=true;const[x,y]=svgToScreen(150,150);bub(x,y-30,"*потягивается*")}
+  if(p>.55&&!crowed){crowed=true;ROOSTER.style.opacity=1;setTimeout(()=>{const[x,y]=svgToScreen(300,225);bub(x-20,y-40,"КУ-КА-РЕ-КУ!");buzz([30,40,30])},500)}
+  if(p>.84&&!birdsDone){birdsDone=true;for(let i=0;i<5;i++)setTimeout(bird,i*350)}
+}
+function bird(){const b=document.createElement("div");b.className="bird";b.textContent="ᵛ";const y=H()*(.25+Math.random()*.2);b.style.top=y+"px";document.body.appendChild(b);
+  b.animate([{transform:`translateX(-30px)`},{transform:`translateX(${W()+40}px) translateY(-40px)`}],{duration:5000+Math.random()*2000}).onfinish=()=>b.remove()}
+function buzz(ms){try{navigator.vibrate&&navigator.vibrate(ms)}catch(e){}}
+/* ---------- отрисовка по прогрессу ---------- */
+let P=0,done=false;
+function render(p){
+  sky.style.background=`linear-gradient(${ramp(SKY_T,p)},${ramp(SKY_B,p)})`;
+  stars.forEach(s=>s.style.opacity=Math.max(0,s._b*(1-p*2.2)));
+  const hz=H()*.66,sunY=hz+75-p*(hz*.85);
+  $("sun").style.top=(sunY-48)+"px";$("glow").style.top=(sunY-210)+"px";$("rays").style.top=(sunY-120)+"px";$("rays").style.opacity=Math.max(0,(p-.3)*1.4);
+  $("hand").style.top=(sunY+10)+"px";
+  $("moon").style.top=(H()*.1+p*H()*.6)+"px";$("moon").style.opacity=Math.max(0,1-p*1.6);
+  $("hill2").setAttribute("fill",ramp(HILL2,p));$("hill1").setAttribute("fill",ramp(HILL1,p));$("road").setAttribute("fill",ramp(ROAD,p));
+  fence.setAttribute("fill",ramp([[0,"#0c0a1c"],[1,"#b98a5a"]],p));
+  document.querySelectorAll(".wall").forEach(e=>e.setAttribute("fill",ramp(WALL,p)));
+  document.querySelectorAll(".roof").forEach(e=>e.setAttribute("fill",ramp(ROOF,p)));
+  WINS.forEach(w=>{const on=p>=w._at;w.setAttribute("fill",on?(p>.85?"#ffe9b0":"#ffcf5a"):"#0d0b1c");w.style.filter=on&&p<.85?"drop-shadow(0 0 3px #ffcf5a)":""});
+  clouds.forEach(c=>c.style.background=ramp(CLOUD,p));
+  $("sun").querySelector(".face").textContent=p<.3?"😴":p<.6?"🥱":p<.95?"🙂":"😊";
+  $("bar").firstElementChild.style.width=(p*100)+"%";
+  $("title").style.color=p>.75?"#5a3a10":"#fff";$("ev").style.color=p>.75?"#5a3a10":"#fff";$("date").style.color=p>.75?"#5a3a10":"#fff";
+  events(p);
+}
+/* облака плывут */
+let t0=performance.now();
+(function loop(now){const t=(now-t0)/1000;clouds.forEach(c=>{const x=((c._x*W()+t*c._v)%(W()+200))-100;c.style.left=x+"px";c.style.top=(c._y*H())+"px"});requestAnimationFrame(loop)})(t0);
+/* ---------- перетаскивание ---------- */
+let drag=false,sy=0,sp=0,moved=false;
+addEventListener("pointerdown",e=>{if(done)return;drag=true;moved=false;sy=e.clientY;sp=P});
+addEventListener("pointermove",e=>{if(!drag||done)return;const d=(sy-e.clientY)/(H()*.55);if(Math.abs(sy-e.clientY)>6)moved=true;
+  P=Math.max(P,Math.min(1,sp+d));$("hand").style.opacity=0;render(P);if(P>=1)finish()});
+addEventListener("pointerup",()=>{if(drag&&!moved&&!done){P=Math.min(1,P+.04);render(P);if(P>=1)finish();else $("ev").textContent="Не тыкай, а тяни вверх ☝️"}drag=false});
+function finish(){if(done)return;done=true;buzz([40,60,40]);
+  $("sun").animate([{transform:"scale(1)"},{transform:"scale(1.18)"},{transform:"scale(1)"}],{duration:900});
+  $("bar").style.opacity=0;$("ev").textContent="Город проснулся";
+  setTimeout(()=>{$("top").style.opacity=0;$("final").classList.add("on")},1200)}
+/* ---------- дата и погода ---------- */
+$("date").textContent=new Date().toLocaleDateString("ru-RU",{weekday:"long",day:"numeric",month:"long"});
+const WX={0:"ясно",1:"почти ясно",2:"переменная облачность",3:"пасмурно",45:"туман",48:"туман",51:"морось",53:"морось",55:"морось",56:"ледяная морось",57:"ледяная морось",61:"небольшой дождь",63:"дождь",65:"сильный дождь",66:"ледяной дождь",67:"ледяной дождь",71:"небольшой снег",73:"снег",75:"сильный снег",77:"снежная крупа",80:"ливень",81:"ливень",82:"сильный ливень",85:"снегопад",86:"снегопад",95:"гроза",96:"гроза с градом",99:"гроза с градом"};
+fetch("https://api.open-meteo.com/v1/forecast?latitude=44.99&longitude=41.12&current=temperature_2m,weather_code&daily=temperature_2m_max&timezone=Europe%2FMoscow&forecast_days=1")
+ .then(r=>r.json()).then(d=>{
+  const t=Math.round(d.current.temperature_2m),c=d.current.weather_code,mx=Math.round(d.daily.temperature_2m_max[0]);
+  const s=(t>0?"+":"")+t+"°",smx=(mx>0?"+":"")+mx+"°";
+  let tip="хорошего дня!";
+  if([51,53,55,61,63,65,80,81,82,95,96,99].includes(c))tip="не забудь зонтик ☂️";
+  else if(c>=71&&c<=86)tip="одевайся теплее, там снег ❄️";
+  else if(t<=5)tip="шарф точно пригодится 🧣";
+  else if(c<=1)tip="ловить солнце на переменах ☀️";
+  const w=$("wx");w.innerHTML=`В Армавире сейчас <b>${s}</b>, ${WX[c]||"погода"}. Днём до ${smx}.<br>Совет дня: ${tip}`;w.style.display="block";
+ }).catch(()=>{});
+addEventListener("resize",()=>render(P));
+render(0);
+</script>
+</body>
+</html>
