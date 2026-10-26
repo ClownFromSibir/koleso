@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<title>Небесные фонарики</title>
+<meta name="theme-color" content="#0a0c26">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Nunito:wght@600;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none}
+html,body{margin:0;height:100%;overflow:hidden;background:#0a0c26;color:#fbf1df;font-family:"Nunito",system-ui,sans-serif}
+#sky{position:fixed;inset:0;background:linear-gradient(#05071a 0%,#121442 50%,#3a2550 82%,#5a2f4a 100%)}
+.star{position:absolute;border-radius:50%;background:#fff}
+#moon{position:absolute;right:9%;top:19%;width:46px;height:46px;border-radius:50%;background:#fff1cc;box-shadow:0 0 36px 8px rgba(255,236,190,.22)}
+#moon::after{content:"";position:absolute;left:-12px;top:-5px;width:46px;height:46px;border-radius:50%;background:#080a22}
+#city{position:fixed;left:0;right:0;bottom:0;height:34vh;pointer-events:none}
+#city svg{width:100%;height:100%;display:block}
+#top{position:fixed;top:calc(14px + env(safe-area-inset-top));left:16px;right:16px;text-align:center;z-index:5;transition:opacity .8s;pointer-events:none}
+#top b{display:block;font:700 34px/1.05 "Caveat",cursive;color:#ffd99a;margin-bottom:4px}
+#hint{font-size:14px;opacity:.8}
+#cnt{display:inline-block;margin-top:8px;padding:3px 12px;border-radius:20px;background:rgba(255,217,154,.12);border:1px solid rgba(255,217,154,.3);font-size:13px;font-weight:800;color:#ffd99a}
+
+.lan{position:fixed;left:0;top:0;width:40px;height:52px;margin:-26px 0 0 -20px;z-index:3;cursor:pointer;will-change:transform}
+.lan .body{position:absolute;inset:0;border-radius:42% 42% 22% 22%/48% 48% 18% 18%;background:linear-gradient(90deg,#7a4a33,#a86a42 50%,#7a4a33);box-shadow:inset 0 -6px 10px rgba(0,0,0,.3);transition:background .8s,box-shadow .8s}
+.lan .body::before{content:"";position:absolute;left:18%;right:18%;top:12%;bottom:24%;border-left:1px solid rgba(0,0,0,.18);border-right:1px solid rgba(0,0,0,.18)}
+.lan .rim{position:absolute;left:22%;right:22%;bottom:-3px;height:5px;border-radius:3px;background:#5a3424}
+.lan .fl{position:absolute;left:50%;bottom:-2px;width:8px;height:10px;margin-left:-4px;border-radius:50% 50% 50% 50%/60% 60% 40% 40%;background:#ffe9a0;opacity:0;transition:opacity .6s}
+.lan.lit .body{background:radial-gradient(ellipse at 50% 75%,#fff6c8 0%,#ffc35a 38%,#f07a2c 78%,#c24a1f 100%);box-shadow:0 0 28px 8px rgba(255,150,60,.45),0 0 70px 20px rgba(255,120,40,.18);animation:flick 1.3s ease-in-out infinite}
+.lan.lit .fl{opacity:1;animation:fl .25s ease-in-out infinite alternate}
+@keyframes flick{50%{box-shadow:0 0 22px 6px rgba(255,150,60,.38),0 0 60px 16px rgba(255,120,40,.14)}}
+@keyframes fl{to{transform:scaleY(1.25)}}
+.lan.wait{animation:wait 2.4s ease-in-out infinite}
+@keyframes wait{50%{filter:brightness(1.35)}}
+.lan.gold{width:58px;height:74px;margin:-37px 0 0 -29px}
+.lan.gold .body{background:linear-gradient(90deg,#8a5a1a,#c99a3a 50%,#8a5a1a)}
+.lan.gold.lit .body{background:radial-gradient(ellipse at 50% 75%,#fffbe0 0%,#ffe27a 40%,#ffb340 78%,#d98a20 100%);box-shadow:0 0 40px 14px rgba(255,210,90,.55),0 0 110px 40px rgba(255,190,70,.22)}
+.lan.gold .tag{position:absolute;left:50%;top:40%;transform:translate(-50%,-50%);font:700 13px "Caveat";color:#5a3410;white-space:nowrap;opacity:.8}
+
+.wish{position:fixed;z-index:4;left:50%;top:46%;width:280px;margin-left:-140px;font-size:26px!important;text-align:center;font:700 21px/1.15 "Caveat",cursive;color:#ffe7bd;text-shadow:0 0 10px rgba(0,0,0,.7),0 1px 2px rgba(0,0,0,.8);pointer-events:none;opacity:0;transition:opacity 1s}
+.wish.on{opacity:1}
+.spark{position:fixed;width:3px;height:3px;border-radius:50%;background:#ffd27a;pointer-events:none;z-index:2}
+
+#final{position:fixed;left:0;right:0;bottom:calc(20px + env(safe-area-inset-bottom));z-index:6;display:flex;justify-content:center;padding:0 16px;opacity:0;transition:opacity 1.8s;pointer-events:none}
+#final.on{opacity:1}
+#final .card{max-width:380px;background:rgba(10,10,34,.72);border:1px solid rgba(255,217,154,.25);border-radius:18px;padding:16px 18px;text-align:center;backdrop-filter:blur(3px)}
+#final h1{font:700 38px/1 "Caveat",cursive;color:#ffd99a;margin:0 0 8px}
+#final p{font-size:15px;line-height:1.45;margin:6px 0;opacity:.92}
+#final .sig{font:700 26px "Caveat",cursive;color:#ffd99a;margin-top:8px}
+</style>
+</head>
+<body>
+<div id="sky"><div id="moon"></div></div>
+<div id="city"><svg viewBox="0 0 400 300" preserveAspectRatio="none">
+  <path d="M0 150 Q60 110 120 140 T240 130 T400 120 L400 300 L0 300Z" fill="#1d1638" opacity=".9"/>
+  <g fill="#120d26">
+    <rect x="10" y="170" width="40" height="130"/><rect x="55" y="150" width="30" height="150"/><rect x="90" y="185" width="55" height="115"/>
+    <rect x="150" y="160" width="26" height="140"/><rect x="180" y="175" width="48" height="125"/><rect x="232" y="145" width="34" height="155"/>
+    <rect x="270" y="180" width="50" height="120"/><rect x="325" y="160" width="30" height="140"/><rect x="358" y="175" width="42" height="125"/>
+  </g>
+  <g fill="#ffcf7a" opacity=".75" id="cw"></g>
+  <path d="M0 240 L400 232 L400 300 L0 300Z" fill="#0b0819"/>
+  <rect x="300" y="200" width="2" height="34" fill="#0b0819"/><rect x="292" y="206" width="18" height="2" fill="#0b0819"/>
+</svg></div>
+<div id="top"><b>Небесные фонарики</b><div id="hint">Нажми на фонарик, чтобы зажечь его и отпустить в небо</div><div id="cnt"></div></div>
+<div id="final"><div class="card">
+  <h1>Спокойной ночи</h1>
+  <p>Девять фонариков уже в небе, и каждый несёт маленькое желание для тебя.</p>
+  <p>Они будут гореть всю ночь, пока ты спишь. А утром все желания начнут сбываться, по одному.</p>
+  <div class="sig">— Андрей 🏮</div>
+</div></div>
+<script>
+const WISH=[
+ "Пусть завтра всё задуманное получится с первого раза",
+ "Пусть утром выглянет хоть немного солнца",
+ "Пусть любая очередь завтра окажется короткой",
+ "Пусть краски ложатся ровно так, как задумано",
+ "Пусть кто-нибудь скажет тебе спасибо, и от души",
+ "Пусть пары будут интересными, а не долгими",
+ "Пусть ночь будет тихой, а утро бодрым",
+ "Пусть завтра появится ещё одна причина улыбнуться"
+];
+const GOLD="А этот от меня. Чтобы ты помнила: даже на расстоянии ты не одна";
+const W=()=>innerWidth,H=()=>innerHeight;
+/* звёзды и окна города */
+const sky=document.getElementById("sky");
+for(let i=0;i<110;i++){const s=document.createElement("div");s.className="star";const z=Math.random()*1.7+.6;
+  s.style.cssText=`left:${Math.random()*100}%;top:${Math.random()*70}%;width:${z}px;height:${z}px`;
+  s.animate([{opacity:.15},{opacity:Math.random()*.7+.3},{opacity:.15}],{duration:2000+Math.random()*3500,iterations:Infinity,delay:-Math.random()*3000});sky.appendChild(s)}
+const cw=document.getElementById("cw");let ws="";
+[[10,170,40],[55,150,30],[90,185,55],[150,160,26],[180,175,48],[232,145,34],[270,180,50],[325,160,30],[358,175,42]].forEach(([x,y,w])=>{
+  for(let yy=y+8;yy<232;yy+=12)for(let xx=x+4;xx<x+w-5;xx+=9)if(Math.random()<.22)ws+=`<rect x="${xx}" y="${yy}" width="4" height="5"/>`});
+cw.innerHTML=ws;
+
+const L=[];let launched=0,goldL=null,phase="play";
+const cnt=document.getElementById("cnt"),hint=document.getElementById("hint");
+function upd(){cnt.textContent=`В небе: ${launched} из ${WISH.length}`}
+function mk(i,gold){
+  const d=document.createElement("div");d.className="lan wait"+(gold?" gold":"");
+  d.innerHTML=`<div class="body">${gold?'<span class="tag">особенный</span>':""}</div><div class="rim"></div><div class="fl"></div>`;
+  document.body.appendChild(d);
+  const o={d,gold,i,state:"wait",x:0,y:0,vy:0,ph:Math.random()*6.28,t:0,sc:1,ty:0,wish:null};
+  d.onclick=()=>light(o);return o;
+}
+function layout(){
+  const n=WISH.length,w=W(),base=H()*0.86;
+  L.forEach(o=>{if(o.state!=="wait")return;
+    const k=o.i,row=k<4?0:1,col=k%4;
+    o.x=row?w*(0.2+col*0.2):w*(0.14+col*0.24);o.y=base-(row?0:H()*0.075);
+  });
+}
+for(let i=0;i<WISH.length;i++)L.push(mk(i,false));
+layout();upd();addEventListener("resize",layout);
+function buzz(ms){try{navigator.vibrate&&navigator.vibrate(ms)}catch(e){}}
+function light(o){
+  if(o.state!=="wait")return;
+  o.state="lit";o.d.classList.remove("wait");o.d.classList.add("lit");buzz(15);
+  setTimeout(()=>{o.state="rise";o.vy=0;o.ty=H()*(0.12+Math.random()*0.4);
+    if(o.gold)o.ty=H()*0.3;
+    document.querySelectorAll('.wish').forEach(e=>{e.classList.remove('on');setTimeout(()=>e.remove(),1000)});const wd=document.createElement("div");wd.className="wish";wd.textContent=o.gold?GOLD:WISH[o.i];document.body.appendChild(wd);o.wish=wd;
+    requestAnimationFrame(()=>wd.classList.add("on"));
+    setTimeout(()=>{wd.classList.remove("on");setTimeout(()=>wd.remove(),1100)},o.gold?6500:4800);
+    if(!o.gold){launched++;upd();
+      if(launched===WISH.length){hint.textContent="Остался ещё один. Самый главный";setTimeout(addGold,1800)}
+      else hint.textContent=["Красиво летит…","Ещё один в небе","Желание отправлено","Небо становится теплее"][Math.floor(Math.random()*4)];
+    }else{phase="gold";setTimeout(heart,5200)}
+  },700);
+}
+function addGold(){goldL=mk(0,true);goldL.x=W()/2;goldL.y=H()*0.84;L.push(goldL)}
+/* финал: все фонарики складываются в сердце */
+function heart(){
+  phase="heart";document.getElementById("top").style.opacity=0;document.getElementById("moon").animate([{opacity:1},{opacity:0}],{duration:2500,fill:"forwards"});
+  /* к её фонарикам присоединяются другие, и все вместе складываются в сердце */
+  const EXTRA=18;
+  for(let k=0;k<EXTRA;k++){const o=mk(100+k,false);o.d.classList.remove("wait");o.d.classList.add("lit");
+    o.x=W()*(0.05+Math.random()*0.9);o.y=H()*(0.9+Math.random()*0.15);o.state="float";o.extra=true;L.push(o)}
+  const ring=L.filter(o=>!o.gold),n=ring.length,cx=W()/2,cy=H()*0.31,R=Math.min(W()*0.8,H()*0.45)/34;
+  /* точки на контуре сердца на равном расстоянии друг от друга */
+  const hp=t=>[cx+16*Math.sin(t)**3*R, cy-(13*Math.cos(t)-5*Math.cos(2*t)-2*Math.cos(3*t)-Math.cos(4*t))*R];
+  const S=[],acc=[0];for(let i=0;i<=600;i++)S.push(hp(i/600*2*Math.PI));
+  for(let i=1;i<S.length;i++)acc.push(acc[i-1]+Math.hypot(S[i][0]-S[i-1][0],S[i][1]-S[i-1][1]));
+  const tot=acc[acc.length-1],pts=[];let j=0;
+  for(let k=0;k<n;k++){const target=k/n*tot;while(acc[j]<target)j++;pts.push(S[j]);}
+  /* каждому фонарику ближайшую по углу точку, чтобы не летали крест-накрест */
+  ring.sort((a,b)=>Math.atan2(a.x-cx,-(a.y-cy))-Math.atan2(b.x-cx,-(b.y-cy)));
+  const ang=pts.map(p=>Math.atan2(p[0]-cx,-(p[1]-cy)));const idx=[...pts.keys()].sort((a,b)=>ang[a]-ang[b]);
+  ring.forEach((o,k)=>{const p=pts[idx[k]];o.state="go";o.gx=p[0];o.gy=p[1];o.sx=o.x;o.sy=o.y;o.gt=0;o.dur=o.extra?5:3.6});
+  if(goldL){goldL.state="go";goldL.gx=cx;goldL.gy=cy+R*1.5;goldL.sx=goldL.x;goldL.sy=goldL.y;goldL.gt=0;goldL.dur=3.6}
+  setTimeout(()=>document.getElementById("final").classList.add("on"),5200);
+}
+let last=performance.now();
+function frame(now){
+  const dt=Math.min(.05,(now-last)/1000);last=now;
+  for(const o of L){
+    o.t+=dt;let x=o.x,y=o.y,sc=1;
+    if(o.state==="rise"){
+      o.vy=Math.min(o.vy+dt*14,o.gold?20:26);
+      if(o.y>o.ty)o.y-=o.vy*dt;else o.state="float";
+      o.x+=Math.sin(o.t*0.5+o.ph)*dt*8;
+    }
+    if(o.state==="float"){o.y+=Math.sin(o.t*0.8+o.ph)*dt*3;o.x+=Math.sin(o.t*0.35+o.ph)*dt*5}
+    if(o.state==="go"){o.gt=Math.min(1,o.gt+dt/(o.dur||3.2));const e=o.gt<.5?2*o.gt*o.gt:1-Math.pow(-2*o.gt+2,2)/2;
+      o.x=o.sx+(o.gx-o.sx)*e;o.y=o.sy+(o.gy-o.sy)*e+Math.sin(o.t*0.9+o.ph)*2*e}
+    x=o.x+(o.state==="float"||o.state==="go"?Math.sin(o.t*0.7+o.ph)*4:0);y=o.y;
+    if(o.state!=="wait"&&o.state!=="lit"){const prog=1-Math.max(0,Math.min(1,(y)/(H()*0.86)));sc=1-prog*0.45;if(o.state==="go")sc=o.gold?.85:(o.extra?.42:.55)}
+    o.d.style.transform=`translate(${x}px,${y}px) scale(${sc}) rotate(${Math.sin(o.t*1.1+o.ph)*(o.state==="wait"?0:4)}deg)`;
+    if((o.state==="rise")&&Math.random()<dt*6)spark(x,y+22*sc);
+  }
+  requestAnimationFrame(frame);
+}
+function spark(x,y){const s=document.createElement("div");s.className="spark";s.style.left=x+"px";s.style.top=y+"px";document.body.appendChild(s);
+  s.animate([{opacity:1,transform:"translate(0,0)"},{opacity:0,transform:`translate(${(Math.random()-.5)*14}px,${18+Math.random()*16}px)`}],{duration:900,easing:"ease-out"}).onfinish=()=>s.remove()}
+requestAnimationFrame(frame);
+</script>
+</body>
+</html>
