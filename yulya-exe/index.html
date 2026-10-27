@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<title>Юля.exe</title>
+<meta name="theme-color" content="#0b1530">
+<style>
+*{box-sizing:border-box;margin:0;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none}
+html,body{height:100%;overflow:hidden}
+body{font-family:"Segoe UI Variable","Segoe UI",Inter,system-ui,-apple-system,Roboto,sans-serif;color:#1a1a1a;
+ background:radial-gradient(ellipse at 30% 30%,#2b4a8f 0%,#14285c 40%,#0a1533 75%,#060b1d 100%)}
+.wp{position:fixed;inset:0;pointer-events:none}
+.wp i{position:absolute;border-radius:50%;background:#fff;opacity:.5}
+/* окно приложения */
+#app{position:fixed;left:50%;top:calc(18px + env(safe-area-inset-top));width:min(94vw,460px);transform:translateX(-50%);background:#f3f3f3;border-radius:10px;box-shadow:0 14px 44px rgba(0,0,0,.5);overflow:hidden;border:1px solid rgba(255,255,255,.08)}
+.tb{height:34px;display:flex;align-items:center;padding-left:12px;font-size:12.5px;background:#fff;gap:8px}
+.ic{width:16px;height:16px;border-radius:4px;background:linear-gradient(135deg,#ff9cbc,#ff5d8f);display:flex;align-items:center;justify-content:center;font-size:10px;color:#fff}
+.ctl{margin-left:auto;display:flex}.ctl span{width:40px;height:34px;display:flex;align-items:center;justify-content:center;font-size:13px;color:#333}
+.body{padding:14px 16px 16px}
+.body h2{font-size:18px;font-weight:700}
+.sub{font-size:12px;color:#666;margin:2px 0 12px}
+.stat{display:flex;justify-content:space-between;font-size:13px;margin:9px 0 4px}
+.bar{height:8px;border-radius:4px;background:#ddd;overflow:hidden}.bar i{display:block;height:100%;border-radius:4px;background:#ff5d8f;transition:width 1s}
+.up{margin-top:12px;font-size:12.5px;color:#444;background:#fff;border-radius:6px;padding:8px 10px;display:flex;justify-content:space-between}
+.up b{color:#c42b1c}
+/* тост */
+#toast{position:fixed;right:12px;left:12px;bottom:calc(64px + env(safe-area-inset-bottom));max-width:380px;margin-left:auto;background:#fbfbfb;border-radius:10px;box-shadow:0 10px 30px rgba(0,0,0,.45);padding:12px 14px;transform:translateY(140%);transition:transform .5s cubic-bezier(.2,.9,.3,1.2);z-index:20}
+#toast.on{transform:none}
+#toast .h{display:flex;align-items:center;gap:8px;font-size:12px;color:#555;margin-bottom:6px}
+#toast b{display:block;font-size:14px;margin-bottom:2px}
+#toast p{font-size:13px;color:#333}
+#toast button{margin-top:10px}
+/* диалог */
+#shade{position:fixed;inset:0;background:rgba(0,0,0,.35);opacity:0;pointer-events:none;transition:opacity .3s;z-index:30}
+#shade.on{opacity:1;pointer-events:auto}
+#dlg{position:fixed;left:50%;top:50%;width:min(92vw,420px);transform:translate(-50%,-46%) scale(.96);opacity:0;pointer-events:none;transition:all .25s;background:#fff;border-radius:10px;box-shadow:0 20px 60px rgba(0,0,0,.55);overflow:hidden;z-index:31}
+#dlg.on{opacity:1;transform:translate(-50%,-50%);pointer-events:auto}
+#dlg .tb{border-bottom:1px solid #eee}
+#dc{padding:14px 20px 6px;max-height:62vh;overflow:auto}
+#dc h1{font-size:18px;font-weight:600;margin-bottom:8px}
+#dc p{font-size:13.5px;line-height:1.45;color:#333;margin-bottom:10px}
+.step{font-size:11px;font-weight:700;letter-spacing:1px;color:#0067c0;text-transform:uppercase;margin-bottom:6px}
+#df{background:#f3f3f3;border-top:1px solid #e5e5e5;padding:12px 20px;display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap}
+button{font:inherit;font-size:13.5px;border-radius:5px;padding:7px 16px;border:1px solid #d1d1d1;background:#fbfbfb;color:#1a1a1a;cursor:pointer}
+button.pri{background:#0067c0;border-color:#0067c0;color:#fff}
+button:active{transform:scale(.97)}
+button:disabled{opacity:.45}
+.list div{display:flex;align-items:center;gap:8px;font-size:13.5px;padding:5px 0;color:#333}
+.list .ok{width:18px;height:18px;border-radius:50%;border:2px solid #ccc;display:flex;align-items:center;justify-content:center;font-size:11px;color:#fff;flex:none;transition:.3s}
+.list .done .ok{background:#0f7b0f;border-color:#0f7b0f}
+.pb{height:6px;border-radius:3px;background:#e5e5e5;overflow:hidden;margin:10px 0 4px}.pb i{display:block;height:100%;width:0;background:#0067c0;transition:width .3s}
+.pbt{font-size:12px;color:#666;min-height:16px}
+table{width:100%;border-collapse:collapse;font-size:12.5px;margin:4px 0 8px}
+th{text-align:left;font-weight:600;color:#555;border-bottom:1px solid #e5e5e5;padding:6px 4px}
+td{padding:7px 4px;border-bottom:1px solid #f0f0f0;vertical-align:middle}
+td.n{font-family:Consolas,"Cascadia Mono",monospace;font-size:12px}
+td.cpu{color:#c42b1c;font-weight:600;white-space:nowrap}
+td button{padding:4px 8px;font-size:12px;white-space:nowrap}
+tr.killed{opacity:.35;text-decoration:line-through}
+.chg{font-size:13px;line-height:1.55;color:#333;background:#f7f7f7;border-radius:6px;padding:10px 12px;margin-bottom:10px}
+.chg div::before{content:"• ";color:#0067c0}
+.err{animation:shake .4s}
+@keyframes shake{20%,60%{transform:translate(calc(-50% - 8px),-50%)}40%,80%{transform:translate(calc(-50% + 8px),-50%)}}
+/* панель задач */
+#task{position:fixed;left:0;right:0;bottom:0;height:calc(50px + env(safe-area-inset-bottom));padding-bottom:env(safe-area-inset-bottom);background:rgba(28,32,48,.85);backdrop-filter:blur(12px);display:flex;align-items:center;justify-content:center;gap:10px;border-top:1px solid rgba(255,255,255,.08);z-index:10}
+#task span{width:34px;height:34px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:19px;position:relative}
+#task .act{background:rgba(255,255,255,.12)}
+#task .act::after{content:"";position:absolute;bottom:-3px;left:10px;width:14px;height:3px;border-radius:2px;background:#ff9a1f}
+#clk{position:absolute;right:12px;font-size:11px;color:#eee;text-align:right;line-height:1.35}
+/* сон */
+#sleep{position:fixed;inset:0;background:#000;z-index:50;opacity:0;pointer-events:none;transition:opacity 2.2s;display:flex;align-items:center;justify-content:center;padding:24px}
+#sleep.on{opacity:1;pointer-events:auto}
+#sleep .c{max-width:360px;text-align:center;color:#d9dcf0;opacity:0;transition:opacity 1.6s 1.8s}
+#sleep.on .c{opacity:1}
+#sleep .moon{font-size:46px;margin-bottom:14px;animation:float 4s ease-in-out infinite}
+@keyframes float{50%{transform:translateY(-8px)}}
+#sleep h1{font-size:20px;font-weight:600;margin-bottom:10px;color:#fff}
+#sleep p{font-size:14.5px;line-height:1.55;margin:8px 0;opacity:.9}
+#sleep .sig{margin-top:16px;font-size:15px;color:#a9b4ff}
+#sleep .led{position:fixed;left:50%;bottom:28px;width:8px;height:8px;margin-left:-4px;border-radius:50%;background:#ff9a1f;animation:led 3s ease-in-out infinite}
+@keyframes led{50%{opacity:.15}}
+</style>
+</head>
+<body>
+<div class="wp" id="wp"></div>
+<div id="app">
+ <div class="tb"><div class="ic">♥</div>Юля.exe<div class="ctl"><span>—</span><span>☐</span><span>✕</span></div></div>
+ <div class="body">
+  <h2>Юля v18.0</h2><div class="sub">Главная решала всего, что есть на свете</div>
+  <div class="stat"><span>Энергия</span><span id="en">7%</span></div><div class="bar"><i id="enb" style="width:7%;background:#c42b1c"></i></div>
+  <div class="stat"><span>Сделано за день</span><span>100%</span></div><div class="bar"><i style="width:100%"></i></div>
+  <div class="stat"><span>Мыслей в голове</span><span id="th">очень много</span></div><div class="bar"><i id="thb" style="width:96%;background:#e8a33c"></i></div>
+  <div class="up"><span>Время работы без перерыва</span><b id="upt">—</b></div>
+ </div>
+</div>
+<div id="toast"><div class="h"><div class="ic">♥</div>Юля.exe · сейчас</div><b>Обнаружена усталость</b><p>Программа работает слишком долго без отдыха. Рекомендуется подготовка ко сну.</p><button class="pri" id="tbtn">Подробнее</button></div>
+<div id="shade"></div>
+<div id="dlg"><div class="tb"><span id="dt">Юля.exe</span><div class="ctl"><span>✕</span></div></div><div id="dc"></div><div id="df"></div></div>
+<div id="task"><span>🪟</span><span>🔍</span><span>📁</span><span>🌐</span><span class="act">💗</span><span>🎵</span><div id="clk"></div></div>
+<div id="sleep"><div class="c">
+ <div class="moon">🌙</div>
+ <h1>Юля.exe в спящем режиме</h1>
+ <p>Прогресс дня сохранён. Фоновые процессы закрыты. «Сны v2.0» установлены.</p>
+ <p>Всё, что ты сегодня сделала, никуда не денется. Утром программа проснётся отдохнувшей, и снова всё у неё получится.</p>
+ <p>Спокойной ночи, Юль.</p>
+ <div class="sig">— Андрей, системный администратор твоего сна</div>
+</div><div class="led"></div></div>
+<script>
+const $=id=>document.getElementById(id);
+/* звёзды на обоях */
+for(let i=0;i<60;i++){const s=document.createElement("i");const z=Math.random()*1.6+.5;s.style.cssText=`left:${Math.random()*100}%;top:${Math.random()*100}%;width:${z}px;height:${z}px;opacity:${Math.random()*.5+.15}`;$("wp").appendChild(s)}
+/* часы и время работы */
+function tick(){const d=new Date();$("clk").innerHTML=String(d.getHours()).padStart(2,"0")+":"+String(d.getMinutes()).padStart(2,"0")+"<br>"+d.toLocaleDateString("ru-RU");
+  const st=new Date(d);st.setHours(7,0,0,0);if(d<st)st.setDate(st.getDate()-1);const m=Math.floor((d-st)/60000);$("upt").textContent=Math.floor(m/60)+" ч "+(m%60)+" мин"}
+tick();setInterval(tick,30000);
+function buzz(ms){try{navigator.vibrate&&navigator.vibrate(ms)}catch(e){}}
+const dlg=$("dlg"),dc=$("dc"),df=$("df");
+function show(title,html,btns){$("dt").textContent=title;dc.innerHTML=html;df.innerHTML="";
+  btns.forEach(([t,fn,cls])=>{const b=document.createElement("button");b.textContent=t;if(cls)b.className=cls;b.onclick=fn;df.appendChild(b)});
+  $("shade").classList.add("on");dlg.classList.add("on");dc.scrollTop=0}
+function shake(){dlg.classList.remove("err");void dlg.offsetWidth;dlg.classList.add("err");buzz([30,40,30])}
+setTimeout(()=>{$("toast").classList.add("on");buzz(20)},900);
+$("tbtn").onclick=()=>{$("toast").classList.remove("on");step0()};
+
+/* 0. усталость */
+const NOPE=["Ошибка 0x000ZZZ: ресурс «силы» исчерпан.","Ошибка: «ещё чуть-чуть» уже использовано 47 раз за сегодня.","Отказано в доступе. Подушка подала официальную жалобу.","Ну правда, хватит. Программа зевает уже в логах."];
+let nope=0;
+function step0(){show("Юля.exe — Обнаружена усталость",
+ `<h1>Юля.exe не может продолжать работу</h1><p>Программа выполнила за день огромное количество задач: учёба, люди, этаж, творчество и ещё сто мелочей, которые никто не заметил, но она сделала.</p><p id="np" style="color:#c42b1c;font-weight:600;min-height:20px"></p>`,
+ [["Продолжить работу",()=>{$("np").textContent=NOPE[nope%NOPE.length];nope++;shake()}],["Начать подготовку ко сну",step1,"pri"]])}
+
+/* 1. сохранение */
+function step1(){
+ const items=["Пары и учёба","Дела этажа","Творчество","Добрые дела за день","Хорошие моменты","Улыбки (включая случайные)"];
+ show("Юля.exe — Сохранение",
+ `<div class="step">Шаг 1 из 4</div><h1>Сохранение прогресса дня</h1><p>Не волнуйся, ничего не потеряется.</p><div class="list">${items.map(t=>`<div><span class="ok">✓</span>${t}</div>`).join("")}</div><div class="pb"><i id="pb"></i></div><div class="pbt" id="pbt">Подготовка…</div>`,
+ [["Далее",step2,"pri"]]);
+ const nx=df.querySelector("button");nx.disabled=true;
+ const rows=dc.querySelectorAll(".list div");let k=0;
+ const iv=setInterval(()=>{rows[k].classList.add("done");k++;$("pb").style.width=(k/rows.length*100)+"%";$("pbt").textContent=k<rows.length?"Сохранение: "+items[k]+"…":"Всё сохранено. День прожит не зря.";buzz(8);
+  if(k>=rows.length){clearInterval(iv);nx.disabled=false}},650);
+}
+
+/* 2. диспетчер задач */
+const PR=[["тревога.exe","34%"],["мысли_о_завтра.exe","21%"],["что_если.exe","18%"],["надо_не_забыть.exe","12%"],["вспомнить_неловкое_из_2019.exe","9%"],["доделать_всё_прямо_сейчас.exe","6%"]];
+function step2(){
+ show("Диспетчер задач",
+ `<div class="step">Шаг 2 из 4</div><h1>Фоновые процессы</h1><p>Перед сном они только мешают. Сними каждый.</p>
+ <table><tr><th>Процесс</th><th>ЦП</th><th></th></tr>${PR.map(([n,c],i)=>`<tr id="r${i}"><td class="n">${n}</td><td class="cpu">${c}</td><td><button data-i="${i}">Снять</button></td></tr>`).join("")}</table>
+ <p id="pl" style="font-size:12.5px;color:#666">Осталось процессов: ${PR.length}</p>`,
+ [["Снять всё",()=>dc.querySelectorAll("td button:not(:disabled)").forEach(b=>b.click())],["Далее",step3,"pri"]]);
+ const nx=df.querySelectorAll("button")[1];nx.disabled=true;let left=PR.length;
+ dc.querySelectorAll("td button").forEach(b=>b.onclick=()=>{const r=$("r"+b.dataset.i);r.classList.add("killed");b.disabled=true;b.textContent="Снято";left--;buzz(10);
+  $("th").textContent=left?["пусто","почти пусто","мало","поменьше","много","много"][left]:"тишина";$("thb").style.width=(left/PR.length*96)+"%";
+  $("pl").textContent=left?`Осталось процессов: ${left}`:"Все фоновые процессы закрыты. В голове тихо и спокойно.";if(!left)nx.disabled=false});
+}
+
+/* 3. обновление */
+function step3(){
+ show("Центр обновлений",
+ `<div class="step">Шаг 3 из 4</div><h1>Доступно обновление «Сны v2.0»</h1>
+ <div class="chg"><div>Добавлена мягкость подушки +40%</div><div>Одеяло теперь обнимает автоматически</div><div>Исправлен баг с мыслями в 3 часа ночи</div><div>Новые сюжеты снов: море, лето и что-то очень хорошее</div><div>Удалены будильники до 7:00 <i>(нет, не удалены, простите)</i></div></div>
+ <div class="pb"><i id="pb"></i></div><div class="pbt" id="pbt">Размер: 1 спокойная ночь</div>`,
+ [["Установить",inst,"pri"]]);
+}
+function inst(){
+ const b=df.querySelector("button");b.disabled=true;
+ const ph=["Загрузка уютности…","Распаковка одеяла…","Взбивание подушки…","Настройка снов…","Приглушение света…","Готово!"];let k=0;
+ const iv=setInterval(()=>{k++;$("pb").style.width=Math.min(100,k/ph.length*100)+"%";$("pbt").textContent=ph[Math.min(k,ph.length-1)];
+  if(k>=ph.length){clearInterval(iv);setTimeout(step4,700)}},700);
+}
+
+/* 4. сон */
+function step4(){
+ $("en").textContent="подзарядка…";$("enb").style.background="#0f7b0f";
+ show("Юля.exe — Питание",
+ `<div class="step">Шаг 4 из 4</div><h1>Всё готово ко сну</h1><p>Прогресс сохранён, голова свободна, обновление установлено. Осталось одно.</p><p style="font-size:12.5px;color:#666">Автоматическое пробуждение: утром, по будильнику (к сожалению).</p>`,
+ [["Перейти в спящий режим",()=>{dlg.classList.remove("on");$("shade").classList.remove("on");buzz([20,80,20]);setTimeout(()=>$("sleep").classList.add("on"),300)},"pri"]]);
+}
+</script>
+</body>
+</html>
