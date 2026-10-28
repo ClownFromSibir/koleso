@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<title>Аптечка поддержки</title>
+<meta name="theme-color" content="#121a2e">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Nunito:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none}
+html,body{min-height:100%;background:#121a2e;color:#e8ebf5;font-family:"Nunito",system-ui,sans-serif}
+body{padding:calc(18px + env(safe-area-inset-top)) 16px calc(24px + env(safe-area-inset-bottom));display:flex;flex-direction:column;align-items:center}
+.wrap{width:100%;max-width:420px}
+/* рецепт */
+.rx{background:#f6f3ea;color:#2c2a26;border-radius:6px;padding:14px 16px 12px;position:relative;box-shadow:0 8px 24px rgba(0,0,0,.35);transform:rotate(-1deg);margin:4px 4px 22px}
+.rx::before{content:"";position:absolute;left:0;right:0;top:0;height:6px;background:repeating-linear-gradient(90deg,#d9d3c3 0 6px,transparent 6px 12px);border-radius:6px 6px 0 0;opacity:.6}
+.rx h1{font:700 32px/1 "Caveat",cursive;color:#c2344f;margin:4px 0 6px}
+.rx .ln{font-size:13px;line-height:1.55;border-bottom:1px dashed #cfc8b6;padding:3px 0}
+.rx .ln b{color:#6a6458;font-weight:700}
+.rx .hw{font:700 20px "Caveat",cursive;color:#1f3d8a}
+.rx .st{position:absolute;right:12px;bottom:10px;width:66px;height:66px;border:2px solid rgba(40,80,170,.55);border-radius:50%;display:flex;align-items:center;justify-content:center;text-align:center;font:800 8.5px/1.15 "Nunito";color:rgba(40,80,170,.7);transform:rotate(-14deg);padding:6px}
+/* статус */
+#stat{display:flex;justify-content:space-between;align-items:center;font-size:14px;margin:0 2px 12px;color:#b8c0dc}
+#stat b{color:#ffd27a}
+/* блистер */
+.blister{background:linear-gradient(145deg,#dfe3ea,#b9c0cc 45%,#e9ecf1 70%,#aab2c0);border-radius:18px;padding:16px 14px;box-shadow:0 12px 30px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.7);display:grid;grid-template-columns:repeat(3,1fr);gap:14px 10px}
+.cell{display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer}
+.pocket{width:100%;max-width:96px;height:52px;border-radius:26px;background:radial-gradient(ellipse at 40% 30%,rgba(255,255,255,.9),rgba(255,255,255,.35) 40%,rgba(160,170,190,.4) 100%);box-shadow:inset 0 -3px 6px rgba(0,0,0,.18),0 2px 4px rgba(0,0,0,.18);display:flex;align-items:center;justify-content:center;position:relative;transition:transform .2s}
+.cap{width:72%;height:26px;border-radius:13px;display:flex;overflow:hidden;box-shadow:0 2px 4px rgba(0,0,0,.25);transform:rotate(-8deg)}
+.cap i{flex:1}
+.cap i:last-child{background:#fff!important}
+.lbl{font-size:11.5px;font-weight:800;text-align:center;color:#2e3446;line-height:1.2;min-height:28px}
+.cell.locked .cap{filter:grayscale(.85) brightness(.9);opacity:.55}
+.cell.locked .lbl{color:#6b7286}
+.cell.locked .pocket::after{content:"🔒";position:absolute;font-size:14px;right:6px;top:-4px}
+.cell.ready .pocket{animation:glow 2s ease-in-out infinite}
+@keyframes glow{50%{box-shadow:inset 0 -3px 6px rgba(0,0,0,.18),0 0 14px 3px rgba(255,210,122,.75)}}
+.cell.open .pocket{background:radial-gradient(ellipse at 50% 50%,#9aa3b4,#c4cad5 70%);box-shadow:inset 0 3px 8px rgba(0,0,0,.35)}
+.cell.open .cap{opacity:.0}
+.cell.open .pocket::after{content:"прочитано";position:absolute;font-size:10px;font-weight:800;color:#5b6375}
+.cell:active .pocket{transform:scale(.95)}
+/* экстренная */
+#sos{margin:18px auto 0;display:flex;align-items:center;gap:12px;background:rgba(255,90,100,.1);border:1px solid rgba(255,110,120,.35);border-radius:14px;padding:12px 14px;cursor:pointer}
+#sos .cap{width:58px;flex:none;transform:rotate(-8deg)}
+#sos b{display:block;color:#ff9aa4;font-size:15px}
+#sos span{font-size:12.5px;color:#c9b2b8}
+.note{font-size:12px;color:#7d86a3;text-align:center;margin-top:16px;line-height:1.5}
+/* вкладыш */
+#ov{position:fixed;inset:0;background:rgba(5,8,18,.7);display:flex;align-items:center;justify-content:center;padding:18px;opacity:0;pointer-events:none;transition:opacity .35s;z-index:10}
+#ov.on{opacity:1;pointer-events:auto}
+#leaf{width:100%;max-width:400px;background:#fbfaf6;color:#2c2a26;border-radius:10px;padding:18px 18px 16px;transform:translateY(16px) scale(.97);transition:transform .35s;max-height:86vh;overflow:auto;box-shadow:0 20px 50px rgba(0,0,0,.5)}
+#ov.on #leaf{transform:none}
+#leaf .k{font-size:11px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:#8a8475}
+#leaf h2{font:700 30px/1.05 "Caveat",cursive;color:#c2344f;margin:4px 0 10px}
+#leaf .sec{font-size:12.5px;color:#6a6458;margin:2px 0 10px;border-bottom:1px solid #ebe6d8;padding-bottom:8px}
+#leaf .sec b{color:#2c2a26}
+#leaf p{font-size:16px;line-height:1.55;margin:0 0 10px;user-select:text;-webkit-user-select:text}
+#leaf .sig{font:700 24px "Caveat",cursive;color:#1f3d8a;text-align:right}
+#leaf button{display:block;width:100%;margin-top:12px;font:800 15px "Nunito";border:none;border-radius:10px;padding:12px;background:#2c3c6e;color:#fff;cursor:pointer}
+#toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom));transform:translate(-50%,120px);background:#2a3352;color:#fff;font-size:14px;padding:10px 16px;border-radius:12px;transition:transform .35s;z-index:20;max-width:90vw;text-align:center}
+#toast.on{transform:translate(-50%,0)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="rx">
+    <h1>Аптечка поддержки</h1>
+    <div class="ln"><b>Пациентка:</b> <span class="hw">Юля</span></div>
+    <div class="ln"><b>Диагноз:</b> <span class="hw">вирус + хроническая ответственность</span></div>
+    <div class="ln"><b>Назначение:</b> по 1 капсуле каждые 3 часа. Первые две можно сразу.</div>
+    <div class="ln" style="border:none"><b>Лечащий врач:</b> <span class="hw">Андрей</span></div>
+    <div class="st">ОТДЕЛ<br>ЗАБОТЫ<br>♥<br>ВЫДАНО</div>
+  </div>
+  <div id="stat"><span id="s1"></span><span id="s2"></span></div>
+  <div class="blister" id="bl"></div>
+  <div id="sos"><div class="cap"><i style="background:#e23b4e"></i><i></i></div><div><b>Экстренная капсула</b><span>Если совсем плохо. Можно в любое время</span></div></div>
+  <div class="note">Препарат не заменяет врача, чай и сон.<br>Хранить в сердце. Срок годности не ограничен.</div>
+</div>
+<div id="ov"><div id="leaf"></div></div>
+<div id="toast"></div>
+<script>
+const P=[
+ {l:"От чувства вины",c:"#f08aa5",t:["Болеть — это не провинность. Ты никого не подвела, ты просто человек, а не робот.","Даже у самой ответственной девушки на свете есть право на больничный. Его не нужно заслуживать и не нужно отрабатывать."]},
+ {l:"От «другие же справляются»",c:"#8fb6ff",t:["Другие тоже болеют и тоже не справляются. Просто ты этого не видишь.","И почти никто из них не тащит на себе столько, сколько ты. Сравнивать себя с ними сейчас — всё равно что сравнивать кружку с чайником и ругать кружку, что в ней мало воды."]},
+ {l:"От тревоги за проект",c:"#ffc86b",t:["Проект никуда не убежит. Его защитят: в четверг, через неделю, неважно когда.","Через год никто не вспомнит, в какой день это было. А вот то, что ты себя пожалела и выздоровела, твоё тело запомнит. Береги его."]},
+ {l:"От скуки на больничном",c:"#9ee0b4",t:["Рецепт: одеяло, любимый мультик, чай маленькими глотками.","Повторять до полного выздоровления. Побочные эффекты: уют и желание поспать ещё. Это нормально, так и задумано."]},
+ {l:"От тошноты",c:"#b9a4ff",t:["Дыши медленно: вдох на четыре счёта, выдох на шесть. Ещё раз. И ещё.","Пей понемногу, маленькими глотками, но часто. Открой окно на пару минут, свежий воздух помогает. Всё остальное подождёт."]},
+ {l:"От мыслей «я слабая»",c:"#ff9e7a",t:["Слабая? Ты лежишь с температурой и при этом думаешь, как не подвести напарницу и кто купит подарок однокурснице.","Это не слабость. Это слишком большое сердце, которому сейчас просто нужно отдохнуть."]},
+ {l:"Витамин С (смешинка)",c:"#ffe066",t:["Вирус зашёл к Юле и увидел её список дел на неделю.","Через час он ушёл сам. Сказал, что столько ответственности даже он не вывезет, и попросил больничный."]},
+ {l:"От одиночества",c:"#7fd3e6",t:["Я далеко, но я рядом. Каждую минуту, пока тебе плохо, один человек в другом городе переживает и держит за тебя кулачки.","Это не лечит. Но греет. А тепло при простуде — первое дело."]},
+ {l:"От ответственности",c:"#f4a7d8",t:["Временный приказ: снять с Юли ответственность за всё, что есть на свете, до полного выздоровления.","Мир подождёт. Он справится. Не очень хорошо, конечно, но справится. А ты вернёшься, и всё снова станет как надо."]},
+ {l:"Для сна",c:"#a8b8ff",t:["Закрой глаза. Представь тёплый берег, тихие волны и солнце, которое не печёт, а просто греет.","Ничего не нужно делать. Ничего не нужно решать. Только дышать и отдыхать. Сон — это и есть лечение."]},
+ {l:"От плохого настроения",c:"#ffb86b",t:["Факт: сегодня утром, с температурой, ты шутила, что откроешь тетрадь по медицине и поставишь себе диагноз.","Человек, который шутит, когда ему плохо, непобедим. Этот вирус просто ещё не понял, с кем связался."]},
+ {l:"Последняя",c:"#ff6f91",last:true,t:["Если ты открыла эту капсулу, значит, прошло уже немало времени. Надеюсь, тебе стало лучше.","Ты справилась. Как всегда. Только в этот раз главным делом было не сдать, не защитить и не успеть, а просто выздороветь. И это ты тоже сделала.","Выздоравливай до конца. Я очень тобой горжусь."],sig:true}
+];
+const SOS={l:"Экстренная",t:["Если совсем плохо, напиши мне прямо сейчас. Даже одно слово. Даже просто «плохо».","Сейчас: маленький глоток воды, ляг на бок, дыши медленно.","И честно: если температура поднимается выше 38,5, рвота не прекращается, не получается пить воду или становится хуже, — скажи папе и звони врачу. Это не стыдно и не «лишний шум», это правильно.","Я с тобой."]};
+const TEST=/[?&]test/.test(location.search);
+const K=TEST?"aptechka-test-":"aptechka-";
+const store={get(k){try{return localStorage.getItem(K+k)}catch(e){return null}},set(k,v){try{localStorage.setItem(K+k,v)}catch(e){}}};
+const H3=3*3600e3;
+let start=+store.get("start")||0;if(!start){start=Date.now();store.set("start",start)}
+let opened=[];try{opened=JSON.parse(store.get("opened")||"[]")}catch(e){}
+const allowed=()=>TEST?P.length:Math.min(P.length,2+Math.floor((Date.now()-start)/H3));
+const nxt=()=>start+(Math.floor((Date.now()-start)/H3)+1)*H3;
+function fmt(ms){const m=Math.max(0,Math.ceil(ms/60000));return Math.floor(m/60)+" ч "+String(m%60).padStart(2,"0")+" мин"}
+const bl=document.getElementById("bl");
+function draw(){
+  bl.innerHTML="";const can=allowed()-opened.length;const nonLastOpen=opened.filter(i=>!P[i].last).length;
+  P.forEach((p,i)=>{
+    const d=document.createElement("div");d.className="cell";
+    const isOpen=opened.includes(i);
+    let locked=!isOpen&&(can<=0||(p.last&&nonLastOpen<P.length-1));
+    d.classList.add(isOpen?"open":locked?"locked":"ready");
+    d.innerHTML=`<div class="pocket"><div class="cap"><i style="background:${p.c}"></i><i></i></div></div><div class="lbl">${p.l}</div>`;
+    d.onclick=()=>{
+      if(isOpen)return show(p,false);
+      if(locked){toast(p.last?"Последняя откроется, когда будут прочитаны все остальные":can<=0?"Следующая капсула будет доступна через "+fmt(nxt()-Date.now()):"");return}
+      opened.push(i);store.set("opened",JSON.stringify(opened));buzz(15);show(p,true);draw();
+    };
+    bl.appendChild(d);
+  });
+  const left=P.length-opened.length,av=Math.max(0,allowed()-opened.length);
+  document.getElementById("s1").innerHTML=left?`Можно принять: <b>${av}</b>`:"Курс пройден 💗";
+  const nx=nxt();
+  document.getElementById("s2").textContent=(allowed()<P.length&&left)?"Следующая через "+fmt(nx-Date.now()):"";
+}
+function show(p,fresh){
+  const lf=document.getElementById("leaf");
+  lf.innerHTML=`<div class="k">${fresh?"Вкладыш к капсуле":"Перечитать"}</div><h2>${p.l}</h2>
+   <div class="sec"><b>Способ применения:</b> прочитать медленно, лёжа под одеялом.</div>
+   ${p.t.map(x=>`<p>${x}</p>`).join("")}${p.sig||p===SOS?'<div class="sig">— Андрей</div>':""}<button id="cl">Принято</button>`;
+  document.getElementById("ov").classList.add("on");lf.scrollTop=0;
+  document.getElementById("cl").onclick=()=>document.getElementById("ov").classList.remove("on");
+}
+document.getElementById("ov").onclick=e=>{if(e.target.id==="ov")e.currentTarget.classList.remove("on")};
+document.getElementById("sos").onclick=()=>{buzz(20);show(SOS,true)};
+let tt=0;function toast(t){if(!t)return;const el=document.getElementById("toast");el.textContent=t;el.classList.add("on");clearTimeout(tt);tt=setTimeout(()=>el.classList.remove("on"),2800)}
+function buzz(ms){try{navigator.vibrate&&navigator.vibrate(ms)}catch(e){}}
+draw();setInterval(draw,30000);
+</script>
+</body>
+</html>
