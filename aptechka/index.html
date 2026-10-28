@@ -69,7 +69,7 @@ body{padding:calc(18px + env(safe-area-inset-top)) 16px calc(24px + env(safe-are
     <h1>Аптечка поддержки</h1>
     <div class="ln"><b>Пациентка:</b> <span class="hw">Юля</span></div>
     <div class="ln"><b>Диагноз:</b> <span class="hw">вирус + хроническая ответственность</span></div>
-    <div class="ln"><b>Назначение:</b> по 1 капсуле каждые 3 часа. Первые две можно сразу.</div>
+    <div class="ln"><b>Назначение:</b> по 2 капсулы каждые 3 часа. Первые две можно сразу.</div>
     <div class="ln" style="border:none"><b>Лечащий врач:</b> <span class="hw">Андрей</span></div>
     <div class="st">ОТДЕЛ<br>ЗАБОТЫ<br>♥<br>ВЫДАНО</div>
   </div>
@@ -102,7 +102,7 @@ const store={get(k){try{return localStorage.getItem(K+k)}catch(e){return null}},
 const H3=3*3600e3;
 let start=+store.get("start")||0;if(!start){start=Date.now();store.set("start",start)}
 let opened=[];try{opened=JSON.parse(store.get("opened")||"[]")}catch(e){}
-const allowed=()=>TEST?P.length:Math.min(P.length,2+Math.floor((Date.now()-start)/H3));
+const allowed=()=>TEST?P.length:Math.min(P.length,2+2*Math.floor((Date.now()-start)/H3));
 const nxt=()=>start+(Math.floor((Date.now()-start)/H3)+1)*H3;
 function fmt(ms){const m=Math.max(0,Math.ceil(ms/60000));return Math.floor(m/60)+" ч "+String(m%60).padStart(2,"0")+" мин"}
 const bl=document.getElementById("bl");
@@ -116,7 +116,7 @@ function draw(){
     d.innerHTML=`<div class="pocket"><div class="cap"><i style="background:${p.c}"></i><i></i></div></div><div class="lbl">${p.l}</div>`;
     d.onclick=()=>{
       if(isOpen)return show(p,false);
-      if(locked){toast(p.last?"Последняя откроется, когда будут прочитаны все остальные":can<=0?"Следующая капсула будет доступна через "+fmt(nxt()-Date.now()):"");return}
+      if(locked){toast(p.last?"Последняя откроется, когда будут прочитаны все остальные":can<=0?"Следующие две капсулы откроются через "+fmt(nxt()-Date.now()):"");return}
       opened.push(i);store.set("opened",JSON.stringify(opened));buzz(15);show(p,true);draw();
     };
     bl.appendChild(d);
@@ -124,7 +124,7 @@ function draw(){
   const left=P.length-opened.length,av=Math.max(0,allowed()-opened.length);
   document.getElementById("s1").innerHTML=left?`Можно принять: <b>${av}</b>`:"Курс пройден 💗";
   const nx=nxt();
-  document.getElementById("s2").textContent=(allowed()<P.length&&left)?"Следующая через "+fmt(nx-Date.now()):"";
+  document.getElementById("s2").textContent=(allowed()<P.length&&left)?"Ещё две через "+fmt(nx-Date.now()):"";
 }
 function show(p,fresh){
   const lf=document.getElementById("leaf");
