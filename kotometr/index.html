@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<title>Котометр</title>
+<meta name="theme-color" content="#2a1d33">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Nunito:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none}
+html,body{min-height:100%;background:radial-gradient(ellipse at 50% 0%,#4a2f52 0%,#2a1d33 55%,#1a1222 100%);color:#f6ecf2;font-family:"Nunito",system-ui,sans-serif}
+body{padding:calc(18px + env(safe-area-inset-top)) 16px calc(24px + env(safe-area-inset-bottom));display:flex;justify-content:center}
+.w{width:100%;max-width:420px;text-align:center}
+h1{font:700 44px/1 "Caveat",cursive;color:#ffc9dc}
+.sub{font-size:14px;opacity:.75;margin:4px 0 18px}
+/* термометр */
+.th{display:flex;align-items:center;justify-content:center;gap:18px;margin-bottom:14px}
+.tube{position:relative;width:34px;height:230px}
+.glass{position:absolute;left:7px;top:0;width:20px;height:196px;border-radius:10px 10px 0 0;background:rgba(255,255,255,.12);border:2px solid rgba(255,255,255,.35);border-bottom:none;overflow:hidden}
+.merc{position:absolute;left:3px;right:3px;bottom:0;border-radius:6px 6px 0 0;background:linear-gradient(#ff7a8f,#e2334f);height:30%;transition:height 1.8s cubic-bezier(.3,.8,.3,1)}
+.bulb{position:absolute;left:0;bottom:0;width:34px;height:34px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#ff9aaa,#e2334f 60%,#b81f3a);border:2px solid rgba(255,255,255,.35)}
+.ticks{position:absolute;left:30px;top:6px;height:186px;display:flex;flex-direction:column;justify-content:space-between;font-size:10px;opacity:.55;text-align:left}
+.val{font:800 54px/1 "Nunito";color:#fff;min-width:150px}
+.val small{font-size:24px;opacity:.7}
+.ctr{display:flex;align-items:center;justify-content:center;gap:12px;margin:6px 0 4px}
+.ctr button{width:52px;height:52px;border-radius:50%;border:none;background:rgba(255,255,255,.12);color:#fff;font:800 26px "Nunito";cursor:pointer}
+.ctr button:active{transform:scale(.92)}
+input[type=range]{width:100%;margin:10px 0 16px;accent-color:#ff7a95;height:28px}
+#go{width:100%;border:none;border-radius:14px;padding:15px;font:800 17px "Nunito";color:#3a1424;background:linear-gradient(135deg,#ffd1e0,#ff9ab8);box-shadow:0 8px 20px rgba(255,120,160,.3);cursor:pointer}
+#go:active{transform:scale(.98)}
+#go:disabled{opacity:.6}
+/* результат */
+#res{margin-top:18px;background:#fff8fb;color:#3a2430;border-radius:20px;padding:20px 18px 18px;box-shadow:0 12px 30px rgba(0,0,0,.35);opacity:0;transform:translateY(16px) scale(.98);transition:all .5s;display:none}
+#res.on{opacity:1;transform:none}
+#cat{font-size:84px;line-height:1;display:inline-block;animation:bob 2.4s ease-in-out infinite}
+@keyframes bob{50%{transform:translateY(-6px) rotate(-4deg)}}
+#res h2{font:700 34px/1.05 "Caveat",cursive;color:#d6336c;margin:8px 0 8px}
+#res p{font-size:15px;line-height:1.5;margin:0 0 10px}
+.tip{background:#ffeef4;border-radius:12px;padding:10px 12px;font-size:14px;text-align:left}
+.tip b{color:#d6336c}
+.warn{background:#ffe3e3;border:2px solid #e2334f}
+#scan{margin-top:12px;font-size:14px;opacity:.8;min-height:20px}
+.foot{margin-top:18px;font-size:11.5px;opacity:.5;line-height:1.5}
+</style>
+</head>
+<body>
+<div class="w">
+  <h1>Котометр</h1>
+  <div class="sub">Узнай, какой ты сегодня котик.<br>Поставь свою температуру и нажми «Измерить»</div>
+  <div class="th">
+    <div class="tube"><div class="glass"><div class="merc" id="merc"></div></div><div class="bulb"></div>
+      <div class="ticks"><span>40</span><span>39</span><span>38</span><span>37</span><span>36</span><span>35</span></div></div>
+    <div><div class="val" id="val">37,3<small>°</small></div>
+      <div class="ctr"><button id="mn">−</button><button id="pl">+</button></div></div>
+  </div>
+  <input type="range" id="rg" min="34.5" max="41" step="0.1" value="37.3">
+  <button id="go">Измерить котика</button>
+  <div id="scan"></div>
+  <div id="res"></div>
+  <div class="foot">Котометр не заменяет врача, но заменяет плохое настроение.<br>Сделано с любовью для одной тёплой девочки.</div>
+</div>
+<script>
+const C=[
+ {max:35.4,e:"🧊🐱",n:"Снежный котик",d:"Свернулся в клубок и требует все пледы мира. Нос холодный, лапки тоже, настроение «не трогайте, я ледышка».",t:"Носки, плед, горячий чай. И перемерь температуру: вдруг градусник просто не проснулся."},
+ {max:36.4,e:"😺",n:"Прохладный котик-мурлыка",d:"Немного сонный, немного ленивый, но в целом бодрый. Готов мурчать, если почесать за ушком.",t:"Чай с чем-нибудь вкусным и пару серий любимого мультика."},
+ {max:36.9,e:"😸",n:"Котик в полном порядке",d:"Здоров, бодр и готов бегать по потолку в три часа ночи. Официально выздоровевший котик!",t:"Отпраздновать. Например, роллами, которые тебе кое-кто обещал 😏"},
+ {max:37.4,e:"🐈",n:"Котик на батарее",d:"Тёплый, ленивый и немного разомлевший. Лежит, греется и делает вид, что так и задумано.",t:"Лежать, пить тёплое маленькими глотками, смотреть котиков в ТикТоке. Ты уже всё делаешь правильно."},
+ {max:37.9,e:"😿",n:"Котик-грелка",d:"Им можно греть руки зимой. Котик слегка расклеился, просит, чтобы его не трогали, но гладили.",t:"Много пить, укрыться полегче, чтобы не перегреваться, и спать. Пусть кто-нибудь принесёт тебе чай."},
+ {max:38.4,e:"🔥🐱",n:"Котик-обогреватель",d:"Котик стал маленькой печкой. Уютно, но котику самому от этого нехорошо.",t:"<b>Скажи папе.</b> Пить побольше, не кутаться, отдыхать. Жаропонижающее — только по инструкции или как скажет врач."},
+ {max:39.4,e:"🌋🙀",n:"Огненный котик",d:"Шутки в сторону: котику по-настоящему плохо, и ему нужна помощь взрослых котов.",t:"<b>Скажи папе прямо сейчас и позвоните врачу.</b> Пей воду маленькими глотками. И напиши мне, я рядом.",warn:true},
+ {max:99,e:"🚑🙀",n:"Котик, срочно к врачу",d:"Это уже совсем не смешно. Такую температуру нельзя пересиживать дома.",t:"<b>Срочно скажи папе и вызывайте врача или скорую: 103.</b> Это правильно и совсем не стыдно.",warn:true}
+];
+const rg=document.getElementById("rg"),val=document.getElementById("val"),merc=document.getElementById("merc");
+function upd(){const v=+rg.value;val.innerHTML=v.toFixed(1).replace(".",",")+"<small>°</small>";
+  merc.style.height=Math.max(4,Math.min(100,(v-34.5)/(40.5-34.5)*100))+"%"}
+rg.oninput=upd;
+document.getElementById("mn").onclick=()=>{rg.value=(+rg.value-0.1).toFixed(1);upd();buzz(6)};
+document.getElementById("pl").onclick=()=>{rg.value=(+rg.value+0.1).toFixed(1);upd();buzz(6)};
+function buzz(ms){try{navigator.vibrate&&navigator.vibrate(ms)}catch(e){}}
+const SCAN=["Котометр прикладывает лапку ко лбу…","Сверяется с базой данных котиков…","Считает мурчание…"];
+document.getElementById("go").onclick=async function(){
+  const v=Math.round(+rg.value*10)/10,b=this,res=document.getElementById("res"),sc=document.getElementById("scan");
+  b.disabled=true;res.classList.remove("on");setTimeout(()=>res.style.display="none",300);
+  merc.style.height="4%";await new Promise(r=>setTimeout(r,250));upd();
+  for(const s of SCAN){sc.textContent=s;await new Promise(r=>setTimeout(r,700))}
+  sc.textContent="";
+  const c=C.find(x=>v<=x.max);
+  res.innerHTML=`<div id="cat">${c.e}</div><h2>${c.n}</h2><p>${c.d}</p><div class="tip ${c.warn?"warn":""}"><b>Совет котометра:</b> ${c.t}</div>`;
+  res.style.display="block";requestAnimationFrame(()=>requestAnimationFrame(()=>res.classList.add("on")));
+  buzz(c.warn?[40,60,40]:20);b.disabled=false;b.textContent="Измерить ещё раз";
+  setTimeout(()=>res.scrollIntoView({behavior:"smooth",block:"nearest"}),200);
+};
+upd();
+</script>
+</body>
+</html>
