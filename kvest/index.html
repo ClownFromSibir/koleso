@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Выберись из-под одеяла</title>
+<meta name="theme-color" content="#22172e">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Nunito:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;-webkit-tap-highlight-color:transparent}
+html,body{min-height:100%;background:#22172e;color:#f4ecf6;font-family:"Nunito",system-ui,sans-serif}
+body{padding:calc(14px + env(safe-area-inset-top)) 16px calc(24px + env(safe-area-inset-bottom));display:flex;justify-content:center}
+.w{width:100%;max-width:430px}
+/* одеяло */
+.blanket{position:relative;border-radius:18px;padding:16px 16px 14px;text-align:center;overflow:hidden;margin-bottom:14px;
+ background:repeating-linear-gradient(45deg,#c9637f 0 14px,#d9768f 14px 28px);box-shadow:inset 0 -10px 20px rgba(0,0,0,.18),0 8px 22px rgba(0,0,0,.35)}
+.blanket::before{content:"";position:absolute;inset:6px;border:2px dashed rgba(255,255,255,.35);border-radius:13px;pointer-events:none}
+.blanket h1{font:700 34px/1 "Caveat",cursive;color:#fff;text-shadow:0 2px 6px rgba(0,0,0,.25)}
+.blanket p{font-size:13.5px;color:#fff3f6;margin-top:4px}
+.locks{display:flex;justify-content:center;gap:8px;margin-top:10px}
+.locks span{width:38px;height:38px;border-radius:10px;background:rgba(0,0,0,.18);display:flex;align-items:center;justify-content:center;font-size:20px;transition:transform .3s}
+.locks span.op{background:#5fbf7f;box-shadow:0 0 10px rgba(120,230,150,.6)}
+.locks span.cur{background:rgba(255,255,255,.3);transform:scale(1.1)}
+/* карточка */
+.card{background:#fffaf5;color:#3a2a33;border-radius:18px;padding:18px 18px 16px;box-shadow:0 10px 26px rgba(0,0,0,.35)}
+.card.shake{animation:sh .4s}
+@keyframes sh{20%,60%{transform:translateX(-8px)}40%,80%{transform:translateX(8px)}}
+.kind{font-size:11.5px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:#c9637f}
+.card h2{font:700 30px/1.05 "Caveat",cursive;color:#3a2a33;margin:2px 0 8px}
+.q{font-size:15.5px;line-height:1.5;margin-bottom:12px}
+.big{font:800 30px/1.2 "Nunito";letter-spacing:6px;text-align:center;background:#f3e6ee;border-radius:12px;padding:12px 6px;margin:4px 0 12px;color:#5a2a44;word-break:break-word}
+.big.em{letter-spacing:2px;font-size:28px}
+input{width:100%;font:700 18px "Nunito";padding:13px 14px;border-radius:12px;border:2px solid #e3cbd7;background:#fff;color:#3a2a33;outline:none}
+input:focus{border-color:#c9637f}
+.row{display:flex;gap:8px;margin-top:10px}
+button{font:800 15px "Nunito";border:none;border-radius:12px;padding:13px 14px;cursor:pointer}
+.go{flex:1;background:#c9637f;color:#fff}
+.hint{background:#f3e6ee;color:#7a4a60}
+button:active{transform:scale(.97)}
+#msg{min-height:22px;margin-top:10px;font-size:14px;font-weight:700;color:#c9637f;text-align:center}
+#hints{margin-top:6px}
+#hints div{background:#fff1d6;border-radius:10px;padding:8px 10px;font-size:14px;margin-top:6px;color:#6a4a1a}
+.give{display:block;margin:10px auto 0;background:none;color:#a08a96;font-size:13px;padding:4px;text-decoration:underline}
+/* фраза */
+.phrase{margin-top:16px;text-align:center}
+.phrase .t{font-size:12px;opacity:.6;margin-bottom:6px}
+.slots{display:flex;flex-wrap:wrap;justify-content:center;gap:6px}
+.slots span{min-width:52px;padding:6px 10px;border-radius:10px;border:2px dashed rgba(255,255,255,.25);font:700 20px "Caveat";color:#ffd6e3;transition:all .4s}
+.slots span.on{border-style:solid;border-color:#ffb3c8;background:rgba(255,179,200,.12);transform:scale(1.04)}
+.fly{position:fixed;z-index:20;font:700 26px "Caveat";color:#fff;pointer-events:none;text-shadow:0 2px 8px rgba(0,0,0,.4)}
+/* финал */
+#fin{display:none;text-align:center}
+#fin .card{padding:22px 20px}
+#fin .emo{font-size:62px;animation:pop 1s ease}
+@keyframes pop{0%{transform:scale(0)}70%{transform:scale(1.2)}100%{transform:scale(1)}}
+#fin h2{font-size:38px;color:#c9637f}
+#fin .ph{font:700 30px/1.15 "Caveat";color:#3a2a33;margin:10px 0 12px}
+#fin p{font-size:15px;line-height:1.5;margin:6px 0}
+#fin .sig{font:700 26px "Caveat";color:#c9637f;margin-top:10px}
+#fin .st{font-size:13px;color:#8a7682;margin-top:10px}
+.again{margin-top:14px;background:#f3e6ee;color:#7a4a60}
+.conf{position:fixed;top:-20px;font-size:20px;pointer-events:none;z-index:30}
+</style>
+</head>
+<body>
+<div class="w">
+  <div class="blanket">
+    <h1>Выберись из-под одеяла</h1>
+    <p>Одеяло заперто на 6 замков. Каждый открытый замок даёт слово из тайного послания.</p>
+    <div class="locks" id="locks"></div>
+  </div>
+  <div id="game">
+    <div class="card" id="card"></div>
+    <div class="phrase"><div class="t">Тайное послание</div><div class="slots" id="slots"></div></div>
+  </div>
+  <div id="fin"></div>
+</div>
+<script>
+const norm=s=>s.toLowerCase().replace(/ё/g,"е").replace(/[^a-zа-я0-9 ]/g," ").replace(/\s+/g," ").trim();
+const L=[
+ {k:"Анаграмма",h:"Перепутанные буквы",q:"Одеяло так долго ворочалось, что у него перепутались буквы. Расставь их по местам:",big:"Л Я О Д Е О",
+  ok:a=>a==="одеяло",hints:["Ты прямо сейчас под ним лежишь.","Начинается на «О», заканчивается на «О»."],ans:"одеяло",w:"Выздоравливай"},
+ {k:"Ребус",h:"Пословица в эмодзи",q:"Котик закодировал известную пословицу. Расшифруй её (достаточно смысла, не обязательно слово в слово):",big:"🚫💪 → 🚫🎣🐟 🏞️",em:true,
+  ok:a=>(a.includes("рыбк")&&a.includes("пруд"))||a.includes("без труда"),hints:["Пословица про то, что без усилий ничего не получится.","«Без труда не вытащишь и…»"],ans:"Без труда не вытащишь и рыбку из пруда",w:"скорее,"},
+ {k:"Шифр",h:"Шифр Цезаря",q:"Каждая буква в слове сдвинута на одну вперёд по алфавиту (А→Б, Б→В…). Расшифруй, что поможет тебе согреться:",big:"Д С Ж М Л Б",
+  ok:a=>a==="грелка",hints:["Сдвигай каждую букву на одну назад: Д→Г, С→Р…","Её наливают горячей водой и кладут под одеяло."],ans:"грелка",w:"я"},
+ {k:"Грамотность",h:"Найди ошибку",q:"Будущий учитель русского, твой выход! В одном слове ошибка. Напиши это слово так, как оно написано здесь:",big:"кампания · винегрет · извени · дефис · агентство",em:false,
+  ok:a=>a==="извени"||a==="извини",hints:["Это слово говорят, когда просят прощения.","Правильно — «извИни», от слова «вина»."],ans:"извени",w:"очень"},
+ {k:"Задачка",h:"Котиковая математика",q:"Котик спит 16 часов в сутки. Юля заболела и решила неделю жить как котик. Сколько часов за эту неделю она будет бодрствовать?",
+  ok:a=>a.replace(/\D/g,"")==="56",hints:["Сначала посчитай, сколько часов в сутки котик не спит.","24 − 16 = 8. А дней в неделе семь."],ans:"56",w:"по тебе"},
+ {k:"Искусство",h:"Ночная картина",q:"Последний замок — для художницы. Кто написал «Звёздную ночь», где небо закручивается в огромные вихри?",
+  ok:a=>a.includes("гог"),hints:["Нидерландский художник, подсолнухи тоже его.","Винсент ван…"],ans:"Ван Гог",w:"скучаю"}
+];
+const WRONG=["Замок не поддался 🔒","Почти! (нет)","Котик скептически качает головой","Одеяло не убедилось","Попробуй ещё, у тебя получится","Хм, ключ не подходит"];
+const store={get(k){try{return localStorage.getItem("kvest-"+k)}catch(e){return null}},set(k,v){try{localStorage.setItem("kvest-"+k,v)}catch(e){}}};
+let cur=+store.get("cur")||0,hintsUsed=+store.get("hints")||0,gave=+store.get("gave")||0;
+const $=id=>document.getElementById(id);
+function buzz(ms){try{navigator.vibrate&&navigator.vibrate(ms)}catch(e){}}
+function locks(){$("locks").innerHTML=L.map((_,i)=>`<span class="${i===cur?"cur":i<cur?"op":""}">${i<cur?"🔓":"🔒"}</span>`).join("")}
+function slots(){$("slots").innerHTML=L.map((l,i)=>`<span class="${i<cur?"on":""}">${i<cur?l.w:"···"}</span>`).join("")}
+let hn=0;
+function draw(){
+  locks();slots();
+  if(cur>=L.length)return fin();
+  const l=L[cur];hn=0;
+  $("card").innerHTML=`<div class="kind">Замок ${cur+1} из ${L.length} · ${l.k}</div><h2>${l.h}</h2><div class="q">${l.q}</div>${l.big?`<div class="big ${l.em?"em":""}" style="${l.em===false?"font-size:17px;letter-spacing:0":""}">${l.big}</div>`:""}
+   <input id="in" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Твой ответ">
+   <div class="row"><button class="hint" id="hb">Подсказка</button><button class="go" id="gb">Открыть замок</button></div>
+   <div id="msg"></div><div id="hints"></div><button class="give" id="gv">Сдаюсь, покажи ответ</button>`;
+  $("gb").onclick=check;$("in").onkeydown=e=>{if(e.key==="Enter")check()};
+  $("hb").onclick=()=>{if(hn>=l.hints.length){$("msg").textContent="Подсказки кончились, но ты справишься!";return}
+    const d=document.createElement("div");d.textContent="💡 "+l.hints[hn++];$("hints").appendChild(d);hintsUsed++;store.set("hints",hintsUsed)};
+  $("gv").onclick=()=>{$("in").value=l.ans;$("msg").textContent="Ответ вписан. Нажми «Открыть замок» 😉";gave++;store.set("gave",gave)};
+}
+function check(){
+  const l=L[cur],a=norm($("in").value);if(!a)return;
+  if(l.ok(a)){buzz([20,40,20]);
+    const r=$("slots").children[cur].getBoundingClientRect(),c=$("card").getBoundingClientRect();
+    const f=document.createElement("div");f.className="fly";f.textContent=l.w;f.style.left=(c.left+c.width/2-40)+"px";f.style.top=(c.top+c.height/2)+"px";document.body.appendChild(f);
+    f.animate([{transform:"translate(0,0) scale(1.4)",opacity:1},{transform:`translate(${r.left-(c.left+c.width/2-40)}px,${r.top-(c.top+c.height/2)}px) scale(1)`,opacity:.9}],{duration:800,easing:"cubic-bezier(.3,.7,.3,1)"}).onfinish=()=>{f.remove();cur++;store.set("cur",cur);draw()};
+    $("msg").textContent="Замок открыт! 🔓";$("msg").style.color="#2f8f4e";
+  }else{$("card").classList.remove("shake");void $("card").offsetWidth;$("card").classList.add("shake");buzz(60);
+    $("msg").style.color="";$("msg").textContent=WRONG[Math.floor(Math.random()*WRONG.length)]}
+}
+function fin(){
+  $("game").style.display="none";const f=$("fin");f.style.display="block";
+  const stat=gave?`Замков открыто: 6 из 6. Подсказок: ${hintsUsed}. Ответов подсмотрено: ${gave} (никто не узнает 🤫)`:hintsUsed?`Замков открыто: 6 из 6. Подсказок использовано: ${hintsUsed}. Отличный результат!`:"Все 6 замков без единой подсказки. Это гениально!";
+  f.innerHTML=`<div class="card"><div class="emo">🎉</div><h2 style="font:700 38px/1 Caveat,cursive;color:#c9637f">Ты выбралась!</h2>
+   <div class="ph">«${L.map(l=>l.w).join(" ")}»</div>
+   <p>Одеяло побеждено, все замки открыты, послание собрано.</p>
+   <p>А теперь самое сложное задание: забирайся обратно под одеяло. Тебе ещё лечиться 😏</p>
+   <div class="sig">— Андрей</div><div class="st">${stat}</div>
+   <button class="again" id="ag">Пройти заново</button></div>`;
+  $("ag").onclick=()=>{cur=0;hintsUsed=0;gave=0;store.set("cur",0);store.set("hints",0);store.set("gave",0);$("game").style.display="";f.style.display="none";draw()};
+  for(let i=0;i<40;i++)setTimeout(()=>{const c=document.createElement("div");c.className="conf";c.textContent=["💗","✨","🔓","🐱","🌸"][i%5];c.style.left=Math.random()*100+"vw";document.body.appendChild(c);
+    c.animate([{transform:"translateY(0) rotate(0)"},{transform:`translateY(${innerHeight+40}px) rotate(${Math.random()*360}deg)`}],{duration:2200+Math.random()*1500,easing:"ease-in"}).onfinish=()=>c.remove()},i*60);
+  buzz([30,50,30,50,60]);
+}
+draw();
+</script>
+</body>
+</html>
