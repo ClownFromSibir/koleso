@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<title>Посчитай овечек</title>
+<meta name="theme-color" content="#101634">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Nunito:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none}
+html,body{height:100%;overflow:hidden;background:#101634;font-family:"Nunito",system-ui,sans-serif;color:#eef0ff;touch-action:manipulation}
+#sky{position:fixed;inset:0;background:linear-gradient(#0a0f2a 0%,#18205a 55%,#2b3478 100%)}
+.st{position:absolute;border-radius:50%;background:#fff}
+#moon{position:absolute;right:10%;top:16%;width:56px;height:56px;border-radius:50%;background:#fff6d6;box-shadow:0 0 40px 10px rgba(255,246,214,.25)}
+#hill{position:fixed;left:-10%;right:-10%;bottom:0;height:34%;background:radial-gradient(ellipse at 50% 0%,#2f6b4a 0%,#21503a 50%,#183b2c 100%);border-radius:50% 50% 0 0/24% 24% 0 0}
+#fence{position:fixed;left:50%;bottom:calc(25% - 4px);width:96px;margin-left:-48px;height:70px;z-index:2}
+#fence i{position:absolute;bottom:0;width:12px;height:70px;border-radius:4px 4px 2px 2px;background:#a8794e;transition:background 1s}
+#fence i:nth-child(1){left:6px}#fence i:nth-child(2){left:42px}#fence i:nth-child(3){right:6px}
+#fence b{position:absolute;left:0;right:0;height:10px;border-radius:3px;background:#b98a5a;transition:background 1s}
+#fence b:nth-of-type(1){top:16px}#fence b:nth-of-type(2){top:42px}
+#fence.art i:nth-child(1){background:#ff8fb1}#fence.art i:nth-child(2){background:#ffd35a}#fence.art i:nth-child(3){background:#7fd3ff}
+#fence.art b:nth-of-type(1){background:linear-gradient(90deg,#ff8fb1,#ffd35a,#7fd3ff)}#fence.art b:nth-of-type(2){background:linear-gradient(90deg,#b88cff,#8ff0b0,#ffb06b)}
+#top{position:fixed;top:calc(14px + env(safe-area-inset-top));left:16px;right:16px;text-align:center;z-index:8;transition:opacity .8s;pointer-events:none}
+#top b{display:block;font:700 34px/1 "Caveat",cursive;color:#ffe6a6}
+#top span{font-size:14px;opacity:.8}
+#cnt{display:inline-block;margin-top:8px;font:800 14px "Nunito";color:#ffe6a6;background:rgba(255,230,166,.12);border:1px solid rgba(255,230,166,.3);border-radius:20px;padding:3px 12px}
+/* овечка */
+.sh{position:fixed;z-index:4;width:84px;height:84px;margin-left:-42px;cursor:pointer;will-change:transform}
+.sh .b{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:66px;transform:scaleX(-1)}
+.sh .a{position:absolute;left:50%;top:-6px;font-size:28px;transform:translateX(-50%)}
+.sh .zz{position:absolute;right:-6px;top:-14px;font:700 22px "Caveat";color:#cfd6ff;animation:zz 1.6s ease-in-out infinite;display:none}
+.sh.zzz .zz{display:block}
+@keyframes zz{50%{transform:translate(4px,-6px);opacity:.5}}
+.sh.wob .b{animation:wob .5s ease-in-out infinite}
+@keyframes wob{50%{transform:scaleX(-1) rotate(6deg)}}
+.sh.poke .b{transform:scaleX(-1) scale(1.12)}
+#bub{position:fixed;z-index:9;max-width:230px;background:#fffaf0;color:#2b2540;border-radius:14px;padding:9px 12px;font-size:15px;font-weight:700;line-height:1.35;box-shadow:0 8px 20px rgba(0,0,0,.4);opacity:0;transform:translateY(6px);transition:opacity .25s,transform .25s;pointer-events:none}
+#bub.on{opacity:1;transform:none}
+#bub::after{content:"";position:absolute;left:var(--ax,30px);bottom:-7px;width:14px;height:14px;background:#fffaf0;transform:rotate(45deg);border-radius:2px}
+#hint{position:fixed;left:0;right:0;bottom:calc(10px + env(safe-area-inset-bottom));text-align:center;font-size:13px;opacity:.7;z-index:8;transition:opacity .5s}
+/* куча */
+#pile{position:fixed;right:5%;bottom:7%;width:150px;height:90px;z-index:3}
+#pile span{position:absolute;font-size:34px;transition:all .6s}
+#toast{position:fixed;left:50%;top:30%;transform:translate(-50%,-10px);background:rgba(20,20,50,.85);border:1px solid rgba(255,255,255,.2);border-radius:12px;padding:8px 14px;font-size:14px;font-weight:700;opacity:0;transition:all .3s;z-index:10;white-space:nowrap}
+#toast.on{opacity:1;transform:translate(-50%,0)}
+/* финал */
+#fin{position:fixed;inset:0;z-index:20;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:26px;text-align:center;background:rgba(8,10,30,.0);pointer-events:none;transition:background 2s}
+#fin.on{background:rgba(8,10,30,.86);pointer-events:auto}
+#fin .big{font-size:40px;line-height:1.1;letter-spacing:-6px;margin-bottom:16px;opacity:0;transition:opacity 1.2s .6s}
+#fin .c{opacity:0;transition:opacity 1.4s 1.2s;max-width:340px}
+#fin.on .big,#fin.on .c{opacity:1}
+#fin h1{font:700 40px/1 "Caveat",cursive;color:#ffe6a6;margin-bottom:12px}
+#fin p{font-size:16px;line-height:1.5;margin:6px 0;opacity:.92}
+#fin .s{font:700 26px "Caveat",cursive;color:#ffe6a6;margin-top:12px}
+</style>
+</head>
+<body>
+<div id="sky"><div id="moon"></div></div>
+<div id="hill"></div>
+<div id="fence"><i></i><i></i><i></i><b></b><b></b></div>
+<div id="pile"></div>
+<div id="top"><b>Посчитай овечек</b><span>Помоги каждой перепрыгнуть забор</span><br><span id="cnt">0 из 10</span></div>
+<div id="hint">Нажимай на овечку 👆</div>
+<div id="bub"></div>
+<div id="toast"></div>
+<div id="fin"><div class="big" id="finpile"></div><div class="c">
+  <h1>Все уснули</h1>
+  <p>Десять овечек посчитано. И один козёл, но он не считается.</p>
+  <p>Теперь твоя очередь. Пусть тебе приснится что-то мягкое и тёплое, как вот эта куча овечек.</p>
+  <div class="s">Спокойной ночи, Юль 💛<br>— Андрей</div></div></div>
+<script>
+const $=id=>document.getElementById(id);
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+function buzz(ms){try{navigator.vibrate&&navigator.vibrate(ms)}catch(e){}}
+for(let i=0;i<70;i++){const s=document.createElement("div");s.className="st";const z=Math.random()*1.7+.5;s.style.cssText=`left:${Math.random()*100}%;top:${Math.random()*60}%;width:${z}px;height:${z}px`;
+ s.animate([{opacity:.2},{opacity:Math.random()*.7+.3},{opacity:.2}],{duration:2000+Math.random()*3000,iterations:Infinity,delay:-Math.random()*3000});$("sky").appendChild(s)}
+/* овечки */
+const S=[
+ {e:"🐑",a:"",say:["Бе-е. Я первая. Я всегда первая!"],after:"Раз!"},
+ {e:"🐑",a:"👓",say:["Подожди, дочитаю абзац…","Всё, конспект дописан. Прыгаю!"],after:"Два! Пятёрка за прыжок"},
+ {e:"🐑",a:"😰",say:["Я не могу! Тут же целых полметра!","Точно не упаду?..","Ладно. Закрываю глаза…"],jump:"low",after:"А-А-А!.. Ой. Было совсем не страшно"},
+ {e:"🐐",a:"",goat:true,say:["Я овечка. Самая обычная. Бе-е.","Ладно-ладно, раскусили. Ухожу…"]},
+ {e:"🐑",a:"🧳",say:["Я прыгаю каждую ночь уже триста лет. Хочу отпуск!","Ладно, последний прыжок, и на море."],jump:"cool",acc2:"🕶️",after:"Всё, я в отпуске 🏖️"},
+ {e:"🐏",a:"",say:["Вообще-то я баран. Но меня всё равно считают овцой.","Ну и ладно. Зато рога красивые."],after:"Пять! Посчитали правильно, кстати"},
+ {e:"🐑",a:"",sleepy:true,say:["Я сейчас… прыгну… только…"],wake:"А? Что? Я не сплю! Прыгаю, прыгаю!",after:"Шесть… zzz"},
+ {e:"🐑",a:"🎨",paint:true,say:["Можно я сначала покрашу забор? Он такой скучный.","Вот, так гораздо красивее! Теперь можно прыгать."],after:"Семь! С художественным прыжком"},
+ {e:"🐑",a:"🎧",say:["Под музыку прыгаю лучше. Включаю любимую."],after:"Восемь! Танцевальный номер"},
+ {e:"🐑",a:"🖤",dark:true,say:["Я чёрная овца в семье. Зато прыгаю лучше всех. Смотри!"],jump:"flip",after:"Девять! Сальто!"},
+ {e:"🐑",a:"🎀",small:true,say:["Я самая маленькая. Можно я не буду прыгать через забор?..","Я лучше просто пожелаю тебе спокойной ночи. И лягу ко всем."],jump:"last",after:""}
+];
+let idx=0,count=0,busy=false,cur=null,line=0,woke=false;
+const W=()=>innerWidth,H=()=>innerHeight;
+const groundY=()=>H()*0.75-70;
+function bub(text,el){const b=$("bub");if(!text){b.classList.remove("on");return}
+  b.textContent=text;const r=el.getBoundingClientRect();b.classList.add("on");
+  const bw=b.offsetWidth,bh=b.offsetHeight;let x=r.left+r.width/2-30;x=Math.max(10,Math.min(W()-bw-10,x));
+  b.style.left=x+"px";b.style.top=(r.top-bh-12)+"px";b.style.setProperty("--ax",(r.left+r.width/2-x-7)+"px")}
+function toast(t){const o=$("toast");o.textContent=t;o.classList.add("on");setTimeout(()=>o.classList.remove("on"),2200)}
+function mk(s){const d=document.createElement("div");d.className="sh";
+  d.innerHTML=`<div class="b" style="${s.dark?"filter:brightness(.35) contrast(1.2)":""}${s.small?";font-size:46px":""}">${s.e}</div><div class="a">${s.a}</div><div class="zz">z</div>`;
+  document.body.appendChild(d);return d}
+function pos(d,x,y,extra=""){d.style.transform=`translate(${x}px,${y}px) ${extra}`}
+async function spawn(){
+  if(idx>=S.length)return;
+  const s=S[idx];cur={s,d:mk(s)};line=0;woke=false;busy=true;
+  const d=cur.d,x0=-90,x1=W()*0.24,y=groundY();
+  pos(d,x0,y);d.classList.add("wob");
+  await d.animate([{transform:`translate(${x0}px,${y}px)`},{transform:`translate(${x1}px,${y}px)`}],{duration:1300,easing:"ease-out",fill:"forwards"}).finished;
+  d.classList.remove("wob");pos(d,x1,y);cur.x=x1;
+  bub(s.say[0],d);line=1;busy=false;
+  if(s.sleepy){setTimeout(()=>{if(cur&&cur.s===s&&!woke){d.classList.add("zzz");bub("Хр-р-р… 😴",d);$("hint").textContent="Кажется, она уснула. Разбуди её!"}},1800)}
+  d.onclick=()=>tap();
+}
+async function tap(){
+  if(busy||!cur)return;const s=cur.s,d=cur.d;
+  d.classList.add("poke");setTimeout(()=>d.classList.remove("poke"),180);buzz(10);
+  if(s.sleepy&&!woke){if(d.classList.contains("zzz")){woke=true;d.classList.remove("zzz");bub(s.wake,d);busy=true;await sleep(1300);busy=false;return jump()}return}
+  if(line<s.say.length){
+    if(s.paint&&line===1){$("fence").classList.add("art");buzz([20,40,20])}
+    if(s.goat&&line===1){bub(s.say[1],d);busy=true;toast("Козёл не считается 🐐");await sleep(900);
+      d.classList.add("wob");const y=groundY();
+      await d.animate([{transform:`translate(${cur.x}px,${y}px)`},{transform:`translate(-120px,${y}px)`}],{duration:1200,easing:"ease-in",fill:"forwards"}).finished;
+      bub("");d.remove();cur=null;idx++;busy=false;spawn();return}
+    bub(s.say[line],d);line++;return}
+  jump();
+}
+async function jump(){
+  busy=true;const s=cur.s,d=cur.d;bub("");$("hint").style.opacity=0;
+  if(s.acc2)d.querySelector(".a").textContent=s.acc2;
+  const y=groundY(),x0=cur.x,x2=W()*0.74,PK={low:70,cool:150,flip:170,last:0},peak=(s.jump in PK)?PK[s.jump]:130;
+  const fx=W()*0.5;
+  const kf=[];for(let i=0;i<=20;i++){const t=i/20,x=x0+(x2-x0)*t,yy=y-Math.sin(Math.PI*t)*peak;
+    const rot=s.jump==="flip"?` rotate(${360*t}deg)`:"";kf.push({transform:`translate(${x}px,${yy}px)${rot}`})}
+  if(s.jump==="last"){/* малышка не прыгает, а идёт в обход прямо к куче */}
+  await d.animate(kf,{duration:s.jump==="low"?1100:900,easing:"ease-in-out",fill:"forwards"}).finished;
+  pos(d,x2,y);buzz(15);
+  if(!s.goat){count++;$("cnt").textContent=`${count} из 10`}
+  if(s.after)bub(s.after,d);
+  await sleep(1300);bub("");
+  /* в кучу */
+  const p=$("pile").getBoundingClientRect(),n=$("pile").children.length;
+  const px=p.left+20+(n%4)*32,py=p.top+40-Math.floor(n/4)*22;
+  await d.animate([{transform:`translate(${x2}px,${y}px)`},{transform:`translate(${px-42}px,${py-42}px) scale(.45)`}],{duration:700,easing:"ease-in",fill:"forwards"}).finished;
+  d.remove();
+  const sp=document.createElement("span");sp.textContent=s.e==="🐐"?"":s.e;sp.style.left=(n%4)*32+"px";sp.style.bottom=Math.floor(n/4)*22+"px";if(s.dark)sp.style.filter="brightness(.35)";
+  sp.style.transform=`rotate(${(Math.random()-.5)*30}deg)`;$("pile").appendChild(sp);
+  cur=null;idx++;busy=false;
+  if(idx>=S.length)return finale();
+  $("hint").style.opacity=.7;$("hint").textContent="Нажимай на овечку 👆";
+  spawn();
+}
+async function finale(){
+  $("top").style.opacity=0;$("hint").style.opacity=0;
+  [...$("pile").children].forEach((c,i)=>setTimeout(()=>{c.textContent=c.textContent+"";c.style.opacity=.9},i*80));
+  await sleep(900);
+  $("finpile").innerHTML=[...$("pile").children].map(c=>`<span style="${c.style.filter?"filter:"+c.style.filter:""}">${c.textContent}</span>`).join("")+"<br><span style='letter-spacing:0;font-size:26px'>💤 💤 💤</span>";
+  $("fin").classList.add("on");buzz([30,60,30]);
+}
+spawn();
+</script>
+</body>
+</html>
