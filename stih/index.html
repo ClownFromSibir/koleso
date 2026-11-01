@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Рассыпанный стих</title>
+<meta name="theme-color" content="#131735">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Nunito:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none}
+html,body{min-height:100%;background:radial-gradient(ellipse at 50% -10%,#2c2f6e 0%,#161a42 45%,#0c0f28 100%);background-attachment:fixed;color:#eef0ff;font-family:"Nunito",system-ui,sans-serif}
+body{padding:calc(16px + env(safe-area-inset-top)) 16px calc(28px + env(safe-area-inset-bottom));display:flex;justify-content:center}
+.w{width:100%;max-width:430px}
+.stars{position:fixed;inset:0;pointer-events:none;z-index:-1}
+.stars i{position:absolute;border-radius:50%;background:#fff}
+h1{font:700 40px/1 "Caveat",cursive;color:#ffe2a8;text-align:center}
+.sub{text-align:center;font-size:14px;opacity:.75;margin:4px 0 14px}
+.prog{display:flex;justify-content:center;gap:6px;margin-bottom:14px}
+.prog i{width:34px;height:6px;border-radius:3px;background:rgba(255,255,255,.15);transition:background .4s}
+.prog i.d{background:#ffd27a}.prog i.c{background:#ffe9bd;box-shadow:0 0 8px #ffd27a}
+/* лист */
+.sheet{background:#fbf7ee;color:#3a3048;border-radius:16px;padding:16px 18px;min-height:168px;box-shadow:0 10px 28px rgba(0,0,0,.4);position:relative;
+ background-image:repeating-linear-gradient(transparent 0 33px,rgba(90,110,180,.15) 33px 34px);background-position:0 12px}
+.sheet .ln{font:700 23px/34px "Caveat",cursive;min-height:34px;animation:inl .4s ease}
+@keyframes inl{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+.sheet .ph{color:rgba(58,48,72,.25)}
+.gap{display:inline-block;min-width:70px;border-bottom:2px dashed #c9637f;color:#c9637f;text-align:center}
+.task{margin:16px 2px 8px;font-size:14px;font-weight:700;color:#ffe2a8;text-align:center;min-height:20px}
+/* карточки */
+.cards{display:flex;flex-direction:column;gap:8px}
+.card{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.16);border-radius:12px;padding:10px 14px;font:700 21px/1.25 "Caveat",cursive;color:#f2f0ff;cursor:pointer;transition:transform .15s,opacity .3s,background .2s}
+.card:active{transform:scale(.98);background:rgba(255,255,255,.14)}
+.card.sh{animation:sh .4s}
+@keyframes sh{20%,60%{transform:translateX(-7px)}40%,80%{transform:translateX(7px)}}
+.card.gone{opacity:0;transform:scale(.9);pointer-events:none}
+.opts{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+.opts button{font:700 22px "Caveat",cursive;padding:8px 18px;border-radius:12px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.1);color:#fff;cursor:pointer}
+.opts button.sh{animation:sh .4s}
+#msg{text-align:center;font-size:14.5px;font-weight:700;min-height:22px;margin-top:10px;color:#ffb3c8}
+.next{display:block;width:100%;margin-top:14px;font:800 16px "Nunito";border:none;border-radius:14px;padding:14px;background:linear-gradient(135deg,#ffe2a8,#ffb86b);color:#3a2610;cursor:pointer}
+.hint{display:block;margin:12px auto 0;background:none;border:none;color:#a9b2e8;font:700 13px "Nunito";text-decoration:underline;cursor:pointer}
+/* финал */
+#fin .sheet{padding:20px 20px 16px}
+#fin .t{font:700 36px/1 "Caveat",cursive;color:#c9637f;text-align:center;margin-bottom:6px}
+#fin .st{margin-bottom:14px}
+#fin .st div{font:700 22px/1.35 "Caveat",cursive;animation:inl .6s ease both}
+#fin .sig{font:700 26px "Caveat",cursive;color:#c9637f;text-align:right;margin-top:6px}
+#fin .note{text-align:center;font-size:13px;opacity:.7;margin-top:14px}
+.intro p{font-size:15px;line-height:1.55;margin:8px 0}
+.intro ul{margin:8px 0 0 18px;font-size:14.5px;line-height:1.6}
+</style>
+</head>
+<body>
+<div class="stars" id="stars"></div>
+<div class="w" id="app"></div>
+<script>
+/* строфы: lines — правильный порядок, gap — индекс строки и слово, opts — варианты, decoy — строчка-ловушка */
+const ST=[
+ {lines:["Погас последний свет в окне,","Затих за стенкой чей-то ___,","И город в мягкой тишине","Укрыл, как одеялом, всех."],
+  gap:[1,"смех"],opts:["шум","смех","гул"],decoy:"А сосед сверлит стену в пять утра,",
+  wrongOpt:{"шум":"Шум затих, да. Но с «всех» не рифмуется 😉","гул":"Гул — хорошее слово, но рифмы с «всех» нет"},
+  hint:"Рифмуются 1-я и 3-я строчки, 2-я и 4-я: «окне — тишине»"},
+ {lines:["Луна повисла над двором,","Как ночник у изголовья,","И шепчет звёздам об одном:","Что ночь пропитана ___."],
+  gap:[3,"любовью"],opts:["морковью","тишиной","любовью"],decoy:"А в холодильнике котлета,",
+  wrongOpt:{"морковью":"Рифма идеальная. Но ночь, пропитанная морковью… 🥕😄","тишиной":"Красиво, но не рифмуется с «изголовья»"},
+  hint:"«двором — одном», «изголовья — …»"},
+ {lines:["А ты устала, я-то знаю:","Дела, заботы, суета.","Пусть ночь тебя теперь качает,","Как лодку тихая ___."],
+  gap:[3,"вода"],opts:["еда","беда","вода"],decoy:"Ещё б контрольную сдала…",
+  wrongOpt:{"еда":"Лодку качает еда? Сильный образ, но нет 😄","беда":"Рифма есть, а настроение не то. Тут же колыбельная"},
+  hint:"Начинается с того, что ты устала. Заканчивается лодкой"},
+ {lines:["Я далеко, но это ___,","Всего лишь цифры на пути.","Моя любовь с тобой осталась:","Ей больше некуда идти."],
+  gap:[0,"малость"],opts:["жалость","малость","усталость"],decoy:"Поезд опоздал на два часа,",
+  wrongOpt:{"жалость":"Рифмуется, но расстояние — не жалость. Попробуй ещё","усталость":"Тоже рифма! Но по смыслу не то. Расстояние — это…"},
+  hint:"Первая строчка начинается со слов «Я далеко»"},
+ {lines:["Закрой глаза. Уже пора.","Пусть сон обнимет, словно друг.","А я с тобой. И до утра","Не отпущу тепла из ___."],
+  gap:[3,"рук"],opts:["брюк","рук","мук"],decoy:"Будильник ставь на шесть ноль-ноль,",
+  wrongOpt:{"брюк":"Тепло из брюк… Это уже другой жанр 😂","мук":"Рифма есть, но мы же про нежность, а не про муки"},
+  hint:"Начинается с «Закрой глаза»"}
+];
+const app=document.getElementById("app");
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+function buzz(ms){try{navigator.vibrate&&navigator.vibrate(ms)}catch(e){}}
+for(let i=0;i<70;i++){const s=document.createElement("i");const z=Math.random()*1.6+.5;s.style.cssText=`left:${Math.random()*100}%;top:${Math.random()*100}%;width:${z}px;height:${z}px`;
+ s.animate([{opacity:.15},{opacity:Math.random()*.7+.3},{opacity:.15}],{duration:2000+Math.random()*3000,iterations:Infinity,delay:-Math.random()*3000});document.getElementById("stars").appendChild(s)}
+let si=0,placed=0,traps=0,mist=0,hints=0;
+const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+function prog(){return `<div class="prog">${ST.map((_,i)=>`<i class="${i<si?"d":i===si?"c":""}"></i>`).join("")}</div>`}
+function intro(){
+  app.innerHTML=`<h1>Рассыпанный стих</h1><div class="sub">колыбельная, которую унёс ветер</div>
+  <div class="sheet intro"><p>Ночной ветер ворвался в окно и перепутал все строчки стихотворения, которое я написал тебе на ночь.</p>
+  <p>Собери его обратно. В каждой из пяти строф:</p>
+  <ul><li>нажимай на строчки по порядку</li><li>одна строчка — ловушка, она сюда не относится</li><li>одно слово потерялось, выбери правильное</li></ul>
+  <p>Будущий учитель русского, рифма и смысл — твои главные подсказки 😉</p></div>
+  <button class="next" id="go">Собирать</button>`;
+  document.getElementById("go").onclick=()=>stanza();
+}
+function stanza(){
+  const s=ST[si];placed=0;
+  const cards=shuffle([...s.lines.map((l,i)=>({t:l,i})),{t:s.decoy,i:-1}]);
+  app.innerHTML=`${prog()}<div class="sheet" id="sh">${s.lines.map(()=>`<div class="ln ph">· · ·</div>`).join("")}</div>
+   <div class="task" id="task">Строфа ${si+1} из ${ST.length}: нажимай на строчки по порядку</div>
+   <div class="cards" id="cards"></div><div id="msg"></div><button class="hint" id="hb">Подсказка</button>`;
+  const box=document.getElementById("cards");
+  cards.forEach(c=>{const d=document.createElement("div");d.className="card";d.innerHTML=fmt(c.t);d.onclick=()=>pick(c,d);box.appendChild(d)});
+  document.getElementById("hb").onclick=()=>{hints++;msg("💡 "+s.hint,"#ffe2a8")};
+}
+const fmt=t=>t.replace("___",'<span class="gap">…</span>');
+function msg(t,c){const m=document.getElementById("msg");m.textContent=t;m.style.color=c||"#ffb3c8"}
+function shake(el){el.classList.remove("sh");void el.offsetWidth;el.classList.add("sh");buzz(50)}
+function pick(c,d){
+  const s=ST[si];
+  if(c.i===-1){traps++;d.classList.add("gone");msg(["Ха, ловушка! Эта строчка тут лишняя 😏","Попалась бы, но нет. Лишняя строчка убрана","Эта строчка из совсем другого стиха 😄"][Math.floor(Math.random()*3)],"#ffe2a8");buzz(20);setTimeout(()=>d.remove(),300);return}
+  if(c.i!==placed){mist++;shake(d);msg(["Не та строчка. Проверь рифму","Хм, сюда она не встаёт","Почти! Но порядок другой","Прочитай вслух, как звучит?"][Math.floor(Math.random()*4)]);return}
+  const lns=document.querySelectorAll("#sh .ln");lns[placed].className="ln";lns[placed].innerHTML=fmt(c.t);
+  d.classList.add("gone");setTimeout(()=>d.remove(),300);buzz(12);msg("");placed++;
+  if(placed===s.lines.length){const left=document.querySelector(".card");if(left)left.classList.add("gone");setTimeout(()=>gapStep(),500)}
+}
+function gapStep(){
+  const s=ST[si];document.getElementById("task").textContent="Одно слово потерялось. Какое?";
+  document.getElementById("hb").style.display="none";
+  const box=document.getElementById("cards");box.innerHTML=`<div class="opts">${s.opts.map(o=>`<button>${o}</button>`).join("")}</div>`;
+  box.querySelectorAll("button").forEach(b=>b.onclick=()=>{
+    const o=b.textContent;
+    if(o!==s.gap[1]){mist++;shake(b);msg(s.wrongOpt[o]||"Не то слово");return}
+    buzz([20,40,20]);const g=document.querySelector("#sh .gap");g.textContent=o;g.style.borderBottom="none";
+    msg("");box.innerHTML="";si++;
+    document.getElementById("task").textContent=si<ST.length?"Строфа собрана! ✨":"Последняя строфа на месте!";
+    const n=document.createElement("button");n.className="next";n.textContent=si<ST.length?"Дальше":"Прочитать стих целиком";n.onclick=()=>si<ST.length?stanza():fin();box.appendChild(n);
+  });
+}
+function fin(){
+  const full=ST.map(s=>s.lines.map(l=>l.replace("___",s.gap[1])));
+  const stat=`Ловушек обезврежено: ${traps} из 5 · Подсказок: ${hints} · Ошибок: ${mist}`;
+  app.innerHTML=`<div id="fin"><div class="sheet"><div class="t">Колыбельная</div>
+   ${full.map((st,k)=>`<div class="st">${st.map((l,j)=>`<div style="animation-delay:${(k*4+j)*0.18}s">${l}</div>`).join("")}</div>`).join("")}
+   <div class="sig">— Андрей</div></div>
+   <div class="note">${stat}<br>Стих собран. Теперь можно закрывать глаза 🌙</div></div>`;
+  buzz([30,60,30]);window.scrollTo({top:0,behavior:"smooth"});
+}
+intro();
+</script>
+</body>
+</html>
