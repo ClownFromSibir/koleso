@@ -1,0 +1,353 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<title>Ёлочка для Юли</title>
+<meta name="theme-color" content="#0f2a4a">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Nunito:wght@700;800;900&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none}
+html,body{height:100%;overflow:hidden;background:#0b2240;font-family:"Nunito",system-ui,sans-serif;color:#fff}
+#game{position:fixed;inset:0;max-width:520px;margin:0 auto;display:flex;flex-direction:column;background:linear-gradient(#0f2a4a 0%,#1d4a7a 48%,#4f7fb0 70%,#dfeefa 70.2%,#f4f9ff 100%);overflow:hidden}
+#snow{position:absolute;inset:0;pointer-events:none;z-index:1}
+/* шапка */
+#hud{position:relative;z-index:5;padding:calc(8px + env(safe-area-inset-top)) 8px 4px}
+.title{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px}
+.title b{font:900 20px "Nunito";color:#fff;text-shadow:0 2px 0 #0a1a30;letter-spacing:.3px}
+.title b span{color:#ffd54a}
+.ny{font-size:11.5px;font-weight:800;background:rgba(255,255,255,.14);border-radius:12px;padding:3px 8px;white-space:nowrap}
+.snd{font-size:18px;background:rgba(255,255,255,.14);border:none;border-radius:10px;padding:2px 7px;cursor:pointer}
+#res{display:flex;gap:5px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}
+#res::-webkit-scrollbar{display:none}
+.chip{flex:none;display:flex;align-items:center;gap:3px;background:linear-gradient(#ffffff,#dbe9f7);color:#1d3a5c;border-radius:14px;padding:3px 9px 3px 6px;font-weight:900;font-size:14px;box-shadow:0 2px 0 #8fb0d3,0 3px 6px rgba(0,0,0,.25)}
+.chip.pop{animation:pop .4s}
+@keyframes pop{50%{transform:scale(1.25)}}
+/* стадия */
+#stage{position:relative;z-index:5;margin:6px 8px 0;background:rgba(10,30,60,.55);border:2px solid rgba(255,255,255,.18);border-radius:14px;padding:7px 10px;display:flex;align-items:center;gap:8px}
+#stage .lv{flex:none;width:44px;height:44px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#7be07b,#2e8b3e);border:3px solid #fff;display:flex;flex-direction:column;align-items:center;justify-content:center;font-weight:900;line-height:1;box-shadow:0 3px 0 #1b5a26}
+#stage .lv small{font-size:9px;opacity:.9}
+#stage .lv b{font-size:18px}
+#reqs{flex:1;display:flex;flex-wrap:wrap;gap:4px 8px;font-size:13px;font-weight:800}
+#reqs span{white-space:nowrap}#reqs .ok{color:#8dff9a}#reqs .no{color:#ffd0d0}
+#grow{flex:none;border:none;border-radius:12px;padding:9px 11px;font:900 13.5px "Nunito";color:#3a2400;background:linear-gradient(#ffe066,#ffb71a);box-shadow:0 3px 0 #b97800;cursor:pointer}
+#grow:disabled{filter:grayscale(.8);opacity:.6}
+#grow.can{animation:pulse 1.2s infinite}
+@keyframes pulse{50%{transform:scale(1.07)}}
+/* сцена */
+#scene{position:relative;flex:1;z-index:3}
+#tree{position:absolute;left:50%;bottom:12%;transform:translateX(-50%);aspect-ratio:200/260;transition:height 1.2s cubic-bezier(.3,1.4,.5,1)}
+#tree svg{width:100%;height:100%;display:block;overflow:visible;filter:drop-shadow(0 6px 8px rgba(0,0,0,.25))}
+.orn{position:absolute;transform:translate(-50%,-50%);font-size:clamp(14px,4.4vw,22px);pointer-events:none;animation:hang .5s ease}
+@keyframes hang{0%{transform:translate(-50%,-150%) scale(.4);opacity:0}70%{transform:translate(-50%,-40%) scale(1.15)}100%{transform:translate(-50%,-50%) scale(1)}}
+.light{position:absolute;width:7px;height:7px;border-radius:50%;transform:translate(-50%,-50%);animation:tw 1s infinite alternate;pointer-events:none}
+@keyframes tw{from{opacity:.25}to{opacity:1;box-shadow:0 0 8px 3px currentColor}}
+#topstar{position:absolute;left:50%;top:-2%;transform:translate(-50%,-50%);font-size:clamp(26px,8vw,40px);display:none;filter:drop-shadow(0 0 10px #ffd54a);animation:sp 2s infinite}
+@keyframes sp{50%{transform:translate(-50%,-50%) scale(1.15) rotate(8deg)}}
+.ch{position:absolute;z-index:4;display:flex;flex-direction:column;align-items:center;cursor:pointer}
+.ch .av{position:relative;width:56px;height:56px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff,#d6e8f8);border:3px solid #fff;display:flex;align-items:center;justify-content:center;font-size:30px;box-shadow:0 3px 0 #7d9cbf,0 4px 10px rgba(0,0,0,.3)}
+.ch .nm{margin-top:2px;font-size:11px;font-weight:900;color:#1d3a5c;background:#fff;border-radius:8px;padding:0 6px;box-shadow:0 1px 3px rgba(0,0,0,.2)}
+.ch .ring{position:absolute;inset:-6px;border-radius:50%}
+.ch.ready .av{animation:pulse 1s infinite;border-color:#ffd54a}
+.ch .ex{position:absolute;right:-4px;top:-4px;width:20px;height:20px;border-radius:50%;background:#ff4d4d;color:#fff;font-size:13px;font-weight:900;display:none;align-items:center;justify-content:center;border:2px solid #fff}
+.ch.ready .ex{display:flex}
+#gift{position:absolute;left:50%;bottom:6%;transform:translateX(-50%);font-size:46px;display:none;z-index:4;cursor:pointer;animation:pulse 1s infinite;filter:drop-shadow(0 0 12px #ffd54a)}
+/* низ */
+#nav{position:relative;z-index:6;display:flex;gap:6px;padding:6px 8px calc(8px + env(safe-area-inset-bottom));background:linear-gradient(transparent,rgba(160,190,220,.35))}
+#nav button{flex:1;border:none;border-radius:14px;padding:7px 2px 6px;background:linear-gradient(#ffffff,#d6e6f6);color:#1d3a5c;font:900 11px "Nunito";box-shadow:0 3px 0 #7d9cbf;cursor:pointer;position:relative}
+#nav button i{display:block;font-style:normal;font-size:22px;line-height:1.1}
+#nav button .dot{position:absolute;right:6px;top:4px;width:12px;height:12px;border-radius:50%;background:#ff4d4d;border:2px solid #fff;display:none}
+#nav button.alert .dot{display:block}
+#nav button.alert{animation:pulse 1.2s infinite}
+#chestTimer{font-size:10px}
+/* всплывашки */
+.fx{position:fixed;z-index:30;pointer-events:none;font:900 18px "Nunito";color:#fff;text-shadow:0 2px 0 #1d3a5c,0 0 6px rgba(0,0,0,.4);white-space:nowrap}
+.say{position:absolute;z-index:8;background:#fff;color:#1d3a5c;font-size:12.5px;font-weight:800;border-radius:12px;padding:6px 9px;box-shadow:0 3px 10px rgba(0,0,0,.3);max-width:170px;pointer-events:none;animation:nt 2.6s ease forwards}
+@keyframes nt{0%{opacity:0;transform:translateY(6px)}10%,80%{opacity:1;transform:none}100%{opacity:0}}
+#hint{position:absolute;left:50%;top:6px;transform:translateX(-50%);z-index:7;background:#ffd54a;color:#3a2400;font-weight:900;font-size:13px;border-radius:12px;padding:6px 12px;display:none;white-space:nowrap;box-shadow:0 3px 8px rgba(0,0,0,.3)}
+/* окна */
+#ov{position:fixed;inset:0;z-index:20;background:rgba(5,15,35,.6);display:none;align-items:flex-end;justify-content:center}
+#ov.on{display:flex}
+#win{width:100%;max-width:520px;max-height:82vh;overflow:auto;background:linear-gradient(#f7fbff,#e3eef9);color:#1d3a5c;border-radius:22px 22px 0 0;padding:16px 16px calc(18px + env(safe-area-inset-bottom));animation:up .3s ease;border-top:4px solid #ffd54a}
+@keyframes up{from{transform:translateY(40px);opacity:0}}
+#win h2{font:900 21px "Nunito";margin-bottom:4px;display:flex;align-items:center;gap:8px}
+#win .s{font-size:13.5px;color:#4b6a8c;margin-bottom:10px;font-weight:700}
+.rc{display:flex;align-items:center;gap:10px;background:#fff;border-radius:14px;padding:9px 10px;margin-bottom:8px;box-shadow:0 2px 0 #c7d8ea}
+.rc .ic{font-size:30px;width:40px;text-align:center}
+.rc .tx{flex:1;font-weight:900;font-size:15px}
+.rc .tx small{display:block;font-size:12.5px;font-weight:800;color:#6b88a8}
+.rc .tx small .no{color:#d43c3c}
+.btn{border:none;border-radius:12px;padding:9px 13px;font:900 14px "Nunito";color:#3a2400;background:linear-gradient(#ffe066,#ffb71a);box-shadow:0 3px 0 #b97800;cursor:pointer;white-space:nowrap}
+.btn.g{color:#fff;background:linear-gradient(#5fd06a,#2e9a3d);box-shadow:0 3px 0 #1d6a28}
+.btn.b{color:#fff;background:linear-gradient(#5aa8ff,#2f73d8);box-shadow:0 3px 0 #1d4f9a}
+.btn:disabled{filter:grayscale(1);opacity:.5}
+.btn.wide{display:block;width:100%;margin-top:8px;padding:12px}
+.stk{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.stk div{background:#fff;border-radius:14px;padding:8px 4px;text-align:center;box-shadow:0 2px 0 #c7d8ea;font-size:11px;font-weight:900}
+.stk div i{display:block;font-style:normal;font-size:32px}
+.stk div.lock i{filter:grayscale(1) brightness(.2);opacity:.35}
+.visit{text-align:center}
+.visit .face{font-size:64px;animation:pop 1s}
+.visit .msg{background:#fff;border-radius:16px;padding:12px 14px;font-size:15.5px;font-weight:800;line-height:1.45;margin:8px 0 10px;box-shadow:0 2px 0 #c7d8ea}
+.gifts{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin-bottom:6px}
+.gifts span{background:#fff;border-radius:12px;padding:5px 10px;font-weight:900;box-shadow:0 2px 0 #c7d8ea}
+/* финал */
+#letter{position:fixed;inset:0;z-index:40;background:rgba(5,15,35,.75);display:none;align-items:center;justify-content:center;padding:18px}
+#letter.on{display:flex}
+#letter .p{max-width:400px;background:#fffaf0;color:#3a2a20;border-radius:12px;padding:22px 20px;box-shadow:0 20px 50px rgba(0,0,0,.5);animation:up .6s ease;border:3px double #c9a24a}
+#letter h3{font:700 36px/1 "Caveat",cursive;color:#c0392b;text-align:center;margin-bottom:10px}
+#letter p{font-size:15.5px;line-height:1.55;margin:8px 0}
+#letter .sig{font:700 28px "Caveat",cursive;color:#2e7d3a;text-align:right;margin-top:10px}
+</style>
+</head>
+<body>
+<div id="game">
+  <canvas id="snow"></canvas>
+  <div id="hud">
+    <div class="title"><b>Ёлочка <span>для Юли</span></b><span class="ny" id="ny"></span><button class="snd" id="snd">🔔</button></div>
+    <div id="res"></div>
+  </div>
+  <div id="stage"><div class="lv"><small>ёлка</small><b id="lvn">1</b></div><div id="reqs"></div><button id="grow">Вырастить</button></div>
+  <div id="scene">
+    <div id="hint"></div>
+    <div id="tree"><svg viewBox="0 0 200 260" id="tsvg"></svg><div id="topstar">⭐</div></div>
+    <div id="gift">🎁</div>
+  </div>
+  <div id="nav">
+    <button id="bChest"><span class="dot"></span><i>🧰</i><span id="chestTimer">Сундук</span></button>
+    <button id="bWork"><span class="dot"></span><i>🔨</i>Мастерская</button>
+    <button id="bToys"><span class="dot"></span><i>🎒</i>Игрушки</button>
+    <button id="bStk"><span class="dot"></span><i>📒</i>Стикеры</button>
+    <button id="bGuest"><span class="dot"></span><i>🚪</i>Гости</button>
+  </div>
+</div>
+<div id="ov"><div id="win"></div></div>
+<div id="letter"><div class="p" id="lp"></div></div>
+<script>
+/* ===================== ДАННЫЕ ===================== */
+const R={w:["🪄","Палочки"],br:["🌿","Веточки"],gl:["💎","Стекло"],bd:["📿","Бусинки"],sn:["❄️","Снежинки"],mit:["🧤","Варежки"],hl:["🎉","Хлопушки"]};
+const TOYS={
+ ball:{e:"🔴",n:"Шарик",cost:{gl:1,bd:1}},
+ bell:{e:"🔔",n:"Колокольчик",cost:{gl:2,br:1}},
+ bow:{e:"🎀",n:"Бантик",cost:{bd:2,br:1}},
+ candy:{e:"🍬",n:"Конфета",cost:{br:1,sn:2}},
+ star:{e:"⭐",n:"Звезда на макушку",cost:{gl:3,bd:3,br:2},need:6}
+};
+const REQ=[null,{w:3},{w:5,mit:2},{w:7,hung:3},{w:9,hl:2},{w:12,hung:6}];
+const HEIGHT=[0,30,40,50,60,70,80];
+const CH={
+ snow:{e:"⛄",n:"Снеговик",cd:15,give:{sn:2},say:["Слепил снежинок всю ночь!","Держи свежий снег ❄️","Снег отборный, без сосулек"],pos:[7,62]},
+ fox:{e:"🦊",n:"Лисёнок",cd:18,give:{br:2},say:["Нашёл в лесу веточки!","Вот, самые пушистые 🌿","Тс-с, это из соседнего леса"],pos:[80,62]},
+ bird:{e:"🐦",n:"Снегирь",cd:20,give:{bd:2},say:["Чик-чирик! Принёс бусинки","Нёс в клюве всю дорогу 📿","Бусинки блестят, как ты"],pos:[80,18]}
+};
+const QUESTS=[
+ {t:"Принеси мне 2 🌿 веточки, я сплету венок",need:{br:2},give:{w:3,mit:1}},
+ {t:"Собери 4 ❄️ снежинки, хочу слепить снежинку-великана",need:{sn:4},give:{w:4,mit:1}},
+ {t:"Сделай в мастерской 🔔 колокольчик и отдай мне",needToy:"bell",give:{w:5,hl:1}},
+ {t:"Принеси 3 📿 бусинки на новые бусы",need:{bd:3},give:{w:5,hl:1,gl:1}},
+ {t:"Сделай 🎀 бантик, хочу украсить косу",needToy:"bow",give:{w:6,gl:2}}
+];
+const STK=[["🐿️","Белочка"],["🐧","Пингвин"],["🦌","Олень"],["🧸","Мишка"],["🎅","Дед Мороз"],["🐻‍❄️","Умка"],["🦉","Сова"],["🐸","Лягушонок"]];
+const VISITS=[null,
+ {m:"Привет! Зашёл посмотреть на твою ёлочку. Держи варежки, чтобы ручки не мёрзли, пока наряжаешь 🧤",g:{w:3,mit:1}},
+ {m:"Ого, как подросла! Принёс хлопушку и стекла для игрушек. А ещё повесил тебе на ветку кое-что от себя 💌",g:{w:4,hl:1,gl:2},toy:"💌"},
+ {m:"Я тут мимо проходил. Совершенно случайно. Из Питера 😏 Держи бусинки и хлопушку.",g:{w:4,hl:1,bd:2}},
+ {m:"Твоя ёлка самая красивая во всех Одноклассниках. Я проверял лично, обошёл все ёлки.",g:{w:5,br:2,gl:2}},
+ {m:"Почти до неба! Не хватает только звезды на макушку. Сделай её в мастерской, а материалы я принёс ⭐",g:{w:6,bd:3,gl:2,br:1}}
+];
+/* ===================== СОСТОЯНИЕ ===================== */
+const KEY="elochka-yulya-v1";
+const fresh=()=>({res:{w:0,br:1,gl:1,bd:1,sn:0,mit:0,hl:0},toys:{ball:0,bell:0,bow:0,candy:0,star:0},hung:[],stage:1,q:0,visits:[],stk:[],chestAt:Date.now()+8000,cd:{snow:Date.now()+3000,fox:Date.now()+6000,bird:Date.now()+9000},starOn:false,opened:false,welcomed:false,sound:true});
+let S;try{S=JSON.parse(localStorage.getItem(KEY))||fresh()}catch(e){S=fresh()}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+const $=id=>document.getElementById(id);
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+function buzz(ms){try{navigator.vibrate&&navigator.vibrate(ms)}catch(e){}}
+/* звуки */
+let AC=null;
+function tone(f,t0,d,type="sine",v=.08){if(!S.sound)return;try{AC=AC||new (window.AudioContext||window.webkitAudioContext)();const t=AC.currentTime+t0,o=AC.createOscillator(),g=AC.createGain();o.type=type;o.frequency.value=f;g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(v,t+.02);g.gain.exponentialRampToValueAtTime(.001,t+d);o.connect(g).connect(AC.destination);o.start(t);o.stop(t+d+.05)}catch(e){}}
+const sfx={pick:()=>{tone(1046,0,.15);tone(1318,.06,.2)},grow:()=>[523,659,784,1046,1318].forEach((f,i)=>tone(f,i*.09,.5,"triangle",.07)),err:()=>tone(220,0,.15,"square",.04),
+ craft:()=>{tone(784,0,.12,"triangle");tone(988,.08,.12,"triangle");tone(1175,.16,.25,"triangle")},hang:()=>tone(1568,0,.3,"sine",.06),
+ bells:()=>{const m=[659,659,659,0,659,659,659,0,659,784,523,587,659];m.forEach((f,i)=>f&&tone(f,i*.18,.35,"sine",.07))}};
+$("snd").onclick=()=>{S.sound=!S.sound;$("snd").textContent=S.sound?"🔔":"🔕";save()};$("snd").textContent=S.sound?"🔔":"🔕";
+/* ===================== РЕСУРСЫ ===================== */
+function drawRes(changed){
+  $("res").innerHTML=Object.keys(R).map(k=>`<div class="chip" data-k="${k}">${R[k][0]} ${S.res[k]}</div>`).join("");
+  if(changed)changed.forEach(k=>{const c=$("res").querySelector(`[data-k=${k}]`);if(c){c.classList.add("pop");setTimeout(()=>c.classList.remove("pop"),400)}});
+}
+function add(g,x,y){const ks=[];let i=0;for(const k in g){S.res[k]=(S.res[k]||0)+g[k];ks.push(k);if(x!=null)fly(`+${g[k]} ${R[k][0]}`,x,y-i*24,i*120);i++}drawRes(ks);save();refresh()}
+function has(c){return Object.keys(c).every(k=>(S.res[k]||0)>=c[k])}
+function pay(c){for(const k in c)S.res[k]-=c[k];drawRes(Object.keys(c));save()}
+function fly(t,x,y,delay=0){setTimeout(()=>{const f=document.createElement("div");f.className="fx";f.textContent=t;f.style.left=(x-30)+"px";f.style.top=y+"px";document.body.appendChild(f);
+  f.animate([{transform:"translateY(0)",opacity:1},{transform:"translateY(-60px)",opacity:0}],{duration:1300,easing:"ease-out"}).onfinish=()=>f.remove()},delay)}
+/* ===================== ЁЛКА ===================== */
+function drawTree(){
+  const t=$("tsvg");
+  t.innerHTML=`<defs><linearGradient id="gr" x1="0" x2="1"><stop offset="0" stop-color="#1f7a3a"/><stop offset=".5" stop-color="#2fa34e"/><stop offset="1" stop-color="#1a6a32"/></linearGradient></defs>
+  <rect x="88" y="222" width="24" height="34" rx="4" fill="#7a4a2a"/>
+  <path d="M100 6 L150 76 L128 72 L170 134 L142 128 L186 196 L156 190 L196 232 L4 232 L44 190 L14 196 L58 128 L30 134 L72 72 L50 76 Z" fill="url(#gr)" stroke="#145a29" stroke-width="2" stroke-linejoin="round"/>
+  <path d="M100 6 L118 31 L108 29 L100 22 L92 29 L82 31 Z M72 72 L84 70 L96 74 L104 70 L116 74 L128 72 L122 80 L78 80 Z M58 128 L76 126 L92 130 L108 126 L124 130 L142 128 L136 136 L64 136 Z M44 190 L66 188 L88 193 L112 188 L134 193 L156 190 L150 198 L50 198 Z" fill="#fff" opacity=".85"/>`;
+  $("tree").style.height=HEIGHT[Math.min(6,S.stage)]+"%";
+  [...$("tree").querySelectorAll(".orn,.light")].forEach(e=>e.remove());
+  S.hung.forEach(h=>placeOrn(h,false));
+  $("topstar").style.display=S.starOn?"block":"none";
+  if(S.starOn)lights();
+}
+function placeOrn(h,anim){const o=document.createElement("div");o.className="orn";o.textContent=h.e;o.style.left=h.x+"%";o.style.top=h.y+"%";if(!anim)o.style.animation="none";$("tree").appendChild(o)}
+function inside(x,y){/* x,y в долях */if(y<.12||y>.86)return false;return Math.abs(x-.5)<=(y-.06)/.8*.46}
+function lights(){const cols=["#ff4d4d","#ffd54a","#4dc3ff","#7dff6a","#ff7ad9"];let n=0;
+  for(let row=0;row<5;row++){const y=.22+row*.15;for(let i=0;i<7;i++){const x=.5+((i/6)-.5)*((y-.06)/.8*.86);const l=document.createElement("div");l.className="light";const c=cols[(n++)%cols.length];l.style.cssText=`left:${x*100}%;top:${(y+Math.sin(i)*.012)*100}%;background:${c};color:${c};animation-delay:${(n%5)*.2}s`;$("tree").appendChild(l)}}}
+/* ===================== СТАДИИ ===================== */
+function reqState(){const r=REQ[S.stage];if(!r)return null;const out=[];
+  for(const k in r){if(k==="hung")out.push({t:`🎄 игрушек ${Math.min(S.hung.length,r.hung)}/${r.hung}`,ok:S.hung.length>=r.hung});else out.push({t:`${R[k][0]} ${Math.min(S.res[k],r[k])}/${r[k]}`,ok:S.res[k]>=r[k]})}return out}
+function refresh(){
+  $("lvn").textContent=Math.min(6,S.stage);
+  const rs=reqState(),g=$("grow");
+  if(S.stage>=6){$("reqs").innerHTML=S.starOn?`<span class="ok">Ёлка выросла до неба! ✨</span>`:`<span style="white-space:normal">Последний шаг: сделай ⭐ звезду в мастерской и надень на макушку</span>`;
+    g.textContent=S.starOn?"Готово":"Звезда";g.disabled=!(S.toys.star>0)||S.starOn;g.classList.toggle("can",S.toys.star>0&&!S.starOn)}
+  else{$("reqs").innerHTML=rs.map(x=>`<span class="${x.ok?"ok":"no"}">${x.t}</span>`).join("");const can=rs.every(x=>x.ok);g.textContent="Вырастить";g.disabled=!can;g.classList.toggle("can",can)}
+  /* подсветка кнопок */
+  $("bChest").classList.toggle("alert",Date.now()>=S.chestAt);
+  $("bGuest").classList.toggle("alert",!S.visits.includes(Math.min(5,S.stage)));
+  $("bToys").classList.toggle("alert",Object.keys(TOYS).some(k=>k!=="star"&&S.toys[k]>0));
+  const canCraft=Object.keys(TOYS).some(k=>(!TOYS[k].need||S.stage>=TOYS[k].need)&&has(TOYS[k].cost))||S.res.sn>=3;
+  $("bWork").classList.toggle("alert",canCraft&&!$("bToys").classList.contains("alert"));
+  const q=QUESTS[S.q];document.querySelectorAll(".ch").forEach(c=>{const id=c.dataset.id;
+    if(id==="sneg")c.classList.toggle("ready",!!q&&(q.need?has(q.need):S.toys[q.needToy]>0));
+    else c.classList.toggle("ready",Date.now()>=S.cd[id])});
+}
+$("grow").onclick=async()=>{
+  if(S.stage>=6){if(S.toys.star>0&&!S.starOn){S.toys.star--;S.starOn=true;save();sfx.bells();buzz([30,60,30,60,80]);drawTree();refresh();
+      hint("Ёлка зажглась! Посмотри под ёлку 🎁",4000);await sleep(1600);$("gift").style.display="block"}return}
+  const r=REQ[S.stage];const cost={};for(const k in r)if(k!=="hung")cost[k]=r[k];pay(cost);
+  S.stage++;save();sfx.grow();buzz([20,40,20]);drawTree();refresh();
+  const tb=$("tree").getBoundingClientRect();for(let i=0;i<14;i++)fly(["✨","⭐","❄️"][i%3],tb.left+Math.random()*tb.width,tb.top+Math.random()*tb.height,i*60);
+  hint(S.stage<6?`Ёлка выросла! Уровень ${S.stage} 🎄`:"Почти до неба! Осталась звезда ⭐",2600);
+};
+/* ===================== ПЕРСОНАЖИ ===================== */
+function mkChars(){
+  const sc=$("scene");
+  Object.entries(CH).forEach(([id,c])=>{const d=document.createElement("div");d.className="ch";d.dataset.id=id;d.style.left=c.pos[0]+"%";d.style.top=c.pos[1]+"%";
+    d.innerHTML=`<div class="av">${c.e}<svg class="ring" viewBox="0 0 68 68"><circle cx="34" cy="34" r="31" fill="none" stroke="#5fd06a" stroke-width="5" stroke-linecap="round" stroke-dasharray="195" stroke-dashoffset="195" transform="rotate(-90 34 34)"/></svg><span class="ex">!</span></div><span class="nm">${c.n}</span>`;
+    d.onclick=()=>tapChar(id,d);sc.appendChild(d)});
+  const s=document.createElement("div");s.className="ch";s.dataset.id="sneg";s.style.left="7%";s.style.top="18%";
+  s.innerHTML=`<div class="av">👸<span class="ex">!</span></div><span class="nm">Снегурочка</span>`;s.onclick=()=>snegurochka();sc.appendChild(s);
+}
+function say(el,t){const b=document.createElement("div");b.className="say";b.textContent=t;const sc=$("scene").getBoundingClientRect(),r=el.getBoundingClientRect();
+  b.style.left=Math.max(4,Math.min(sc.width-176,r.left-sc.left-40))+"px";b.style.top=(r.top-sc.top-44)+"px";$("scene").appendChild(b);setTimeout(()=>b.remove(),2700)}
+function tapChar(id,el){const c=CH[id];
+  if(Date.now()<S.cd[id]){say(el,`${c.n} ещё занят… ${Math.ceil((S.cd[id]-Date.now())/1000)} сек`);sfx.err();return}
+  S.cd[id]=Date.now()+c.cd*1000;const r=el.getBoundingClientRect();add(c.give,r.left+r.width/2,r.top);sfx.pick();buzz(15);
+  say(el,c.say[Math.floor(Math.random()*c.say.length)]);
+}
+function snegurochka(){
+  const q=QUESTS[S.q];
+  if(!q){open(`<h2>👸 Снегурочка</h2><div class="visit"><div class="msg">Спасибо тебе за всё! Ты лучшая помощница во всём лесу. Теперь я спокойна за эту ёлочку ✨</div></div><button class="btn wide" onclick="closeOv()">Пожалуйста!</button>`);return}
+  const ready=q.need?has(q.need):S.toys[q.needToy]>0;
+  const giveTxt=Object.entries(q.give).map(([k,v])=>`<span>${R[k][0]} ${v}</span>`).join("");
+  open(`<h2>👸 Снегурочка</h2><div class="s">Задание ${S.q+1} из ${QUESTS.length}</div><div class="visit"><div class="msg">${q.t}</div><div class="s">Награда:</div><div class="gifts">${giveTxt}</div></div>
+   <button class="btn wide ${ready?"g":""}" id="qb" ${ready?"":"disabled"}>${ready?"Отдать":"Пока не хватает"}</button>`);
+  if(ready)$("qb").onclick=()=>{if(q.need)pay(q.need);else{S.toys[q.needToy]--}S.q++;save();closeOv();sfx.craft();buzz(20);
+    const el=document.querySelector('.ch[data-id="sneg"]').getBoundingClientRect();add(q.give,el.left+28,el.top);say(document.querySelector('.ch[data-id="sneg"]'),"Спасибо, Юлечка! 💙")};
+}
+/* ===================== СУНДУК ===================== */
+$("bChest").onclick=()=>{
+  if(Date.now()<S.chestAt){hint(`Сундук откроется через ${Math.ceil((S.chestAt-Date.now())/1000)} сек`,1600);sfx.err();return}
+  S.chestAt=Date.now()+30000;const mats=["br","gl","bd","sn"],m=mats[Math.floor(Math.random()*4)];
+  const g={w:2};g[m]=1+Math.floor(Math.random()*2);
+  const r=$("bChest").getBoundingClientRect();add(g,r.left+r.width/2,r.top-20);sfx.craft();buzz(20);
+  if(Math.random()<.6||S.stk.length<2)dropSticker(r.left+r.width/2,r.top-80);
+};
+function dropSticker(x,y){const left=STK.map((_,i)=>i).filter(i=>!S.stk.includes(i));if(!left.length)return;
+  const i=left[Math.floor(Math.random()*left.length)];S.stk.push(i);save();fly(`Стикер: ${STK[i][0]} ${STK[i][1]}!`,x-40,y,400);
+  $("bStk").classList.add("alert");setTimeout(()=>$("bStk").classList.remove("alert"),4000);
+  if(S.stk.length===STK.length){setTimeout(()=>{add({w:5});hint("Коллекция собрана! +5 🪄",3000)},1200)}}
+/* ===================== МАСТЕРСКАЯ ===================== */
+$("bWork").onclick=()=>workshop();
+function workshop(){
+  const cost=c=>Object.entries(c).map(([k,v])=>`<span class="${S.res[k]>=v?"":"no"}">${R[k][0]}${v}</span>`).join(" ");
+  let h=`<h2>🔨 Мастерская</h2><div class="s">Здесь делают ёлочные игрушки из веточек, стекла и бусинок</div>`;
+  for(const [k,t] of Object.entries(TOYS)){const lock=t.need&&S.stage<t.need;
+    h+=`<div class="rc"><div class="ic">${lock?"🔒":t.e}</div><div class="tx">${t.n}<small>${lock?"Откроется, когда ёлка дорастёт до 6 уровня":cost(t.cost)}</small><small>Есть: ${S.toys[k]}</small></div><button class="btn" data-k="${k}" ${lock||!has(t.cost)?"disabled":""}>Сделать</button></div>`}
+  if(S.stage>=6&&S.res.gl<3)h+=`<div class="s">💡 Не хватает стекла для звезды? Растопи снежинки в печке ниже 🔥</div>`;
+  h+=`<div class="rc"><div class="ic">🔥</div><div class="tx">Растопить снежинки в стекло<small>${cost({sn:3})} → 💎1</small></div><button class="btn b" id="melt" ${S.res.sn>=3?"":"disabled"}>Растопить</button></div>`;
+  open(h);
+  $("win").querySelectorAll("button[data-k]").forEach(b=>b.onclick=()=>{const k=b.dataset.k;pay(TOYS[k].cost);S.toys[k]++;save();sfx.craft();buzz(15);refresh();workshop();
+    hint(k==="star"?"Звезда готова! Нажми «Звезда» наверху ⭐":`${TOYS[k].e} ${TOYS[k].n} готов! Повесь его через «Игрушки»`,2200)});
+  $("melt").onclick=()=>{pay({sn:3});S.res.gl++;drawRes(["gl"]);save();sfx.pick();refresh();workshop()};
+}
+/* ===================== ИГРУШКИ / УКРАШЕНИЕ ===================== */
+let placing=null;
+$("bToys").onclick=()=>{
+  const ks=Object.keys(TOYS).filter(k=>k!=="star");
+  let h=`<h2>🎒 Мои игрушки</h2><div class="s">Выбери игрушку и нажми на ёлку, куда её повесить. На ёлке сейчас: ${S.hung.length}</div>`;
+  if(!ks.some(k=>S.toys[k]>0))h+=`<div class="visit"><div class="msg">Игрушек пока нет. Сделай их в мастерской 🔨</div></div>`;
+  ks.forEach(k=>{if(S.toys[k]>0)h+=`<div class="rc"><div class="ic">${TOYS[k].e}</div><div class="tx">${TOYS[k].n}<small>×${S.toys[k]}</small></div><button class="btn g" data-k="${k}">Повесить</button></div>`});
+  open(h);
+  $("win").querySelectorAll("button[data-k]").forEach(b=>b.onclick=()=>{placing=b.dataset.k;closeOv();hint(`Нажми на ёлку, куда повесить ${TOYS[placing].e}`)});
+};
+$("scene").addEventListener("click",e=>{
+  if(!placing)return;const r=$("tree").getBoundingClientRect(),x=(e.clientX-r.left)/r.width,y=(e.clientY-r.top)/r.height;
+  if(!inside(x,y)){hint("Чуть-чуть промахнулась, нужно попасть на ветки 🎄",1500);sfx.err();return}
+  const h={e:TOYS[placing].e,x:+(x*100).toFixed(1),y:+(y*100).toFixed(1)};S.toys[placing]--;S.hung.push(h);placing=null;save();placeOrn(h,true);sfx.hang();buzz(12);hideHint();refresh();
+  if(S.hung.length===1)setTimeout(()=>hint("Красота! Первая игрушка на ёлке ✨",2000),300);
+});
+/* ===================== СТИКЕРЫ ===================== */
+$("bStk").onclick=()=>{
+  open(`<h2>📒 Коллекция стикеров</h2><div class="s">Стикеры выпадают из сундука. Собрано ${S.stk.length} из ${STK.length}${S.stk.length===STK.length?" 🏆":""}</div>
+   <div class="stk">${STK.map((s,i)=>`<div class="${S.stk.includes(i)?"":"lock"}"><i>${s[0]}</i>${S.stk.includes(i)?s[1]:"???"}</div>`).join("")}</div>
+   ${S.stk.includes(7)?`<div class="s" style="margin-top:10px">🐸 Лягушонок — редкий стикер. Говорят, его присылают прямо из Питера.</div>`:""}`)};
+/* ===================== ГОСТИ ===================== */
+$("bGuest").onclick=()=>{
+  const v=Math.min(5,S.stage);
+  if(S.visits.includes(v)){open(`<h2>🚪 Гости</h2><div class="visit"><div class="face">🚶‍♂️</div><div class="msg">Андрей уже заходил на этом уровне ёлки. Вырасти её повыше, и он придёт снова!</div></div><button class="btn wide" onclick="closeOv()">Хорошо</button>`);return}
+  const V=VISITS[v];
+  open(`<h2>🚪 К тебе гости!</h2><div class="visit"><div class="face">🧑🏻</div><div class="s">Андрей зашёл к тебе на ёлку</div><div class="msg">${V.m}</div>
+   <div class="gifts">${Object.entries(V.g).map(([k,n])=>`<span>${R[k][0]} ${n}</span>`).join("")}${V.toy?`<span>${V.toy} на ёлке</span>`:""}</div></div><button class="btn wide g" id="vg">Спасибо! 💚</button>`);
+  $("vg").onclick=()=>{S.visits.push(v);closeOv();const r=$("bGuest").getBoundingClientRect();add(V.g,r.left+r.width/2,r.top-20);sfx.bells();buzz([20,40,20]);
+    if(V.toy){const h={e:V.toy,x:52,y:58};S.hung.push(h);save();placeOrn(h,true);refresh()}
+    if(Math.random()<.7)dropSticker(r.left,r.top-90)};
+};
+/* ===================== ФИНАЛ ===================== */
+function daysToNY(){const n=new Date(),ny=new Date(n.getFullYear()+1,0,1);return Math.ceil((ny-n)/864e5)}
+$("gift").onclick=()=>{
+  S.opened=true;save();sfx.bells();buzz([40,60,40]);
+  $("lp").innerHTML=`<h3>Юля!</h3>
+   <p>Твоя ёлочка выросла до самого неба. Совсем как тогда, в детстве, когда ты растила её в Одноклассниках и ждала, кто из друзей заглянет в гости.</p>
+   <p>Только в этот раз в гости заходил я. И, кажется, буду заходить всегда.</p>
+   <p>До Нового года осталось ${daysToNY()} ${plural(daysToNY())}. Пусть он будет нашим.</p>
+   <div class="sig">— Андрей 🎄</div>
+   <button class="btn wide g" id="lc">Любоваться ёлкой</button>`;
+  $("letter").classList.add("on");$("lc").onclick=()=>$("letter").classList.remove("on");
+};
+function plural(n){const a=n%10,b=n%100;return a===1&&b!==11?"день":a>=2&&a<=4&&(b<12||b>14)?"дня":"дней"}
+/* ===================== ОКНА И ПОДСКАЗКИ ===================== */
+function open(h){$("win").innerHTML=h;$("ov").classList.add("on")}
+function closeOv(){$("ov").classList.remove("on")}
+$("ov").onclick=e=>{if(e.target.id==="ov")closeOv()};
+let ht=0;function hint(t,ms){const h=$("hint");h.textContent=t;h.style.display="block";clearTimeout(ht);if(ms)ht=setTimeout(hideHint,ms)}
+function hideHint(){$("hint").style.display="none"}
+/* ===================== ТАЙМЕРЫ ===================== */
+function tick(){
+  const now=Date.now(),ct=$("chestTimer");ct.textContent=now>=S.chestAt?"Открыть!":`${Math.ceil((S.chestAt-now)/1000)} сек`;
+  document.querySelectorAll(".ch").forEach(c=>{const id=c.dataset.id;if(!CH[id])return;const left=Math.max(0,S.cd[id]-now),p=1-left/(CH[id].cd*1000);
+    const ring=c.querySelector("circle");if(ring)ring.setAttribute("stroke-dashoffset",195*(1-Math.min(1,p)))});
+  refresh();
+}
+setInterval(tick,500);
+/* ===================== СНЕГ ===================== */
+(function(){const c=$("snow"),x=c.getContext("2d");let fl=[];function rs(){c.width=c.clientWidth;c.height=c.clientHeight;fl=Array.from({length:60},()=>({x:Math.random()*c.width,y:Math.random()*c.height,r:Math.random()*2.2+.6,v:Math.random()*.6+.3,d:Math.random()*6}))}
+ rs();addEventListener("resize",rs);(function f(){x.clearRect(0,0,c.width,c.height);x.fillStyle="rgba(255,255,255,.85)";fl.forEach(p=>{p.y+=p.v;p.d+=.01;p.x+=Math.sin(p.d)*.3;if(p.y>c.height){p.y=-4;p.x=Math.random()*c.width}x.beginPath();x.arc(p.x,p.y,p.r,0,7);x.fill()});requestAnimationFrame(f)})()})();
+/* ===================== СТАРТ ===================== */
+$("ny").textContent=`🎆 до НГ ${daysToNY()} ${plural(daysToNY())}`;
+mkChars();drawRes();drawTree();refresh();
+if(S.starOn&&!S.opened)$("gift").style.display="block";
+if(!S.welcomed){open(`<h2>🎄 С возвращением в Ёлочку!</h2><div class="visit"><div class="face">🌲</div>
+  <div class="msg">Твоя ёлочка ждала тебя много лет и немного заросла снегом ❄️<br><br>Вырасти её до самого неба: собирай волшебные палочки, делай игрушки в мастерской, помогай Снегурочке и встречай гостей.</div>
+  <div class="s">Подарок за возвращение:</div><div class="gifts"><span>🪄 5</span><span>🌿 1</span><span>💎 1</span><span>📿 1</span></div></div><button class="btn wide g" id="wb">Забрать и начать</button>`);
+  $("wb").onclick=()=>{S.welcomed=true;closeOv();add({w:5});sfx.bells();hint("Нажимай на героев, когда у них загорится «!»",3500)}}
+</script>
+</body>
+</html>
