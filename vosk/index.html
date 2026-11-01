@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<title>Тайная акварель</title>
+<meta name="theme-color" content="#efe7da">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Nunito:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none}
+html,body{height:100%;overflow:hidden;background:#e9e1d3;font-family:"Nunito",system-ui,sans-serif;color:#4a3d33;touch-action:none}
+body{display:flex;flex-direction:column;padding:calc(10px + env(safe-area-inset-top)) 12px calc(10px + env(safe-area-inset-bottom));gap:8px}
+header{text-align:center}
+header b{display:block;font:700 30px/1 "Caveat",cursive;color:#6a4a3a}
+header span{font-size:13px;opacity:.8}
+#wrap{position:relative;flex:1;min-height:0;border-radius:6px;overflow:hidden;box-shadow:0 8px 24px rgba(80,50,30,.25),0 0 0 1px rgba(0,0,0,.06)}
+#wrap canvas{position:absolute;inset:0;width:100%;height:100%}
+#paint{mix-blend-mode:multiply}
+#bar{display:flex;align-items:center;justify-content:center;gap:9px;flex-wrap:wrap}
+.c{width:38px;height:38px;border-radius:50%;border:3px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.25);cursor:pointer;transition:transform .15s}
+.c.on{transform:scale(1.18);box-shadow:0 0 0 2px #6a4a3a,0 2px 8px rgba(0,0,0,.3)}
+.b{font:800 13px "Nunito";border:none;border-radius:20px;padding:9px 13px;background:#fff;color:#6a4a3a;box-shadow:0 2px 6px rgba(0,0,0,.15);cursor:pointer}
+.b.on{background:#6a4a3a;color:#fff}
+#toast{position:fixed;left:50%;bottom:calc(8px + env(safe-area-inset-bottom));transform:translate(-50%,-10px);background:rgba(255,253,248,.97);border-radius:16px;padding:8px 12px;text-align:center;display:flex;align-items:center;gap:8px;white-space:nowrap;box-shadow:0 10px 30px rgba(80,50,30,.3);opacity:0;pointer-events:none;transition:all .4s;z-index:9;max-width:88vw}
+#toast.on{opacity:1;transform:translate(-50%,0);pointer-events:auto}
+#toast b{font:700 24px "Caveat",cursive;color:#c2344f}
+#toast p{font-size:14px;margin:4px 0 8px}
+#toast button{font:800 14px "Nunito";border:none;border-radius:12px;padding:9px 14px;margin:2px;background:#6a4a3a;color:#fff;cursor:pointer}
+#toast button.l{background:#eee3d4;color:#6a4a3a}
+#start{position:fixed;inset:0;z-index:10;background:rgba(233,225,211,.97);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:28px;transition:opacity .5s}
+#start.off{opacity:0;pointer-events:none}
+#start h1{font:700 44px/1 "Caveat",cursive;color:#6a4a3a;margin-bottom:12px}
+#start p{font-size:15.5px;line-height:1.55;max-width:340px;margin:6px 0}
+#start .cnd{font-size:42px;margin:10px 0}
+#start button{margin-top:16px;font:800 16px "Nunito";border:none;border-radius:14px;padding:13px 26px;background:#6a4a3a;color:#fff;cursor:pointer}
+</style>
+</head>
+<body>
+<div id="start">
+  <h1>Тайная акварель</h1>
+  <div class="cnd">🕯️</div>
+  <p>Я написал тебе на этом листе кое-что белой восковой свечой. Ты знаешь этот трюк: воск не видно, пока не пройдёшься по нему краской.</p>
+  <p>Выбирай цвета и рисуй пальцем. Сквозь акварель проступит послание.</p>
+  <button id="go">Взять кисть</button>
+</div>
+<header><b>Тайная акварель</b><span>Рисуй пальцем, и воск проявится</span></header>
+<div id="wrap"><canvas id="paper"></canvas><canvas id="paint"></canvas></div>
+<div id="bar"></div>
+<div id="toast"></div>
+<script>
+const COLORS=["#2f5fc4","#d23c5a","#e3a22f","#1f9a7e","#7d4fc8","#8a5a3e"];
+const wrap=document.getElementById("wrap"),paper=document.getElementById("paper"),paint=document.getElementById("paint");
+const pc=paper.getContext("2d"),ctx=paint.getContext("2d");
+let W,H,DPR,mask,mctx,col=COLORS[0],size=1,revealed=false;
+const MSG=["Доброе утро,","художница.","Ты раскрашиваешь","мою жизнь","самыми яркими","красками"];
+function buzz(ms){try{navigator.vibrate&&navigator.vibrate(ms)}catch(e){}}
+/* палитра */
+const bar=document.getElementById("bar");
+COLORS.forEach((c,i)=>{const d=document.createElement("div");d.className="c"+(i?"":" on");d.style.background=c;d.onclick=()=>{col=c;bar.querySelectorAll(".c").forEach(x=>x.classList.remove("on"));d.classList.add("on");buzz(8)};bar.appendChild(d)});
+const bs=document.createElement("button");bs.className="b";bs.textContent="Широкая кисть";bs.onclick=()=>{size=size===1?1.9:1;bs.classList.toggle("on",size>1)};bar.appendChild(bs);
+const bw=document.createElement("button");bw.className="b";bw.textContent="Залить лист";bw.onclick=wash;bar.appendChild(bw);
+
+function setup(){
+  const r=wrap.getBoundingClientRect();DPR=Math.min(2,window.devicePixelRatio||1);W=Math.round(r.width*DPR);H=Math.round(r.height*DPR);
+  [paper,paint].forEach(c=>{c.width=W;c.height=H});
+  /* бумага с зерном */
+  pc.fillStyle="#fbf8f1";pc.fillRect(0,0,W,H);
+  const img=pc.getImageData(0,0,W,H),d=img.data;
+  for(let i=0;i<d.length;i+=4){const n=(Math.random()-.5)*14;d[i]+=n;d[i+1]+=n;d[i+2]+=n-2}
+  pc.putImageData(img,0,0);
+  for(let i=0;i<220;i++){pc.fillStyle=`rgba(150,130,100,${Math.random()*.05})`;pc.beginPath();pc.arc(Math.random()*W,Math.random()*H,Math.random()*3*DPR,0,7);pc.fill()}
+  /* восковая маска */
+  mask=document.createElement("canvas");mask.width=W;mask.height=H;mctx=mask.getContext("2d");
+  let fs=Math.min(W/7.2,H/(MSG.length*1.25));
+  mctx.font=`700 ${fs}px Caveat, cursive`;
+  const mw=Math.max(...MSG.map(l=>mctx.measureText(l).width));if(mw>W*0.86){fs*=W*0.86/mw;mctx.font=`700 ${fs}px Caveat, cursive`}mctx.textAlign="center";mctx.textBaseline="middle";mctx.fillStyle="#000";
+  const lh=fs*1.12,y0=H/2-(MSG.length-1)*lh/2;
+  MSG.forEach((l,i)=>{mctx.save();mctx.translate(W/2,y0+i*lh);mctx.rotate((Math.random()-.5)*.03);mctx.fillText(l,0,0);mctx.restore()});
+  /* сердечко восковое */
+  const hx=W/2+mctx.measureText(MSG[MSG.length-1]).width/2+fs*0.42,hy=y0+(MSG.length-1)*lh+fs*.05,hs=fs*.026;
+  mctx.beginPath();for(let t=0;t<=Math.PI*2+.01;t+=.05){const x=16*Math.sin(t)**3,y=13*Math.cos(t)-5*Math.cos(2*t)-2*Math.cos(3*t)-Math.cos(4*t);t?mctx.lineTo(hx+x*hs,hy-y*hs):mctx.moveTo(hx+x*hs,hy-y*hs)}mctx.fill();
+  /* шероховатость воска: дырочки в маске */
+  mctx.globalCompositeOperation="destination-out";
+  for(let i=0;i<2600;i++){mctx.fillStyle=`rgba(0,0,0,${Math.random()*.6})`;mctx.fillRect(Math.random()*W,Math.random()*H,DPR,DPR)}
+  mctx.globalCompositeOperation="source-over";
+  /* еле заметный блеск воска на бумаге */
+  pc.save();pc.globalAlpha=.07;pc.drawImage(mask,DPR*.8,DPR*.8);pc.restore();
+  ctx.clearRect(0,0,W,H);
+}
+/* мазок акварели: пятно с тёмным краем, которое растекается */
+function blob(x,y,r,c,a){
+  const g=ctx.createRadialGradient(x,y,r*.1,x,y,r);
+  g.addColorStop(0,hexa(c,a*.55));g.addColorStop(.72,hexa(c,a*.8));g.addColorStop(.9,hexa(c,a*1.1));g.addColorStop(1,hexa(c,0));
+  ctx.fillStyle=g;ctx.beginPath();
+  const n=9;for(let i=0;i<=n;i++){const ang=i/n*Math.PI*2,rr=r*(.82+Math.random()*.22);i?ctx.lineTo(x+Math.cos(ang)*rr,y+Math.sin(ang)*rr):ctx.moveTo(x+Math.cos(ang)*rr,y+Math.sin(ang)*rr)}
+  ctx.closePath();ctx.fill();
+  /* воск отталкивает краску */
+  ctx.save();ctx.beginPath();ctx.rect(x-r-2,y-r-2,2*r+4,2*r+4);ctx.clip();ctx.globalCompositeOperation="destination-out";ctx.drawImage(mask,0,0);ctx.restore();
+}
+function hexa(h,a){const n=parseInt(h.slice(1),16);return`rgba(${n>>16},${n>>8&255},${n&255},${Math.max(0,Math.min(1,a))})`}
+function dab(x,y){
+  const r=(26+Math.random()*12)*DPR*size;
+  blob(x,y,r,col,.11);
+  setTimeout(()=>blob(x+(Math.random()-.5)*r*.4,y+(Math.random()-.5)*r*.4,r*1.25,col,.06),90);
+  setTimeout(()=>blob(x+(Math.random()-.5)*r*.6,y+(Math.random()-.5)*r*.6,r*1.5,col,.035),220);
+}
+let last=null,acc=0;
+function pt(e){const r=wrap.getBoundingClientRect();return[(e.clientX-r.left)*DPR,(e.clientY-r.top)*DPR]}
+wrap.addEventListener("pointerdown",e=>{last=pt(e);dab(...last);wrap.setPointerCapture(e.pointerId)});
+wrap.addEventListener("pointermove",e=>{if(!last)return;const p=pt(e),dx=p[0]-last[0],dy=p[1]-last[1],dist=Math.hypot(dx,dy),step=14*DPR*size;
+  if(dist<step)return;const n=Math.floor(dist/step);for(let i=1;i<=n;i++)dab(last[0]+dx*i/n,last[1]+dy*i/n);last=p;acc+=n;if(acc>40){acc=0;check()}});
+addEventListener("pointerup",()=>{last=null;check()});
+/* сколько надписи уже проявилось */
+let samples=null;
+function check(){
+  if(revealed)return;
+  if(!samples){samples=[];const md=mctx.getImageData(0,0,W,H).data;for(let k=0;k<4000;k++){const x=Math.floor(Math.random()*W),y=Math.floor(Math.random()*H),a=md[(y*W+x)*4+3];if(a>200){
+    for(const [ox,oy] of [[10,0],[-10,0],[0,10],[0,-10]]){const xx=x+ox*DPR,yy=y+oy*DPR;if(xx>0&&yy>0&&xx<W&&yy<H&&md[(yy*W+xx)*4+3]<20){samples.push([xx,yy]);break}}}
+    if(samples.length>260)break}}
+  const pd=ctx.getImageData(0,0,W,H).data;let on=0;samples.forEach(([x,y])=>{if(pd[(y*W+x)*4+3]>40)on++});
+  if(samples.length&&on/samples.length>0.8){revealed=true;setTimeout(done,500)}
+}
+function done(){buzz([30,60,30]);const t=document.getElementById("toast");
+  t.innerHTML=`<b>Проявилось ✨</b><button id="sv">Сохранить</button><button class="l" id="cl">✕</button>`;
+  t.classList.add("on");document.getElementById("cl").onclick=()=>t.classList.remove("on");document.getElementById("sv").onclick=save}
+function save(){const c=document.createElement("canvas");c.width=W;c.height=H;const x=c.getContext("2d");x.drawImage(paper,0,0);x.globalCompositeOperation="multiply";x.drawImage(paint,0,0);
+  c.toBlob(b=>{const a=document.createElement("a");a.href=URL.createObjectURL(b);a.download="tainaya-akvarel.png";document.body.appendChild(a);a.click();a.remove()},"image/png")}
+async function wash(){buzz(15);const cs=[col,COLORS[(COLORS.indexOf(col)+1)%COLORS.length],COLORS[(COLORS.indexOf(col)+4)%COLORS.length]];
+  for(let yy=0;yy<H+60;yy+=46*DPR){for(let xx=-20;xx<W+40;xx+=40*DPR){const cc=cs[Math.floor((xx/W+yy/H)*1.5)%cs.length];const r=48*DPR;blob(xx+(Math.random()-.5)*20,yy+(Math.random()-.5)*20,r,cc,.12)}
+    await new Promise(r=>setTimeout(r,40))}
+  check()}
+document.getElementById("go").onclick=()=>{document.getElementById("start").classList.add("off");buzz(10)};
+(async()=>{try{await document.fonts.load('700 40px "Caveat"')}catch(e){}setup()})();
+let rt=0,lw=innerWidth;addEventListener("resize",()=>{if(Math.abs(innerWidth-lw)<40)return;lw=innerWidth;clearTimeout(rt);rt=setTimeout(()=>{samples=null;revealed=false;setup()},300)});
+</script>
+</body>
+</html>
