@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Красная ручка</title>
+<meta name="theme-color" content="#2b3a55">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&family=Nunito:wght@700;800;900&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none}
+html,body{min-height:100%;background:#2b3a55;font-family:"Nunito",system-ui,sans-serif;color:#2a2a3a}
+body{padding:calc(12px + env(safe-area-inset-top)) 12px calc(20px + env(safe-area-inset-bottom));display:flex;justify-content:center}
+.w{width:100%;max-width:460px}
+#top{display:flex;align-items:center;justify-content:space-between;gap:8px;color:#fff;margin-bottom:10px}
+#top b{font:900 18px "Nunito"}
+#top b span{color:#ff6b6b}
+.st{font-size:12.5px;font-weight:800;background:rgba(255,255,255,.12);border-radius:12px;padding:4px 10px;white-space:nowrap}
+/* тетрадь */
+.page{position:relative;background:#fdfcf6;border-radius:4px 10px 10px 4px;padding:18px 16px 22px 50px;box-shadow:0 12px 30px rgba(0,0,0,.4);
+ background-image:linear-gradient(90deg,transparent 38px,#f3a6a6 38px,#f3a6a6 40px,transparent 40px),repeating-linear-gradient(transparent 0 45px,#cfe0ef 45px 46px);background-position:0 0,0 14px}
+.page::before{content:"";position:absolute;left:-10px;top:24px;bottom:24px;width:10px;background:repeating-linear-gradient(transparent 0 26px,#8a95a8 26px 34px);border-radius:3px}
+.hdr{font:700 22px/1.2 "Caveat",cursive;color:#2a3a8f;text-align:center;margin-bottom:6px}
+.hdr small{display:block;font-size:17px;color:#55608f}
+#txt{font:500 25px/46px "Caveat",cursive;color:#2a3a8f;margin-top:16px}
+.wd{position:relative;display:inline;padding:0 1px;border-radius:4px;cursor:pointer;transition:background .2s}
+.wd:active{background:rgba(255,107,107,.15)}
+.wd.no{animation:nope .4s}
+@keyframes nope{20%,60%{background:rgba(120,120,140,.18)}40%,80%{background:transparent}}
+.wd.hint{background:rgba(255,214,74,.55)}
+.wd.fix{cursor:default}
+.wd.fix .old{text-decoration:line-through;text-decoration-color:#e02424;text-decoration-thickness:2px;color:#6a74a8}
+.wd.fix .new{position:absolute;left:50%;top:-24px;transform:translateX(-50%) rotate(-3deg);font:700 21px/1 "Caveat",cursive;color:#e02424;white-space:nowrap;animation:pen .35s ease}
+@keyframes pen{from{opacity:0;transform:translateX(-50%) translateY(6px) rotate(-3deg)}}
+.margin{position:absolute;left:4px;font:700 22px "Caveat";color:#e02424}
+.br{display:block;height:0}
+/* панель */
+#bar{display:flex;gap:8px;margin-top:12px}
+#bar button{flex:1;border:none;border-radius:12px;padding:11px 8px;font:900 14px "Nunito";cursor:pointer;background:#fff;color:#2b3a55;box-shadow:0 3px 0 #9fb0c8}
+#msg{margin-top:10px;text-align:center;color:#ffd6d6;font-weight:800;font-size:14px;min-height:20px}
+/* выбор исправления */
+#pick{position:fixed;inset:0;z-index:20;background:rgba(15,20,40,.45);display:none;align-items:flex-end;justify-content:center}
+#pick.on{display:flex}
+#pick .s{width:100%;max-width:460px;background:#fff;border-radius:20px 20px 0 0;padding:16px 16px calc(18px + env(safe-area-inset-bottom));animation:up .25s ease;border-top:4px solid #e02424}
+@keyframes up{from{transform:translateY(30px);opacity:0}}
+#pick h3{font:900 16px "Nunito";color:#2b3a55;margin-bottom:4px}
+#pick .wr{font:700 30px "Caveat";color:#2a3a8f;margin-bottom:10px}
+#pick .wr s{text-decoration-color:#e02424}
+#pick .opts{display:flex;flex-direction:column;gap:8px}
+#pick .opts button{font:700 26px "Caveat",cursive;padding:8px 12px;border-radius:12px;border:2px solid #e5e8f0;background:#f7f8fc;color:#2a3a8f;cursor:pointer;text-align:left}
+#pick .opts button.bad{animation:nope .4s;border-color:#e02424}
+#pick .cl{display:block;width:100%;margin-top:10px;border:none;background:none;font:800 14px "Nunito";color:#8090a8;padding:6px;cursor:pointer}
+#pick .note{font-size:13px;color:#e02424;font-weight:800;min-height:18px;margin-top:6px}
+/* оценка и финал */
+#ov{position:fixed;inset:0;z-index:30;background:rgba(15,20,40,.7);display:none;align-items:center;justify-content:center;padding:18px}
+#ov.on{display:flex}
+#ov .c{width:100%;max-width:420px;background:#fdfcf6;border-radius:14px;padding:20px 18px;text-align:center;animation:up .4s ease;max-height:90vh;overflow:auto}
+#ov h2{font:900 20px "Nunito";color:#2b3a55;margin-bottom:6px}
+#ov p{font-size:15px;line-height:1.5;margin:6px 0}
+.grades{display:flex;gap:10px;justify-content:center;margin:12px 0 4px}
+.grades button{width:58px;height:58px;border-radius:50%;border:3px solid #e02424;background:#fff;font:700 38px "Caveat";color:#e02424;cursor:pointer}
+.clean{text-align:left;font:500 23px/1.45 "Caveat",cursive;color:#2a3a8f;background:#fff;border-radius:10px;padding:12px 14px;margin:10px 0;border:1px solid #e5e8f0;position:relative}
+.clean .gr{position:absolute;right:10px;top:4px;font:700 46px "Caveat";color:#e02424;transform:rotate(-12deg)}
+.rv{font:700 21px/1.3 "Caveat";color:#e02424;margin-top:6px}
+.stat{font-size:12.5px;color:#7a8498;margin-top:8px}
+.big{display:block;width:100%;margin-top:10px;border:none;border-radius:12px;padding:12px;font:900 15px "Nunito";background:#e02424;color:#fff;cursor:pointer}
+#intro .c{text-align:left}
+#intro h2{text-align:center}
+#intro .pen{font-size:44px;text-align:center}
+</style>
+</head>
+<body>
+<div class="w">
+  <div id="top"><b>Красная <span>ручка</span></b><span class="st" id="cnt"></span></div>
+  <div class="page">
+    <div class="hdr">Сочинение на тему «Спокойной ночи»<small>Выполнил: Андрей, 1 курс</small></div>
+    <div id="txt"></div>
+  </div>
+  <div id="bar"><button id="hb">💡 Подсказка</button></div>
+  <div id="msg"></div>
+</div>
+<div id="pick"><div class="s"><h3>Как правильно?</h3><div class="wr" id="pw"></div><div class="opts" id="po"></div><div class="note" id="pn"></div><button class="cl" id="pc">Отмена</button></div></div>
+<div id="ov"><div class="c" id="oc"></div></div>
+<script>
+/* текст: строка = ошибочное написание; {e: показано, ok: верно, o: варианты, why: пояснение} */
+const T=[
+ {e:"Дарогая",ok:"Дорогая",o:["Дорогая","Дорагая","Дарагая"],why:"Проверочное слово «дорого»"}," Юля!","\n",
+ {e:"Севодня",ok:"Сегодня",o:["Сиводня","Сегодня","Сегоднё"],why:"Пишется «г», хоть и звучит «в»"}," был ",
+ {e:"длиный",ok:"длинный",o:["длинной","длиннный","длинный"],why:"Длина → длинный, две «н»"}," ",
+ {e:"день",ok:"день,",o:["день,","день;","день —"],why:"Сложносочинённое предложение: запятая перед «и»"}," и ты ",
+ {e:"справелась",ok:"справилась",o:["справилась","спровилась","справлялась"],why:"Справиться — суффикс «и»"}," со всем. Я ",
+ {e:"гаржусь",ok:"горжусь",o:["гордюсь","горжусь","горжюсь"],why:"Гордый → горжусь"}," тобой ",
+ {e:"больше",ok:"больше,",o:["больше:","больше —","больше,"],why:"Перед «чем» с придаточным нужна запятая"}," чем могу написать в этом ",
+ {e:"сочинение.",ok:"сочинении.",o:["сочинении.","сочиненьи.","сочинени."],why:"Предложный падеж: в сочинении"}," ",
+ {e:"Пожалуйсто,",ok:"Пожалуйста,",o:["Пожалуста,","Пожалуйста,","Пожалуйста"],why:"«Пожалуйста», и запятая после неё"}," ",
+ {e:"отложь",ok:"отложи",o:["отложишь","отложи","отлож"],why:"Классика: правильно «отложи», «отложь» не бывает"}," телефон, ",
+ {e:"укройса",ok:"укройся",o:["укройсь","укройся","укройсе"],why:"Возвратный глагол: -ся"}," ",
+ {e:"адеялом",ok:"одеялом",o:["одиялом","одеялам","одеялом"],why:"Словарное слово: одеяло"}," и закрой глаза. Пусть тебе ",
+ {e:"приснитса",ok:"приснится",o:["присниться","приснится","присница"],why:"Что сделает? приснится — без мягкого знака"}," ",
+ {e:"что нибудь",ok:"что-нибудь",o:["чтонибудь","что-нибуть","что-нибудь"],why:"Частица -нибудь пишется через дефис"}," ",
+ {e:"тёплое",ok:"тёплое:",o:["тёплое,","тёплое:","тёплое —"],why:"Обобщающее слово перед однородными членами: двоеточие"}," море, лето или мы ",
+ {e:"в двоём.",ok:"вдвоём.",o:["вдвоём.","в двоём.","вдваём."],why:"Наречие «вдвоём» пишется слитно"}," Утром я ",
+ {e:"напешу",ok:"напишу",o:["нопишу","напишу","напишю"],why:"Писать → напишу; «жи-ши» с «и», «шу» с «у»"}," тебе первым.","\n",
+ {e:"Спакойной",ok:"Спокойной",o:["Спокойнай","Спокойной","Спакойнай"],why:"Покой → спокойной"}," ночи, моя хорошая.","\n",
+ "Целую в ",{e:"локоть.",ok:"нос.",o:["нос.","щёчку.","макушку."],any:true,why:"Смысловая ошибка. В локоть не целуют, ученик перепутал от волнения 😄"}
+];
+const ERR=T.filter(x=>typeof x==="object").length;
+let found=0,false_=0,hints=0,miss=0,cur=null;
+const txt=document.getElementById("txt");
+function buzz(ms){try{navigator.vibrate&&navigator.vibrate(ms)}catch(e){}}
+function render(){
+  T.forEach(tok=>{
+    if(tok==="\n"){const b=document.createElement("span");b.className="br";txt.appendChild(b);return}
+    if(typeof tok==="string"){
+      /* обычный текст: каждое слово тоже кликабельно, чтобы ошибки не выдавали себя */
+      tok.split(/(\s+)/).forEach(p=>{if(!p)return;if(/^\s+$/.test(p)){txt.appendChild(document.createTextNode(p));return}
+        const s=document.createElement("span");s.className="wd";s.textContent=p;s.onclick=()=>falseAlarm(s);txt.appendChild(s)});return}
+    const s=document.createElement("span");s.className="wd";s.textContent=tok.e;tok.el=s;s.onclick=()=>openPick(tok);txt.appendChild(s);
+  });
+  upd();
+}
+function upd(){document.getElementById("cnt").textContent=`Исправлено: ${found} из ${ERR}`}
+const FALSE=["Тут всё правильно 🤔","Ученик тут не ошибся","Придирка! Слово верное","Чисто. Ищи дальше","Даже красная ручка не нашла ошибки"];
+function falseAlarm(s){false_++;s.classList.remove("no");void s.offsetWidth;s.classList.add("no");buzz(30);msg(FALSE[Math.floor(Math.random()*FALSE.length)])}
+function msg(t){document.getElementById("msg").textContent=t}
+function openPick(tok){
+  if(tok.done)return;cur=tok;
+  document.getElementById("pw").innerHTML=`<s>${tok.e}</s>`;document.getElementById("pn").textContent="";
+  const po=document.getElementById("po");po.innerHTML="";
+  tok.o.forEach(o=>{const b=document.createElement("button");b.textContent=o;b.onclick=()=>choose(o,b);po.appendChild(b)});
+  document.getElementById("pick").classList.add("on");
+}
+function choose(o,b){
+  const tok=cur;
+  if(tok.any||o===tok.ok){
+    tok.done=true;found++;document.getElementById("pick").classList.remove("on");
+    const s=tok.el;s.classList.add("fix");s.innerHTML=`<span class="old">${tok.e}</span><span class="new">${tok.any?o:tok.ok}</span>`;
+    if(tok.any)tok.ok=o;
+    buzz(15);msg("✓ "+tok.why);upd();
+    if(found===ERR)setTimeout(grade,900);
+  }else{miss++;b.classList.remove("bad");void b.offsetWidth;b.classList.add("bad");buzz(40);document.getElementById("pn").textContent="Нет, так тоже неправильно"}
+}
+document.getElementById("pc").onclick=()=>document.getElementById("pick").classList.remove("on");
+document.getElementById("pick").onclick=e=>{if(e.target.id==="pick")e.currentTarget.classList.remove("on")};
+document.getElementById("hb").onclick=()=>{const left=T.filter(x=>typeof x==="object"&&!x.done);if(!left.length)return;hints++;
+  const t=left[Math.floor(Math.random()*left.length)];t.el.classList.add("hint");t.el.scrollIntoView({behavior:"smooth",block:"center"});setTimeout(()=>t.el.classList.remove("hint"),1600);msg("Присмотрись к подсвеченному слову 👀")};
+/* оценка */
+const GR={5:"Щедро! Ученик счастлив и уже пишет новое сочинение.",4:"Справедливо. Хотя ученик старался изо всех сил…",3:"Строго! Ученик ушёл переписывать в слезах.",2:"Сурово! Ученик пошёл учить правила до утра."};
+function ov(h){document.getElementById("oc").innerHTML=h;document.getElementById("ov").classList.add("on")}
+function grade(){
+  ov(`<h2>Все ${ERR} ошибок исправлены! 🖍️</h2><p>Теперь поставь ученику оценку за сочинение.</p><div class="grades">${[5,4,3,2].map(g=>`<button data-g="${g}">${g}</button>`).join("")}</div>`);
+  document.querySelectorAll(".grades button").forEach(b=>b.onclick=()=>final(+b.dataset.g));
+}
+function final(g){
+  const clean=T.map(x=>x==="\n"?"<br>":typeof x==="string"?x:x.ok).join("");
+  const verdict=false_===0&&hints===0&&miss===0?"Ни одной лишней пометки. Готовый учитель!":false_+miss<=3?"Внимательная проверка. Из тебя выйдет отличный учитель.":"Проверено с душой. Ученик доволен, что его вообще дочитали 😄";
+  ov(`<h2>Чистовик</h2><p>${GR[g]}</p><div class="clean"><span class="gr">${g}</span>${clean}</div>
+   <div class="rv">Рецензия учителя: ${g>=4?"содержание прекрасное, грамотность подтянуть.":"смысл засчитан, правила повторить."}</div>
+   <div class="stat">Ложных тревог: ${false_} · Неверных вариантов: ${miss} · Подсказок: ${hints}<br>${verdict}</div>
+   <p style="margin-top:10px">А теперь спать, будущий учитель. Тетради проверены 🌙</p>
+   <button class="big" id="cb">Закрыть тетрадь</button>`);
+  document.getElementById("cb").onclick=()=>document.getElementById("ov").classList.remove("on");buzz([30,50,30]);
+}
+/* вступление */
+ov(`<div id="intro"><div class="pen">🖍️</div><h2>Проверка сочинения</h2><p>Твой ученик Андрей сдал сочинение на тему «Спокойной ночи». Писал от души, но с грамотностью… ну, сама увидишь.</p>
+ <p>Нажимай на слова с ошибками и выбирай правильный вариант. Всего ошибок ${ERR}: орфография, пунктуация и одна смысловая.</p>
+ <p>Но осторожно: если придерёшься к правильному слову, это засчитается как ложная тревога.</p><button class="big" id="st">Взять красную ручку</button></div>`);
+document.getElementById("st").onclick=()=>document.getElementById("ov").classList.remove("on");
+render();
+</script>
+</body>
+</html>
