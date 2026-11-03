@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Контрольная: допуск ко сну</title>
+<meta name="theme-color" content="#1f2a3c">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=PT+Serif:ital,wght@0,400;0,700;1,400&family=Nunito:wght@700;800;900&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;-webkit-tap-highlight-color:transparent}
+html,body{min-height:100%;background:#1f2a3c;color:#1d2433;font-family:"PT Serif",Georgia,serif}
+body{padding:calc(12px + env(safe-area-inset-top)) 12px calc(24px + env(safe-area-inset-bottom));display:flex;justify-content:center}
+.w{width:100%;max-width:470px}
+.sheet{background:#fbfcfe;border-radius:6px;padding:18px 16px 18px;box-shadow:0 12px 30px rgba(0,0,0,.45);
+ background-image:linear-gradient(#dce6f3 1px,transparent 1px),linear-gradient(90deg,#dce6f3 1px,transparent 1px);background-size:20px 20px}
+.stamp{float:right;border:2px solid #b3261e;color:#b3261e;font:900 10px "Nunito";letter-spacing:1px;padding:4px 7px;transform:rotate(6deg);border-radius:3px;background:rgba(251,252,254,.85)}
+.ministry{font:900 11px "Nunito";letter-spacing:1.5px;color:#5a667a;text-transform:uppercase}
+h1{font-size:23px;font-weight:700;margin:6px 0 2px}
+.var{font-style:italic;color:#4a5568;margin-bottom:10px}
+.intro{background:rgba(255,255,255,.92);border-left:4px solid #b3261e;padding:10px 12px;font-size:15px;line-height:1.5;margin-bottom:12px}
+.task{background:rgba(255,255,255,.94);border:1px solid #d7deea;border-radius:10px;padding:12px;margin-bottom:10px;transition:opacity .3s}
+.task.lock{opacity:.4;pointer-events:none}
+.task .n{font:900 12px "Nunito";color:#b3261e;letter-spacing:1px}
+.task .q{font-size:16.5px;line-height:1.5;margin:4px 0 8px}
+.task .f{font-size:22px;text-align:center;margin:6px 0 10px;font-style:italic}
+.row{display:flex;gap:8px}
+.row input{flex:1;font:700 18px "PT Serif";padding:9px 12px;border:2px solid #c9d3e3;border-radius:10px;background:#fff;color:#1d2433;outline:none;min-width:0}
+.row input:focus{border-color:#2f5fb3}
+.row button{font:900 14px "Nunito";border:none;border-radius:10px;padding:0 14px;background:#2f5fb3;color:#fff;cursor:pointer}
+.fb{font-size:14px;min-height:20px;margin-top:6px;font-style:italic}
+.fb.bad{color:#b3261e}.fb.ok{color:#1f7a3f;font-style:normal;font-weight:700}
+.task.done{border-color:#7cc492;background:rgba(240,251,244,.95)}
+.task.done .row{display:none}
+.task.sh{animation:sh .4s}
+@keyframes sh{20%,60%{transform:translateX(-6px)}40%,80%{transform:translateX(6px)}}
+/* ответ */
+.ans{margin:14px 0 6px;text-align:center}
+.ans .l{font:900 11px "Nunito";letter-spacing:1.5px;color:#5a667a;text-transform:uppercase;margin-bottom:6px}
+.cells{display:flex;justify-content:center;gap:6px}
+.cells div{width:50px;height:58px;border:2px solid #1d2433;border-radius:6px;background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.cells div b{font-size:24px;line-height:1}
+.cells div small{font:800 11px "Nunito";color:#7a8598}
+.cells div.on{border-color:#b3261e;animation:pop .4s}
+@keyframes pop{50%{transform:scale(1.15)}}
+.tools{display:flex;gap:8px;margin-top:12px}
+.tools button{flex:1;font:900 13px "Nunito";border:none;border-radius:10px;padding:10px;background:#e8edf6;color:#2b3a55;cursor:pointer}
+/* шпаргалка */
+#cheat{display:none;margin-top:10px;background:#fffbe8;border:1px dashed #c9a227;border-radius:10px;padding:10px;font-size:14px}
+#cheat.on{display:block}
+#cheat table{width:100%;border-collapse:collapse;text-align:center;font-size:14px}
+#cheat td,#cheat th{border:1px solid #e3d59a;padding:4px 2px}
+#cheat th{background:#fff3c4;font-weight:700}
+#cheat .al{font-size:12.5px;line-height:1.5;margin-top:8px;word-break:break-word}
+/* финал */
+#fin{display:none}
+#fin .sheet{text-align:center}
+#fin .word{display:flex;justify-content:center;gap:6px;margin:10px 0 6px}
+#fin .word span{width:52px;height:60px;border:3px solid #b3261e;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:30px;font-weight:700;color:#b3261e;background:#fff;animation:pop .5s both}
+#fin .grade{font:700 80px/1 "Caveat",cursive;color:#b3261e;transform:rotate(-8deg);margin:4px 0}
+#fin p{font-size:16px;line-height:1.55;margin:8px 0}
+#fin .proof{font-style:italic;background:rgba(255,255,255,.92);border:1px solid #d7deea;border-radius:10px;padding:10px;font-size:15.5px}
+#fin .sig{font:700 24px "Caveat";color:#2f5fb3;text-align:right;margin-top:6px}
+#fin .st{font:800 12px "Nunito";color:#7a8598;margin-top:6px}
+</style>
+</head>
+<body>
+<div class="w" id="main">
+  <div class="sheet">
+    <span class="stamp">СТРОГО<br>ДО СНА</span>
+    <div class="ministry">Министерство тригонометрии</div>
+    <h1>Контрольная работа: допуск ко сну</h1>
+    <div class="var">Вариант Ю · время выполнения: пока не уснёшь</div>
+    <div class="intro">Сегодня ты заявила, что тебе не понадобились ни синус, ни косинус, ни тангенс, ни котангенс.<br><br>Министерство не может оставить это без внимания. Для допуска ко сну реши пять заданий. Каждый ответ — номер буквы в алфавите. Из букв сложится итоговое решение.</div>
+    <div id="tasks"></div>
+    <div class="ans"><div class="l">Ответ</div><div class="cells" id="cells"></div></div>
+    <div class="tools"><button id="cb">📋 Шпаргалка</button></div>
+    <div id="cheat">
+      <table><tr><th></th><th>0°</th><th>30°</th><th>45°</th><th>60°</th><th>90°</th></tr>
+      <tr><th>sin</th><td>0</td><td>1/2</td><td>√2/2</td><td>√3/2</td><td>1</td></tr>
+      <tr><th>cos</th><td>1</td><td>√3/2</td><td>√2/2</td><td>1/2</td><td>0</td></tr>
+      <tr><th>tg</th><td>0</td><td>√3/3</td><td>1</td><td>√3</td><td>—</td></tr>
+      <tr><th>ctg</th><td>—</td><td>√3</td><td>1</td><td>√3/3</td><td>0</td></tr></table>
+      <div class="al"><b>Алфавит:</b> А1 Б2 В3 Г4 Д5 Е6 Ё7 Ж8 З9 И10 Й11 К12 Л13 М14 Н15 О16 П17 Р18 С19 Т20 У21 Ф22 Х23 Ц24 Ч25 Ш26 Щ27 Ъ28 Ы29 Ь30 Э31 Ю32 Я33</div>
+    </div>
+  </div>
+</div>
+<div class="w" id="fin"></div>
+<script>
+const AB="АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ";
+const TASKS=[
+ {fn:"синус",q:"Вычисли:",f:"38 · sin 30°",a:19,
+  bad:["Неверно. Синус обиделся.","Нет. Синус тридцати градусов смотрит на тебя с укором.","Почти. Но синус не согласен."]},
+ {fn:"косинус",q:"Вычисли:",f:"34 · cos 60°",a:17,
+  bad:["Неверно. Косинус ушёл в отрицательную полуплоскость от расстройства.","Нет. Косинус шестидесяти градусов вообще-то знакомый.","Не то. Косинус ждёт."]},
+ {fn:"основное тождество",q:"Задание с подвохом. Вычисли:",f:"sin² 2026° + cos² 2026°",a:1,
+  bad:["Таблица тут не поможет. Вспомни главное тождество.","Нет. Угол не важен, совсем не важен.","Неверно. Подсказка: это тождество учат раньше, чем ходить."]},
+ {fn:"тангенс",q:"Вычисли:",f:"20 · tg 45°",a:20,
+  bad:["Неверно. Тангенс разочарован.","Нет. Тангенс сорока пяти градусов — самый дружелюбный тангенс.","Не то. Тангенс молча ждёт."]},
+ {fn:"котангенс",q:"Финальное. Вычисли:",f:"10 · ctg 45° · tg 60° · √3",a:30,
+  bad:["Неверно. Котангенс тоже существует, и он обиделся сильнее всех.","Нет. Перемножь аккуратно: √3 · √3 = …","Не то. Котангенс ждал этого дня весь семестр."]}
+];
+let done=0,errors=0,cheat=false;
+const $=id=>document.getElementById(id);
+function buzz(ms){try{navigator.vibrate&&navigator.vibrate(ms)}catch(e){}}
+function draw(){
+  $("tasks").innerHTML=TASKS.map((t,i)=>`<div class="task ${i>done?"lock":""} ${i<done?"done":""}" id="t${i}">
+    <div class="n">ЗАДАНИЕ ${i+1} · ${t.fn.toUpperCase()}</div><div class="q">${t.q}</div><div class="f">${t.f}</div>
+    <div class="row"><input id="i${i}" inputmode="decimal" placeholder="Ответ" autocomplete="off"><button data-i="${i}">Сдать</button></div>
+    <div class="fb ${i<done?"ok":""}" id="f${i}">${i<done?`Верно: ${t.a} → буква «${AB[t.a-1]}»`:""}</div></div>`).join("");
+  $("tasks").querySelectorAll("button[data-i]").forEach(b=>b.onclick=()=>check(+b.dataset.i));
+  $("tasks").querySelectorAll("input").forEach(inp=>inp.onkeydown=e=>{if(e.key==="Enter")check(+inp.id.slice(1))});
+  $("cells").innerHTML=TASKS.map((t,i)=>`<div class="${i<done?"on":""}"><b>${i<done?AB[t.a-1]:"?"}</b><small>${i<done?t.a:"—"}</small></div>`).join("");
+}
+function check(i){
+  const t=TASKS[i],raw=$("i"+i).value.replace(",",".").replace(/\s/g,"");
+  if(!raw)return;const v=Number(raw);
+  if(Math.abs(v-t.a)<1e-9){done++;buzz([15,30,15]);draw();if(done<TASKS.length){const n=$("i"+done);n&&n.focus({preventScroll:true});$("t"+done).scrollIntoView({behavior:"smooth",block:"center"})}else setTimeout(fin,900)}
+  else{errors++;buzz(60);const el=$("t"+i);el.classList.remove("sh");void el.offsetWidth;el.classList.add("sh");
+    const f=$("f"+i);f.className="fb bad";f.textContent=isNaN(v)?"Министерство принимает только числа.":t.bad[Math.floor(Math.random()*t.bad.length)]}
+}
+$("cb").onclick=()=>{cheat=true;$("cheat").classList.toggle("on")};
+function fin(){
+  $("main").style.display="none";const F=$("fin");F.style.display="block";window.scrollTo(0,0);
+  const g=errors===0&&!cheat?5:errors<=2?5:errors<=5?4:3;
+  F.innerHTML=`<div class="sheet"><div class="ministry">Министерство тригонометрии · протокол проверки</div>
+   <h1 style="margin-top:6px">Решение верно</h1>
+   <div class="word">${TASKS.map((t,i)=>`<span style="animation-delay:${i*.15}s">${AB[t.a-1]}</span>`).join("")}</div>
+   <div class="grade">${g}</div>
+   <p>Ответ получен строго математически и обжалованию не подлежит.</p>
+   <div class="proof">Следствие: так как sin² x + cos² x = 1, а сон необходим и достаточен, то сон = 1.<br>Что и требовалось доказать. ∎</div>
+   <p>Кстати. Сегодня тебе понадобились синус, косинус, тангенс и котангенс. Все четыре. День испорчен 😈</p>
+   <p>Допуск ко сну выдан. Приступай к ответу немедленно.</p>
+   <div class="sig">— Проверяющий: Андрей</div>
+   <div class="st">Ошибок: ${errors} · Шпаргалка: ${cheat?"использовалась (Министерство всё видит)":"не использовалась"}</div></div>`;
+  buzz([30,60,30]);
+}
+draw();
+</script>
+</body>
+</html>
